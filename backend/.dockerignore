@@ -1,0 +1,6 @@
+**/*.pyc
+*.egg-info
+venv
+tools
+tmp/*-list.txt
+**/.git

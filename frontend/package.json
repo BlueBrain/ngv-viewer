@@ -1,0 +1,73 @@
+{
+  "name": "blue-pair",
+  "version": "0.0.3",
+  "description": "Pair recording application",
+  "license": "BSD-3-Clause",
+  "author": "NSE(Neuroscientific Software Engineering) <bbp-ou-nse@groupes.epfl.ch> (http://bluebrain.epfl.ch)",
+  "contributors": [
+    "pavlo.getta@epfl.ch"
+  ],
+  "homepage": "https://bluebrain.epfl.ch",
+  "repository": {
+    "type": "git",
+    "url": "https://bbpcode.epfl.ch/browse/code/nse/blue-pair/",
+    "issuesurl": "NA"
+  },
+  "scripts": {
+    "serve": "vue-cli-service serve --open",
+    "build": "vue-cli-service build --modern",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "chroma-js": "^2.1.0",
+    "core-js": "^3.4.4",
+    "distinct-colors": "^2.1.0",
+    "dygraphs": "^2.1.0",
+    "file-saver": "^2.0.2",
+    "gsap": "^3.1.1",
+    "localforage": "^1.7.3",
+    "lodash": "^4.17.15",
+    "node-sass": "^4.13.0",
+    "qs": "^6.9.1",
+    "three": "^0.113.2",
+    "view-design": "^4.0.2",
+    "vue": "^2.6.10",
+    "vue-slider-component": "^2.8.14"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.2.2",
+    "@vue/cli-plugin-eslint": "^4.2.2",
+    "@vue/cli-service": "^4.2.2",
+    "@vue/eslint-config-airbnb": "^4.0.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "sass-loader": "^8.0.2",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/airbnb"
+    ],
+    "rules": {
+      "indent": "off",
+      "vue/script-indent": [
+        "error",
+        2,
+        {
+          "baseIndent": 1
+        }
+      ]
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}

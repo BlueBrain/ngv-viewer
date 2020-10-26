@@ -1,0 +1,29 @@
+{
+  "simModel": {
+    "hippocampus": {
+      "label": "Hippocampus",
+      "repo": "hippocampus",
+      "modPath": "mod"
+    },
+    "thalamus": {
+      "label": "Thalamus",
+      "repo": "thalamus",
+      "modPath": "mod"
+    },
+    "mousify": {
+      "label": "Mousify",
+      "repo": "mousify",
+      "modPath": "mod"
+    },
+    "neocortexV5": {
+      "label": "Neocortex v5",
+      "repo": "neocortex",
+      "modPath": "mod/v5"
+    },
+    "neocortexV6": {
+      "label": "Neocortex v6",
+      "repo": "neocortex",
+      "modPath": "mod/v6"
+    }
+  }
+}

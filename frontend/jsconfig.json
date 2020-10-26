@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+      "module": "commonJS",
+      "moduleResolution": "node",
+      "target": "es6",
+      "experimentalDecorators": true,
+      "allowSyntheticDefaultImports": true,
+      "baseUrl": "./src/",
+      "paths": {
+          "@/*": ["*"]
+      }
+  },
+  "exclude": [
+      "node_modules",
+      "dist",
+      "public"
+  ],
+  "include": [
+      "./src/**/*"
+  ]
+}
