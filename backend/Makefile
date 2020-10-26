@@ -9,6 +9,7 @@ SIM_MODELS_DIR:=tmp/sim-models
 SIM_MODELS_REPO_BASE:=ssh://bbpcode.epfl.ch/sim/models
 NEURODAMUS_CORE_REPO:=ssh://bbpcode.epfl.ch/sim/neurodamus-core
 NEURODAMUS_CORE_DIR:=tmp/neurodamus-core
+IMAGE_NAME:=ngv-viewer
 
 REDIS_HOST?=
 
@@ -34,9 +35,9 @@ $(VENV_DIR):
 	python3 -m venv venv
 
 $(NEURON_SRC_DIR):
+	mkdir -p $@
 	http_proxy=http://bbpproxy.epfl.ch:80 \
 			wget -O tmp/nrn.tar.gz $(NEURON_SRC_URL)
-	mkdir -p $@
 	tar -xf tmp/nrn.tar.gz --strip-components=1 -C $@
 	rm tmp/nrn.tar.gz
 
@@ -77,13 +78,13 @@ run_dev:
 		-it \
 		-v /gpfs:/gpfs:ro \
 		-e DEBUG=True \
-		-v $$(pwd)/blue_pair:/usr/local/lib/python3.7/site-packages/blue_pair \
+		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
 		-v /Users/antonel/Desktop/circuit/mooc/mooc-circuit-bundled:/circuits/mooc:ro \
-		-v $$(pwd)/config.json:/opt/blue-pair/config.json \
+		-v $$(pwd)/config.json:/opt/ngv-viewer/config.json \
 		-p 8888:8000 \
 		--entrypoint python \
-		bp-svc \
-		-m blue_pair.main
+		$$(IMAGE_NAME) \
+		-m ngv_viewer.main
 
 run_dev_debug:
 	docker run \
@@ -93,35 +94,35 @@ run_dev_debug:
 		-v /gpfs:/gpfs:ro \
 		-v /Users/antonel/Desktop/circuit/mooc/mooc-circuit-bundled:/circuits/mooc:ro \
 		-e DEBUG=True \
-		-v $$(pwd)/blue_pair:/usr/local/lib/python3.7/site-packages/blue_pair \
-		-v $$(pwd)/config.json:/opt/blue-pair/config.json \
+		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
+		-v $$(pwd)/config.json:/opt/ngv-viewer/config.json \
 		-p 8888:8000 \
 		-p 3000:3000 \
 		--entrypoint python \
-		bp-svc \
-		-m debugpy --listen 0.0.0.0:3000 -m blue_pair.main
+		$$(IMAGE_NAME) \
+		-m debugpy --listen 0.0.0.0:3000 -m ngv_viewer.main
 
 docker_build_version: python_build | $(NEURON_SRC_DIR) $(SIM_MODELS_DIR)
-	docker build -t bp-svc:$(VERSION) \
+	docker build -t $(IMAGE_NAME):$(VERSION) \
 		--build-arg=redis_host=$(REDIS_HOST) \
 		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
 		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
 		.
 
 docker_build_latest: python_build | $(NEURON_SRC_DIR) $(SIM_MODELS_DIR)
-	docker build -t bp-svc:latest \
+	docker build -t $(IMAGE_NAME):latest \
 		--build-arg=redis_host=$(REDIS_HOST) \
 		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
 		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
 		.
 
 docker_push_version: docker_build_version
-	docker tag bp-svc:$(VERSION) docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/bp-svc:$(VERSION)
-	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/bp-svc:$(VERSION)
+	docker tag $(IMAGE_NAME):$(VERSION) docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):$(VERSION)
+	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):$(VERSION)
 	@echo 'backend version($(VERSION)) pushed to OpenShift registy'
 
 docker_push_latest: docker_build_latest
-	docker tag bp-svc:latest docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/bp-svc:latest
-	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/bp-svc:latest
+	docker tag $(IMAGE_NAME):latest docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):latest
+	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):latest
 	@echo 'backend latest version pushed to OpenShift registry.'
 	@echo 'backend release done'

@@ -10,8 +10,8 @@ from os.path import join
 import numpy as np
 
 
-APP_HOME_PATH = '/opt/blue-pair'
-SIM_MODEL_BASE_PATH = '/opt/blue-pair/sim-models'
+APP_HOME_PATH = '/opt/ngv-viewer'
+SIM_MODEL_BASE_PATH = '/opt/ngv-viewer/sim-models'
 SIM_MODEL = json.loads(open('config.json').read())['simModel']
 
 L = logging.getLogger(__name__)

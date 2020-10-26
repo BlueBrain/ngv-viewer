@@ -3,7 +3,7 @@
   <div class="top-bar">
     <div class="title">
       <circuit-select v-if="circuitSelectVisible" />
-      Pair recording<span v-if="circuitName">: {{ circuitName }}</span>
+      NGV Circuit Viewer<span v-if="circuitName">: {{ circuitName }}</span>
     </div>
     <div class="right-side">
       {{ status.message }}

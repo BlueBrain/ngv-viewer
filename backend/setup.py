@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-from blue_pair.version import VERSION
+from ngv_viewer.version import VERSION
 
 
 setup(
-    name='blue-pair',
-    description='bluePair(Pair recording app)',
+    name='ngv-viewer',
+    description='ngvViewer(NGV Circuit Viewer)',
     version=VERSION,
-    url='https://blue-pair/',
+    url='https://ngv-viewer/',
     author='NSE(Neuroscientific Software Engineering)',
     author_email='bbp-ou-nse@groupes.epfl.ch',
 

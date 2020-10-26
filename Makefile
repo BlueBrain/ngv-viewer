@@ -1,6 +1,6 @@
 .PHONY: help test build release run_dev_backend run_dev_frontend docker_push_latest deploy create_oo_deployment
 
-APP_NAME_PREFIX?=bp
+APP_NAME_PREFIX?=ngv-viewer
 APP_DNS_BASE?=ocp.bbp.epfl.ch
 OO_PROJECT?=bbp-ou-nse
 DOCKER_REGISTRY_HOST?=docker-registry-default.ocp.bbp.epfl.ch
@@ -40,11 +40,11 @@ endif
 		if [ $$? -eq 0 ]; \
 		then \
 			echo "tagging $(VERSION)" && \
-			echo "VERSION = '$(VERSION)'" > backend/blue_pair/version.py && \
+			echo "VERSION = '$(VERSION)'" > backend/ngv_viewer/version.py && \
 			sed -i 's/"version": "\([0-9.]\+\)"/"version": "$(VERSION)"/' frontend/package.json && \
 			$(MAKE) -C backend docker_push_version && \
 			$(MAKE) -C frontend docker_push_version && \
-			git add backend/blue_pair/version.py frontend/package.json && \
+			git add backend/ngv_viewer/version.py frontend/package.json && \
 			git commit -m "release $(VERSION)" && \
 			git tag -a $(VERSION) -m $(VERSION) && \
 			git push origin HEAD:$$GERRIT_BRANCH && \

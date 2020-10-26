@@ -1,7 +1,7 @@
 
-# Pair Recording application
+# NGV Circuit Viewer application
 
-Pair Recording application is a web environment for a small circuit in-silico experiments.
+NGV Circuit Viewer application is a web environment for a small circuit in-silico experiments.
 
 It provides an extended toolset to configure and run simulations of single cell models as well as
 multiple connected neurons from a given circuit. The application's graphical user interface allows
@@ -31,7 +31,7 @@ make run_dev_frontend
 
 ## Usage
 
-See [Guidebook](https://humanbrainproject.github.io/hbp-sp6-guidebook/online_usecases/small_circuit_in_silico_experiments/pair_recording_app/pair_recording_app.html)
+See [TODO]()
 
 
 ## Deployment

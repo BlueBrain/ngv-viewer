@@ -6,8 +6,8 @@ NODE_MODULES:=node_modules
 
 SINGLE_CIRCUIT?=
 
-APP_NAME?=bp
-SERVER_HOST:=bp-svc.ocp.bbp.epfl.ch
+APP_NAME?=ngv-viewer
+SERVER_HOST:=ngv-viewer.ocp.bbp.epfl.ch
 SERVER_PORT:=80
 
 

@@ -8,7 +8,7 @@
           Service is down
         </h3>
         <p>
-          Pair Recording app is currently under maintenance. <br>
+          NGV Circuit Viewer app is currently under maintenance. <br>
           If you have any questions don't hesitate to contact us. <br>
         </p>
         <br>

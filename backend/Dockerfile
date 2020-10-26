@@ -40,7 +40,7 @@ RUN repos=$(cat /build/config.json | jq -c -r '.simModel | map(.repo) | unique |
 
 FROM python:3.7-slim-stretch
 LABEL maintainer="BlueBrain NSE(Neuroscientific Software Engineering)"
-WORKDIR /opt/blue-pair
+WORKDIR /opt/ngv-viewer
 
 ARG redis_host
 
