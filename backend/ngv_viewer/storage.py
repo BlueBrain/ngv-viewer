@@ -2,7 +2,7 @@
 import os
 import logging
 
-import bluepy
+import archngv
 
 from bluepy.v2.enums import Synapse
 
@@ -31,8 +31,8 @@ def get_circuit(circuit_path):
         L.debug('Using cached circuit for {}'.format(circuit_path))
         return circuit_cache[circuit_path]
 
-    L.debug('Creating bluepy circuit for {}'.format(circuit_path))
-    circuit = bluepy.Circuit(circuit_path)
+    L.debug('Creating ngv_circuit circuit for {}'.format(circuit_path))
+    circuit = archngv.NGVCircuit(circuit_path)
     circuit_cache[circuit_path] = circuit
     return circuit
 
@@ -43,7 +43,7 @@ class Storage():
         circuit = get_circuit(circuit_path)
         cells = cache.get('circuit:cells')
         if cells is None:
-            cells = circuit.v2.cells.get().drop(['orientation', 'synapse_class'], 1, errors='ignore');
+            cells = circuit.neurons.get().drop(['orientation', 'synapse_class'], 1, errors='ignore');
             cache.set('circuit:cells', cells)
         L.debug('getting cells done')
         return cells
