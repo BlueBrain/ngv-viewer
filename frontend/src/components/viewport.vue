@@ -76,6 +76,8 @@
       store.$on('removeSecMarker', config => this.renderer.removeSecMarker(config));
 
       store.$on('clearScene', () => this.renderer.clearScene());
+
+      store.$on('loadVasculature', (fileUrl) => this.renderer.loadVasculature(fileUrl));
     },
     methods: {
       onHover(obj) {

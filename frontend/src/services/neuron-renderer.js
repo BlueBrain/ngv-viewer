@@ -9,13 +9,15 @@ import {
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
   PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
   SphereBufferGeometry, CylinderGeometry, Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  Matrix4, WebGLRenderTarget,
+  Matrix4, WebGLRenderTarget
 } from 'three';
 
 import { saveAs } from 'file-saver';
 import { TweenLite, TimelineLite } from 'gsap';
 
 import TrackballControls from '@/services/trackball-controls';
+
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 // TODO: refactor to remove store operations
 // and move them to vue viewport component
@@ -1043,6 +1045,31 @@ class NeuronRenderer {
       this.renderer.render(this.scene, this.camera);
     }
     requestAnimationFrame(this.startRenderLoop.bind(this));
+  }
+
+  loadVasculature(fileUrl) {
+
+    const onLoad = (gltf) => {
+      const depthMaterial = new MeshLambertMaterial({
+        color: 0xff0000,
+        opacity: 0.4,
+        // map: segRecTexture,
+        transparent: true,
+      });
+      
+      const [mesh] = gltf.scene.children;
+      mesh.material.dispose();
+      mesh.material = depthMaterial;
+      mesh.name = 'vasculature';
+      this.scene.add(mesh);
+    };
+
+    const onProgress = (xhr) => { console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ); };
+    
+    const onError = (error) => { console.error( error ); };
+
+    const loader = new GLTFLoader();
+    loader.load(fileUrl, onLoad, onProgress, onError);
   }
 }
 

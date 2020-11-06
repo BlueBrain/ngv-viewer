@@ -169,6 +169,7 @@ const actions = {
     }
 
     store.$dispatch('initCircuit');
+    store.$dispatch('loadVasculature');
     store.$dispatch('hideGlobalSpinner');
   },
 
@@ -936,6 +937,11 @@ const actions = {
     store.$emit('synInputsCtrl:init');
     store.$emit('setStatus', { message: 'Ready' });
   },
+
+  loadVasculature(store) {
+    const fileUrl = store.state.circuitConfig.vasculatureGlbUrl;
+    store.$emit('loadVasculature', fileUrl);
+  }
 };
 
 export default actions;

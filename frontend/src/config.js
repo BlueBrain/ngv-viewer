@@ -5,11 +5,12 @@ const { Entity } = constants;
 
 const circuits = [
   {
-    name: 'MOOC',
+    name: 'NGV',
     type: Entity.CIRCUIT,
-    urlName: 'rat-ca1',
-    path: '/circuits/mooc/CircuitConfigPR',
-    simModel: 'hippocampus',
+    urlName: 'ngv-20201006',
+    path: '/circuits/ngv/ngv_config.json',
+    vasculatureGlbUrl: 'https://bbp.epfl.ch/public/test-ngv-viewer/simplified.glb',
+    simModel: '???',
     description: '',
   },
 ];
