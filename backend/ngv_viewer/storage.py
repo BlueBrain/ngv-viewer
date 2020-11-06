@@ -1,6 +1,7 @@
 
 import os
 import logging
+import numpy as np
 
 import archngv
 
@@ -36,6 +37,11 @@ def get_circuit(circuit_path):
     circuit_cache[circuit_path] = circuit
     return circuit
 
+def mask_population_by_geometry(population, geometry):
+    positions = population.positions().to_numpy()
+    mask = geometry.points_inside(positions)
+    return np.arange(len(positions), dtype=np.int)[mask]
+
 
 class Storage():
     def get_circuit_cells(self, circuit_path):
@@ -43,7 +49,10 @@ class Storage():
         circuit = get_circuit(circuit_path)
         cells = cache.get('circuit:cells')
         if cells is None:
-            cells = circuit.neurons.get().drop(['orientation', 'synapse_class'], 1, errors='ignore');
+            bbox = circuit.vasculature.morph.bounding_box
+            # get only cells inside vasculature
+            neuron_ids = mask_population_by_geometry(circuit.neurons, bbox)
+            cells = circuit.neurons.get(neuron_ids).drop(['orientation', 'synapse_class'], 1, errors='ignore');
             cache.set('circuit:cells', cells)
         L.debug('getting cells done')
         return cells

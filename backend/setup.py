@@ -22,7 +22,7 @@ setup(
         'bglibpy>=4.3.19',
         'bluepy>=0.14.14',
         'bluepysnap>=0.6.1',
-        'archngv>=1.0.1.dev0',
+        'archngv>=1.0.1',
         'neurom>=1.5.2',
         'debugpy>=1.0.0rc2'
     ],
