@@ -236,6 +236,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 SIM_MANAGER.cancel_sim(self.sim_id)
                 self.sim_id = None
 
+        if cmd == 'get_astrocytes_somas':
+            somas = STORAGE.get_astrocytes_somas(circuit_path)
+            somas['cmdid'] = cmdid
+            L.debug('sending astrocytes somas to the client')
+            self.send_message('astrocytes_somas', somas)
+
+
     def send_message(self, cmd, data=None):
         if not self.closed:
             payload = json.dumps({'cmd': cmd, 'data': data},

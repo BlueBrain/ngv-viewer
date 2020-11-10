@@ -77,7 +77,9 @@
 
       store.$on('clearScene', () => this.renderer.clearScene());
 
-      store.$on('loadVasculature', (fileUrl) => this.renderer.loadVasculature(fileUrl));
+      // store.$on('loadVasculature', (fileUrl) => this.renderer.loadVasculature(fileUrl));
+
+      store.$on('loadAstrocytes', somas => this.renderer.loadAstrocytes(somas));
     },
     methods: {
       onHover(obj) {

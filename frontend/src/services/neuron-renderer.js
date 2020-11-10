@@ -1048,7 +1048,6 @@ class NeuronRenderer {
   }
 
   loadVasculature(fileUrl) {
-
     const onLoad = (gltf) => {
       const depthMaterial = new MeshLambertMaterial({
         color: 0xff0000,
@@ -1056,20 +1055,63 @@ class NeuronRenderer {
         // map: segRecTexture,
         transparent: true,
       });
-      
+
       const [mesh] = gltf.scene.children;
       mesh.material.dispose();
       mesh.material = depthMaterial;
       mesh.name = 'vasculature';
       this.scene.add(mesh);
+      this.ctrl.renderOnce();
     };
 
-    const onProgress = (xhr) => { console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ); };
-    
-    const onError = (error) => { console.error( error ); };
+    const onProgress = (xhr) => { console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`); };
+
+    const onError = (error) => { console.error(error); };
 
     const loader = new GLTFLoader();
     loader.load(fileUrl, onLoad, onProgress, onError);
+  }
+
+  showAstrocyteCloud() {
+    this.astrocyteCloud.points.visible = true;
+    this.ctrl.renderOnce();
+  }
+
+  hideAstrocyteCloud() {
+    this.astrocyteCloud.points.visible = false;
+    this.ctrl.renderOnce();
+  }
+
+  loadAstrocytes(somaPositionArray) {
+    const positions = new Float32Array(somaPositionArray.flat());
+    const colorBuffer = new Float32Array(positions.length * 3);
+
+    this.astrocyteCloud = {
+      positionBufferAttr: new BufferAttribute(positions, 3),
+      colorBufferAttr: new BufferAttribute(colorBuffer, 3),
+    };
+
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', this.astrocyteCloud.positionBufferAttr);
+    geometry.setAttribute('color', this.astrocyteCloud.colorBufferAttr);
+
+    const material = new PointsMaterial({
+      vertexColors: VertexColors,
+      size: store.state.circuit.somaSize,
+      opacity: 0.85,
+      transparent: true,
+      alphaTest: 0.2,
+      sizeAttenuation: true,
+      map: neuronTexture,
+    });
+
+    this.astrocyteCloud.points = new Points(geometry, material);
+
+    this.astrocyteCloud.points.name = 'astrocyteCloud';
+    this.astrocyteCloud.points.frustumCulled = false;
+    this.scene.add(this.astrocyteCloud.points);
+    this.showAstrocyteCloud();
+    this.hideNeuronCloud();
   }
 }
 

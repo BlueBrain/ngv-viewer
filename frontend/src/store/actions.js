@@ -170,6 +170,7 @@ const actions = {
 
     store.$dispatch('initCircuit');
     store.$dispatch('loadVasculature');
+    store.$dispatch('loadAstrocytes');
     store.$dispatch('hideGlobalSpinner');
   },
 
@@ -941,7 +942,35 @@ const actions = {
   loadVasculature(store) {
     const fileUrl = store.state.circuitConfig.vasculatureGlbUrl;
     store.$emit('loadVasculature', fileUrl);
-  }
+  },
+
+  async loadAstrocytes(store) {
+    const cached = await storage.getItem(store.$get('storageKey', 'astrocytes'));
+    const { astrocytes } = store.state.circuit;
+
+    let somas = [];
+
+    if (cached) {
+      somas = cached;
+      astrocytes.positions = cached;
+    } else {
+      const done = new Promise((resolve) => {
+        store.$on('ws:astrocytes_somas', resolve);
+        socket.send('get_astrocytes_somas');
+      });
+
+      const somasObj = await done;
+      somas = somasObj.positions;
+
+      await storage.setItem(
+        store.$get('storageKey', 'astrocytes'),
+        somas,
+      );
+      astrocytes.positions = somas;
+    }
+
+    store.$emit('loadAstrocytes', somas);
+  },
 };
 
 export default actions;

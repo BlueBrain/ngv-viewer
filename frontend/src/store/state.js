@@ -16,6 +16,11 @@ const state = {
       meta: null,
     },
 
+    astrocytes: {
+      positions: null,
+      prop: {},
+    },
+
     somaSize: 10,
     globalFilterIndex: [],
     connectionFilterIndex: [],

@@ -135,3 +135,16 @@ class Storage():
                 }
         L.debug('getting cell morph for %s done', gids)
         return {'cells': cells}
+
+    def get_astrocytes_somas(self, circuit_path):
+        L.debug('getting astrocytes %s', circuit_path)
+        circuit = get_circuit(circuit_path)
+        positions = circuit.astrocytes.positions()
+        soma_positions = positions.values
+        return {'positions': soma_positions}
+
+    def get_astrocyte_props(self, circuit_path, astrocyte_id):
+        L.debug('getting props for astrocyte %s', astrocyte_id)
+        circuit = get_circuit(circuit_path)
+        astro = circuit.astrocytes.get(astrocyte_id)
+        return {'morphology': astro.morphology}
