@@ -182,7 +182,7 @@
   #container {
     position: absolute;
     top: 36px;
-    width: calc(100% - 620px);
+    width: calc(100% - 2px);
     height: calc(100% - 36px);
   }
 

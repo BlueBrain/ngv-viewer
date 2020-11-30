@@ -4,7 +4,7 @@
     <div v-if="mode === 'operational'">
       <top-bar/>
       <viewport-component/>
-      <side-panel/>
+      <!-- <side-panel/> -->
       <spinner/>
       <circuit-loading-modal />
       <global-modal />

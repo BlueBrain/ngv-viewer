@@ -79,7 +79,7 @@ run_dev:
 		-v /gpfs:/gpfs:ro \
 		-e DEBUG=True \
 		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
-		-v /Users/antonel/Desktop/circuit/mooc/mooc-circuit-bundled:/circuits/mooc:ro \
+		-v /Users/antonel/Desktop/circuit:/circuits:ro \
 		-v $$(pwd)/config.json:/opt/ngv-viewer/config.json \
 		-p 8888:8000 \
 		--entrypoint python \
@@ -92,14 +92,14 @@ run_dev_debug:
 		--user 1000 \
 		-it \
 		-v /gpfs:/gpfs:ro \
-		-v /Users/antonel/Desktop/circuit/mooc/mooc-circuit-bundled:/circuits/mooc:ro \
+		-v /Users/antonel/Desktop/circuit:/circuits:ro \
 		-e DEBUG=True \
 		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
 		-v $$(pwd)/config.json:/opt/ngv-viewer/config.json \
 		-p 8888:8000 \
 		-p 3000:3000 \
 		--entrypoint python \
-		$$(IMAGE_NAME) \
+		$(IMAGE_NAME) \
 		-m debugpy --listen 0.0.0.0:3000 -m ngv_viewer.main
 
 docker_build_version: python_build | $(NEURON_SRC_DIR) $(SIM_MODELS_DIR)
