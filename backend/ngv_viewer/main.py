@@ -242,6 +242,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             L.debug('sending astrocytes somas to the client')
             self.send_message('astrocytes_somas', somas)
 
+        if cmd == 'get_astrocyte_props':
+            astrocyte_id = msg['data']
+            props = STORAGE.get_astrocyte_props(circuit_path, astrocyte_id)
+            L.debug('sending astrocyte props to the client')
+            self.send_message('astrocyte_props', props)
+
 
     def send_message(self, cmd, data=None):
         if not self.closed:

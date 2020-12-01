@@ -414,6 +414,44 @@ const actions = {
     store.$emit('hideHoverObjectInfo');
   },
 
+  async astrocyteHovered(store, astrocyte) {
+    const { astrocytes } = store.state.circuit;
+
+    const done = new Promise((resolve) => {
+
+      const processProp = (props) => {
+        store.$emit('showHoverObjectInfo', {
+          header: 'Astrocyte',
+          items: [{
+            type: 'table',
+            data: props,
+          }],
+        });
+        store.$emit('highlightAstrocyte', astrocyte);
+        store.$off('ws:astrocyte_props', processProp);
+        astrocytes.prop[astrocyte.idx] = props;
+        resolve();
+      };
+
+      const fetchedProp = astrocytes.prop[astrocyte.idx];
+      if (fetchedProp) {
+        // already searched
+        processProp(fetchedProp);
+      } else {
+        // search in backend
+        store.$on('ws:astrocyte_props', processProp);
+        socket.send('get_astrocyte_props', astrocyte.idx);
+      }
+    });
+
+    await done;
+  },
+
+  astrocyteHoveredEnded(store) {
+    store.$emit('unhighlightAstrocyte');
+    store.$emit('hideHoverObjectInfo');
+  },
+
   synapseHovered(store, synapseIndex) {
     const synapse = store.$get('synapse', synapseIndex);
     const neuron = store.$get('neuron', synapse.preGid - 1);

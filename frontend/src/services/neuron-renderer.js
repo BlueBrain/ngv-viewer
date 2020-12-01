@@ -760,6 +760,10 @@ class NeuronRenderer {
       this.onSynapseHover(mesh.index);
       break;
     }
+    case 'astrocyteCloud': {
+      this.onAstrocyteHover(mesh.index);
+      break;
+    }
     default: {
       break;
     }
@@ -780,10 +784,45 @@ class NeuronRenderer {
       this.onSynapseHoverEnd(mesh.index);
       break;
     }
+    case 'astrocyteCloud': {
+      this.onAstrocyteHoverEnd(mesh.index);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  onAstrocyteHover(astrocyteIndex) {
+    this.onHoverExternalHandler({
+      type: 'astrocyteCloud',
+      astrocyteIndex,
+    });
+
+    this.hoveredNeuron = [
+      astrocyteIndex,
+      this.astrocyteCloud.colorBufferAttr.getX(astrocyteIndex),
+      this.astrocyteCloud.colorBufferAttr.getY(astrocyteIndex),
+      this.astrocyteCloud.colorBufferAttr.getZ(astrocyteIndex),
+    ];
+    this.astrocyteCloud.colorBufferAttr.setXYZ(astrocyteIndex, ...HOVERED_NEURON_GL_COLOR);
+    this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
+
+    this.ctrl.renderOnce();
+  }
+
+  onAstrocyteHoverEnd(astrocyteIndex) {
+    this.onHoverEndExternalHandler({
+      type: 'astrocyteCloud',
+      astrocyteIndex,
+    });
+
+    this.astrocyteCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
+    this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
+    this.hoveredAstrocyte = null;
+
+    this.ctrl.renderOnce();
   }
 
   onNeuronHover(neuronIndex) {
@@ -1003,33 +1042,6 @@ class NeuronRenderer {
   getMeshByNativeCoordinates(x, y) {
     this.mouseGl.x = (x / this.renderer.domElement.clientWidth) * 2 - 1;
     this.mouseGl.y = -((y - HEADER_HEIGHT) / this.renderer.domElement.clientHeight) * 2 + 1;
-
-    if (this.neuronCloud.points.visible) {
-      // doing gpu picking for neuron cloud, otherwise - raycast
-      this.camera.setViewOffset(
-        this.renderer.domElement.width,
-        this.renderer.domElement.height,
-        x * window.devicePixelRatio,
-        (y - HEADER_HEIGHT) * window.devicePixelRatio,
-        1,
-        1,
-      );
-
-      this.renderer.setRenderTarget(this.pickingTexture);
-      this.renderer.render(this.pickingScene, this.camera);
-      this.renderer.readRenderTargetPixels(this.pickingTexture, 0, 0, 1, 1, this.pickingPixelBuffer);
-      this.camera.clearViewOffset();
-
-      /* eslint-disable-next-line */
-      const id = (this.pickingPixelBuffer[0] << 16) | (this.pickingPixelBuffer[1] << 8) | (this.pickingPixelBuffer[2]);
-
-      if (!id) return null;
-
-      return {
-        index: id - 1,
-        object: this.neuronCloud.points,
-      };
-    }
 
     this.raycaster.setFromCamera(this.mouseGl, this.camera);
     const intersections = this.raycaster.intersectObjects(this.scene.children, true);

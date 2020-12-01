@@ -65,6 +65,10 @@ const getters = {
   isRecordingPresent(store, section) {
     return some(store.state.simulation.recordings, r => isSectionOfInteractionSite(r, section));
   },
+
+  astrocyte(store, idx) {
+    return { idx };
+  },
 };
 
 

@@ -97,6 +97,11 @@
           store.$dispatch('morphSectionHovered', obj);
           break;
         }
+        case 'astrocyteCloud': {
+          const astrocyte = store.$get('astrocyte', obj.astrocyteIndex);
+          store.$dispatch('astrocyteHovered', astrocyte);
+          break;
+        }
         default: {
           break;
         }
@@ -115,6 +120,11 @@
         }
         case 'morphSection': {
           store.$dispatch('morphSectionHoverEnded', obj);
+          break;
+        }
+        case 'astrocyteCloud': {
+          const astrocyte = store.$get('astrocyte', obj.astrocyteIndex);
+          store.$dispatch('astrocyteHoveredEnded', astrocyte);
           break;
         }
         default: {
