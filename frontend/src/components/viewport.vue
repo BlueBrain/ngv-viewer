@@ -77,9 +77,13 @@
 
       store.$on('clearScene', () => this.renderer.clearScene());
 
-      // store.$on('loadVasculature', (fileUrl) => this.renderer.loadVasculature(fileUrl));
+      store.$on('loadVasculature', fileUrl => this.renderer.loadVasculature(fileUrl));
+      store.$on('showVasculature', () => this.renderer.showVasculatureCloud());
+      store.$on('hideVasculature', () => this.renderer.hideVasculatureCloud());
 
       store.$on('loadAstrocytes', somas => this.renderer.loadAstrocytes(somas));
+      store.$on('showAstrocytes', () => this.renderer.showAstrocyteCloud());
+      store.$on('hideAstrocytes', () => this.renderer.hideAstrocyteCloud());
     },
     methods: {
       onHover(obj) {

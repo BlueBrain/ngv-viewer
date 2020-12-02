@@ -4,6 +4,11 @@ const Entity = {
   CIRCUIT: 'circuit',
 };
 
+export const Mesh = {
+  NEURONS: 'neurons',
+  ASTROCYTES: 'astrocytes',
+  VASCULATURE: 'vasculature',
+};
 
 export default {
   Entity,

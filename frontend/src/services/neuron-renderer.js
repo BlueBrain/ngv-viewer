@@ -184,6 +184,7 @@ class NeuronRenderer {
 
     this.neuronCloud.points.name = 'neuronCloud';
     this.neuronCloud.points.frustumCulled = false;
+    this.neuronCloud.points.visible = store.state.circuit.cells.visible;
     this.scene.add(this.neuronCloud.points);
 
     // picking cloud setup
@@ -356,12 +357,16 @@ class NeuronRenderer {
   }
 
   showNeuronCloud() {
-    this.neuronCloud.points.visible = true;
+    const { cells } = store.state.circuit;
+    cells.visible = true;
+    this.neuronCloud.points.visible = cells.visible;
     this.ctrl.renderOnce();
   }
 
   hideNeuronCloud() {
-    this.neuronCloud.points.visible = false;
+    const { cells } = store.state.circuit;
+    cells.visible = false;
+    this.neuronCloud.points.visible = cells.visible;
     this.ctrl.renderOnce();
   }
 
@@ -646,7 +651,7 @@ class NeuronRenderer {
 
   setNeuronCloudPointSize(size) {
     this.neuronCloud.points.material.size = size;
-    this.pickingNeuronCloud.material.size = size / SQUARE_DOT_SCALE;
+    this.astrocyteCloud.points.material.size = size;
     this.ctrl.renderOnce();
   }
 
@@ -1059,7 +1064,25 @@ class NeuronRenderer {
     requestAnimationFrame(this.startRenderLoop.bind(this));
   }
 
+  showVasculatureCloud() {
+    const { vasculature } = store.state.circuit;
+    vasculature.visible = true;
+    this.vasculatureCloud.mesh.visible = vasculature.visible;
+    this.ctrl.renderOnce();
+  }
+
+  hideVasculatureCloud() {
+    const { vasculature } = store.state.circuit;
+    vasculature.visible = false;
+    this.vasculatureCloud.mesh.visible = vasculature.visible;
+    this.ctrl.renderOnce();
+  }
+
   loadVasculature(fileUrl) {
+    this.vasculatureCloud = {
+      mesh: null,
+    };
+
     const onLoad = (gltf) => {
       const depthMaterial = new MeshLambertMaterial({
         color: 0xff0000,
@@ -1072,7 +1095,9 @@ class NeuronRenderer {
       mesh.material.dispose();
       mesh.material = depthMaterial;
       mesh.name = 'vasculature';
-      this.scene.add(mesh);
+      mesh.visible = store.state.circuit.vasculature.visible;
+      this.vasculatureCloud.mesh = mesh;
+      this.scene.add(this.vasculatureCloud.mesh);
       this.ctrl.renderOnce();
     };
 
@@ -1085,12 +1110,16 @@ class NeuronRenderer {
   }
 
   showAstrocyteCloud() {
-    this.astrocyteCloud.points.visible = true;
+    const { astrocytes } = store.state.circuit;
+    astrocytes.visible = true;
+    this.astrocyteCloud.points.visible = astrocytes.visible;
     this.ctrl.renderOnce();
   }
 
   hideAstrocyteCloud() {
-    this.astrocyteCloud.points.visible = false;
+    const { astrocytes } = store.state.circuit;
+    astrocytes.visible = false;
+    this.astrocyteCloud.points.visible = astrocytes.visible;
     this.ctrl.renderOnce();
   }
 
@@ -1121,9 +1150,9 @@ class NeuronRenderer {
 
     this.astrocyteCloud.points.name = 'astrocyteCloud';
     this.astrocyteCloud.points.frustumCulled = false;
+    this.astrocyteCloud.points.visible = store.state.circuit.astrocytes.visible;
     this.scene.add(this.astrocyteCloud.points);
-    this.showAstrocyteCloud();
-    this.hideNeuronCloud();
+    this.ctrl.renderOnce();
   }
 }
 

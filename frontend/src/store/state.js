@@ -14,11 +14,18 @@ const state = {
       positions: null,
       prop: {},
       meta: null,
+      visible: false,
     },
 
     astrocytes: {
       positions: null,
       prop: {},
+      visible: true,
+    },
+
+    vasculature: {
+      mesh: null,
+      visible: false,
     },
 
     somaSize: 10,

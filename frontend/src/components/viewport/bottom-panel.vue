@@ -16,6 +16,10 @@
         <div class="soma-size-ctrl">
           <soma-size-ctrl />
         </div>
+
+        <div class="meshes-toggle">
+          <meshes-toggle-ctrl />
+        </div>
       </div>
       <div class="sim-panel" v-else-if="mode === 'simulationConfig'">
         <syn-color-palette/>
@@ -46,6 +50,7 @@
   import AxonVisibilityCtrl from './bottom-panel/axon-visibility-ctrl.vue';
   import SectionAlignmentCtrl from './bottom-panel/section-alignment-ctrl.vue';
   import ScreenshotCtrl from './bottom-panel/screenshot-ctrl.vue';
+  import MeshesToggleCtrl from './bottom-panel/meshes-toggle-ctrl.vue';
 
   // Simulation config components
   import SynColorPalette from './bottom-panel/syn-color-palette.vue';
@@ -60,6 +65,7 @@
       'axon-visibility-ctrl': AxonVisibilityCtrl,
       'section-alignment-ctrl': SectionAlignmentCtrl,
       'screenshot-ctrl': ScreenshotCtrl,
+      'meshes-toggle-ctrl': MeshesToggleCtrl,
     },
     data() {
       return {
@@ -108,6 +114,12 @@
       position: absolute;
       right: 16px;
       top: 16px;
+    }
+
+    .meshes-toggle {
+      position: absolute;
+      right: 52px;
+      top: -115px;
     }
   }
 </style>
