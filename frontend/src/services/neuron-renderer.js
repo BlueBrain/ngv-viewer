@@ -775,6 +775,10 @@ class NeuronRenderer {
       this.onAstrocyteHover(mesh.index);
       break;
     }
+    case 'efferentNeurons': {
+      this.onEfferentNeuronHover(mesh.index);
+      break;
+    }
     default: {
       break;
     }
@@ -797,6 +801,10 @@ class NeuronRenderer {
     }
     case 'astrocyteCloud': {
       this.onAstrocyteHoverEnd(mesh.index);
+      break;
+    }
+    case 'efferentNeurons': {
+      this.onEfferentNeuronHoverEnd(mesh.index);
       break;
     }
     default: {
@@ -1218,6 +1226,37 @@ class NeuronRenderer {
     this.efferentNeuronsCloud.points.visible = true;
 
     this.scene.add(this.efferentNeuronsCloud.points);
+    this.ctrl.renderOnce();
+  }
+
+  onEfferentNeuronHover(neuronIndex) {
+    this.onHoverExternalHandler({
+      type: 'efferentNeuronCloud',
+      neuronIndex,
+    });
+
+    this.hoveredNeuron = [
+      neuronIndex,
+      this.efferentNeuronsCloud.colorBufferAttr.getX(neuronIndex),
+      this.efferentNeuronsCloud.colorBufferAttr.getY(neuronIndex),
+      this.efferentNeuronsCloud.colorBufferAttr.getZ(neuronIndex),
+    ];
+    this.efferentNeuronsCloud.colorBufferAttr.setXYZ(neuronIndex, ...HOVERED_NEURON_GL_COLOR);
+    this.efferentNeuronsCloud.points.geometry.attributes.color.needsUpdate = true;
+
+    this.ctrl.renderOnce();
+  }
+
+  onEfferentNeuronHoverEnd(neuronIndex) {
+    this.onHoverEndExternalHandler({
+      neuronIndex,
+      type: 'efferentNeuronCloud',
+    });
+
+    this.efferentNeuronsCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
+    this.efferentNeuronsCloud.points.geometry.attributes.color.needsUpdate = true;
+    this.hoveredNeuron = null;
+
     this.ctrl.renderOnce();
   }
 

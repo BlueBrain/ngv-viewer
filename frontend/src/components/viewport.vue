@@ -109,6 +109,11 @@
           store.$dispatch('astrocyteHovered', astrocyte);
           break;
         }
+        case 'efferentNeuronCloud': {
+          const neuron = store.$get('neuron', obj.neuronIndex);
+          store.$dispatch('efferentNeuronHovered', neuron);
+          break;
+        }
         default: {
           break;
         }
@@ -117,21 +122,23 @@
       onHoverEnd(obj) {
         switch (obj.type) {
         case 'cloudNeuron': {
-          const neuron = store.$get('neuron', obj.neuronIndex);
-          store.$dispatch('neuronHoverEnded', neuron);
+          store.$dispatch('neuronHoverEnded');
           break;
         }
         case 'synapse': {
-          store.$dispatch('synapseHoverEnded', obj.synapseIndex);
+          store.$dispatch('synapseHoverEnded');
           break;
         }
         case 'morphSection': {
-          store.$dispatch('morphSectionHoverEnded', obj);
+          store.$dispatch('morphSectionHoverEnded');
           break;
         }
         case 'astrocyteCloud': {
-          const astrocyte = store.$get('astrocyte', obj.astrocyteIndex);
-          store.$dispatch('astrocyteHoveredEnded', astrocyte);
+          store.$dispatch('astrocyteHoveredEnded');
+          break;
+        }
+        case 'efferentNeuronCloud': {
+          store.$dispatch('efferentNeuronHoveredEnded');
           break;
         }
         default: {

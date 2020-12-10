@@ -1044,6 +1044,20 @@ const actions = {
 
     store.$emit('loadAstrocytesSomas', somas);
   },
+
+  async efferentNeuronHovered(store, neuron) {
+    store.$emit('showHoverObjectInfo', {
+      header: 'Efferent Neuron',
+      items: [{
+        type: 'table',
+        data: neuron,
+      }],
+    });
+  },
+
+  efferentNeuronHoveredEnded(store) {
+    store.$emit('hideHoverObjectInfo');
+  },
 };
 
 export default actions;
