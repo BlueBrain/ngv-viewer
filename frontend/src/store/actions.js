@@ -170,7 +170,7 @@ const actions = {
 
     store.$dispatch('initCircuit');
     store.$dispatch('loadVasculature');
-    store.$dispatch('loadAstrocytes');
+    store.$dispatch('loadAstrocytesSomas');
     store.$dispatch('hideGlobalSpinner');
   },
 
@@ -450,6 +450,37 @@ const actions = {
   astrocyteHoveredEnded(store) {
     store.$emit('unhighlightAstrocyte');
     store.$emit('hideHoverObjectInfo');
+  },
+
+  async astrocyteClicked(store, astrocyte) {
+    const efferentNeuron = new Promise((resolve) => {
+      const processEfferentNeurons = (neuronIds) => {
+        store.$emit('showEfferentNeurons', neuronIds);
+        store.$off('ws:efferent_neurons', processEfferentNeurons);
+        resolve();
+      };
+
+      // search in backend
+      store.$on('ws:efferent_neurons', processEfferentNeurons);
+      socket.send('get_efferent_neurons', astrocyte.idx);
+    });
+
+    const astrocyteMorph = new Promise((resolve) => {
+      const processAstrocyteMorph = (morphObj) => {
+        // morphObj = { 'points': [], 'types': [] }
+        store.$emit('showAstrocyteMorphology', morphObj);
+        store.$off('ws:astrocyte_morph', processAstrocyteMorph);
+        resolve();
+      };
+
+      // search in backend
+      store.$on('ws:astrocyte_morph', processAstrocyteMorph);
+      socket.send('get_astrocyte_morph', astrocyte.idx);
+    });
+
+    store.$emit('showGlobalSpinner');
+    await Promise.all([efferentNeuron, astrocyteMorph]);
+    store.$emit('hideGlobalSpinner');
   },
 
   synapseHovered(store, synapseIndex) {
@@ -982,8 +1013,8 @@ const actions = {
     store.$emit('loadVasculature', fileUrl);
   },
 
-  async loadAstrocytes(store) {
-    const cached = await storage.getItem(store.$get('storageKey', 'astrocytes'));
+  async loadAstrocytesSomas(store) {
+    const cached = await storage.getItem(store.$get('storageKey', 'astrocytesPositions'));
     const { astrocytes } = store.state.circuit;
 
     let somas = [];
@@ -991,6 +1022,10 @@ const actions = {
     if (cached) {
       somas = cached;
       astrocytes.positions = cached;
+      await storage.setItem(
+        store.$get('storageKey', 'astrocytesPositions'),
+        astrocytes.positions,
+      );
     } else {
       const done = new Promise((resolve) => {
         store.$on('ws:astrocytes_somas', resolve);
@@ -1000,14 +1035,14 @@ const actions = {
       const somasObj = await done;
       somas = somasObj.positions;
 
-      await storage.setItem(
-        store.$get('storageKey', 'astrocytes'),
-        somas,
-      );
       astrocytes.positions = somas;
+      await storage.setItem(
+        store.$get('storageKey', 'astrocytesPositions'),
+        astrocytes.positions,
+      );
     }
 
-    store.$emit('loadAstrocytes', somas);
+    store.$emit('loadAstrocytesSomas', somas);
   },
 };
 

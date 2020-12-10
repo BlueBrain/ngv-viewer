@@ -247,6 +247,18 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             props = STORAGE.get_astrocyte_props(circuit_path, astrocyte_id)
             L.debug('sending astrocyte props to the client')
             self.send_message('astrocyte_props', props)
+        
+        if cmd == 'get_efferent_neurons':
+            astrocyte_id = msg['data']
+            efferent_neuron_ids = STORAGE.get_efferent_neurons(circuit_path, astrocyte_id)
+            L.debug('sending astrocyte efferent neurons to the client')
+            self.send_message('efferent_neurons', efferent_neuron_ids)
+        
+        if cmd == 'get_astrocyte_morph':
+            astrocyte_id = msg['data']
+            morph = STORAGE.get_astrocyte_morph(circuit_path, astrocyte_id)
+            L.debug('sending astrocyte morphology to the client')
+            self.send_message('astrocyte_morph', morph)
 
 
     def send_message(self, cmd, data=None):

@@ -9,7 +9,7 @@ import {
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
   PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
   SphereBufferGeometry, CylinderGeometry, Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  Matrix4, WebGLRenderTarget
+  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3,
 } from 'three';
 
 import { saveAs } from 'file-saver';
@@ -151,6 +151,12 @@ class NeuronRenderer {
 
     this.initEventHandlers();
     this.startRenderLoop();
+
+    // TODO: fetch this info from backend
+    this.vasculatureBoundingBox = new Box3(
+      new Vector3(-132.29698, 633.47186, 173.26953),
+      new Vector3(822.297, 2085.0, 1026.7305),
+    );
   }
 
   initNeuronCloud(cloudSize) {
@@ -799,37 +805,6 @@ class NeuronRenderer {
     }
   }
 
-  onAstrocyteHover(astrocyteIndex) {
-    this.onHoverExternalHandler({
-      type: 'astrocyteCloud',
-      astrocyteIndex,
-    });
-
-    this.hoveredNeuron = [
-      astrocyteIndex,
-      this.astrocyteCloud.colorBufferAttr.getX(astrocyteIndex),
-      this.astrocyteCloud.colorBufferAttr.getY(astrocyteIndex),
-      this.astrocyteCloud.colorBufferAttr.getZ(astrocyteIndex),
-    ];
-    this.astrocyteCloud.colorBufferAttr.setXYZ(astrocyteIndex, ...HOVERED_NEURON_GL_COLOR);
-    this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
-
-    this.ctrl.renderOnce();
-  }
-
-  onAstrocyteHoverEnd(astrocyteIndex) {
-    this.onHoverEndExternalHandler({
-      type: 'astrocyteCloud',
-      astrocyteIndex,
-    });
-
-    this.astrocyteCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
-    this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
-    this.hoveredAstrocyte = null;
-
-    this.ctrl.renderOnce();
-  }
-
   onNeuronHover(neuronIndex) {
     this.onHoverExternalHandler({
       type: 'cloudNeuron',
@@ -1109,6 +1084,37 @@ class NeuronRenderer {
     loader.load(fileUrl, onLoad, onProgress, onError);
   }
 
+  onAstrocyteHover(astrocyteIndex) {
+    this.onHoverExternalHandler({
+      type: 'astrocyteCloud',
+      astrocyteIndex,
+    });
+
+    this.hoveredNeuron = [
+      astrocyteIndex,
+      this.astrocyteCloud.colorBufferAttr.getX(astrocyteIndex),
+      this.astrocyteCloud.colorBufferAttr.getY(astrocyteIndex),
+      this.astrocyteCloud.colorBufferAttr.getZ(astrocyteIndex),
+    ];
+    this.astrocyteCloud.colorBufferAttr.setXYZ(astrocyteIndex, ...HOVERED_NEURON_GL_COLOR);
+    this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
+
+    this.ctrl.renderOnce();
+  }
+
+  onAstrocyteHoverEnd(astrocyteIndex) {
+    this.onHoverEndExternalHandler({
+      type: 'astrocyteCloud',
+      astrocyteIndex,
+    });
+
+    this.astrocyteCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
+    this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
+    this.hoveredAstrocyte = null;
+
+    this.ctrl.renderOnce();
+  }
+
   showAstrocyteCloud() {
     const { astrocytes } = store.state.circuit;
     astrocytes.visible = true;
@@ -1123,7 +1129,7 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  loadAstrocytes(somaPositionArray) {
+  loadAstrocytesSomas(somaPositionArray) {
     const positions = new Float32Array(somaPositionArray.flat());
     const colorBuffer = new Float32Array(positions.length * 3);
 
@@ -1154,7 +1160,108 @@ class NeuronRenderer {
     this.scene.add(this.astrocyteCloud.points);
     this.ctrl.renderOnce();
   }
-}
 
+  getNeuronColors(neurons) {
+    /* eslint-disable class-methods-use-this */
+    const colorPalette = store.state.circuit.color.palette;
+    return neurons.map((neuron) => {
+      // remove the transparency
+      const [r, g, b] = colorPalette[neuron.layer];
+      return [r, g, b];
+    });
+     /* eslint-enable class-methods-use-this */
+  }
+
+  showEfferentNeurons(efferentNeuronIds) {
+    this.hideNeuronCloud();
+    this.hideAstrocyteCloud();
+
+    const effNeuronInsideVascIds = [];
+    const effNeuronInsideVascPositions = [];
+    const effNeuronInsideVascDetails = [];
+
+    efferentNeuronIds.forEach((id) => {
+      const neuronPosition = store.$get('neuronPosition', id);
+      const tempV = new Vector3(neuronPosition[0], neuronPosition[1], neuronPosition[2]);
+      const isInsideVasc = this.vasculatureBoundingBox.containsPoint(tempV);
+
+      if (!isInsideVasc) return;
+
+      effNeuronInsideVascIds.push(id);
+      effNeuronInsideVascPositions.push(...neuronPosition);
+      effNeuronInsideVascDetails.push(store.$get('neuron', id));
+    });
+
+    const effNeuronInsideVascColors = this.getNeuronColors(effNeuronInsideVascDetails).flat();
+
+    const material = new PointsMaterial({
+      vertexColors: true,
+      size: store.state.circuit.somaSize,
+      opacity: 0.85,
+      transparent: true,
+      alphaTest: 0.2,
+      sizeAttenuation: true,
+      map: neuronTexture,
+    });
+
+    this.efferentNeuronsCloud = {
+      positionBufferAttr: new Float32BufferAttribute(effNeuronInsideVascPositions, 3),
+      colorBufferAttr: new Float32BufferAttribute(effNeuronInsideVascColors, 3),
+    };
+
+    const effNeuronGeometry = new BufferGeometry();
+    effNeuronGeometry.setAttribute('position', this.efferentNeuronsCloud.positionBufferAttr);
+    effNeuronGeometry.setAttribute('color', this.efferentNeuronsCloud.colorBufferAttr);
+
+    this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, material);
+    this.efferentNeuronsCloud.points.name = 'efferentNeurons';
+    this.efferentNeuronsCloud.points.visible = true;
+
+    this.scene.add(this.efferentNeuronsCloud.points);
+    this.ctrl.renderOnce();
+  }
+
+  showAstrocyteMorphology(morphObj) {
+    // morphObj = { 'points': [], 'types': [] }
+    const { points: edgePoints, types } = morphObj;
+
+    const points = edgePoints.flat();
+    const colors = [];
+
+    const astrocyteColorMap = {
+      2: [255, 0, 0],
+      3: [0, 0, 255],
+    };
+
+    for (let i = 0; i < edgePoints.length; i++) {
+      const edgeColor = astrocyteColorMap[types[i]];
+      colors.push(edgeColor);
+      colors.push(edgeColor);
+    }
+
+    const colorsFlat = colors.flat();
+
+    const astrocyteGeometry = new BufferGeometry();
+    astrocyteGeometry.setAttribute('position', new Float32BufferAttribute(points, 3));
+    astrocyteGeometry.setAttribute('color', new Float32BufferAttribute(colorsFlat, 3));
+
+    const material = new LineBasicMaterial({ vertexColors: VertexColors });
+
+    const astrocyteMorph = new LineSegments(astrocyteGeometry, material);
+    astrocyteMorph.name = 'astrocyteSelected';
+    astrocyteGeometry.computeBoundingSphere();
+
+    this.scene.add(astrocyteMorph);
+
+    // add soma
+    const sphereGeometry = new SphereBufferGeometry(3, 15, 15);
+    const sphereMaterial = new MeshLambertMaterial({ color: 0x000000 });
+    const somaSphere = new Mesh(sphereGeometry, sphereMaterial);
+    somaSphere.position.set(points[0], points[1], points[2]);
+    this.scene.add(somaSphere);
+    this.controls.target.copy(new Vector3(points[0], points[1], points[2]));
+    this.ctrl.renderOnce();
+  }
+}
 
 export default NeuronRenderer;

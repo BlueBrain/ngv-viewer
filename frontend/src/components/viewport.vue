@@ -81,9 +81,12 @@
       store.$on('showVasculature', () => this.renderer.showVasculatureCloud());
       store.$on('hideVasculature', () => this.renderer.hideVasculatureCloud());
 
-      store.$on('loadAstrocytes', somas => this.renderer.loadAstrocytes(somas));
+      store.$on('loadAstrocytesSomas', somas => this.renderer.loadAstrocytesSomas(somas));
       store.$on('showAstrocytes', () => this.renderer.showAstrocyteCloud());
       store.$on('hideAstrocytes', () => this.renderer.hideAstrocyteCloud());
+
+      store.$on('showEfferentNeurons', neuronIds => this.renderer.showEfferentNeurons(neuronIds));
+      store.$on('showAstrocyteMorphology', morphObj => this.renderer.showAstrocyteMorphology(morphObj));
     },
     methods: {
       onHover(obj) {
@@ -145,6 +148,11 @@
         }
         case 'morphSection': {
           store.$dispatch('morphSectionClicked', obj);
+          break;
+        }
+        case 'astrocyteCloud': {
+          const astrocyte = store.$get('astrocyte', obj.index);
+          store.$dispatch('astrocyteClicked', astrocyte);
           break;
         }
         default: {

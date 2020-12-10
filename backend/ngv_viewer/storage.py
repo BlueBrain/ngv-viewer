@@ -148,3 +148,37 @@ class Storage():
         circuit = get_circuit(circuit_path)
         astro = circuit.astrocytes.get(astrocyte_id)
         return {'morphology': astro.morphology}
+    
+    def get_efferent_neurons(self, circuit_path, astrocyte_id):
+        L.debug('getting efferent neurons for astrocyte %s', astrocyte_id)
+        circuit = get_circuit(circuit_path)
+        ng_conn = circuit.neuroglial_connectome
+        eff_neurons_ids = ng_conn.efferent_nodes(astrocyte_id, unique=True)
+        L.debug('connected neurons %s', len(eff_neurons_ids))
+        return eff_neurons_ids
+
+    def get_astrocyte_morph(self, circuit_path, astrocyte_id):
+        L.debug('getting morphology for astrocyte  %s', astrocyte_id)
+        import morphio
+        import itertools
+        
+        circuit = get_circuit(circuit_path)
+        astro_morphology_name = circuit.astrocytes.get(astrocyte_id).morphology
+        morph_path = circuit.path.parent / 'morphologies' / f'{astro_morphology_name}.h5'
+        if not morph_path.exists():
+            L.error('morphology path does not exists')
+            raise FileNotFoundError('morphology path does not exists', morph_path)
+
+        L.debug('opening morph at %s', morph_path)
+        morph = morphio.Morphology(morph_path, options=morphio.Option.two_points_sections)
+
+        morph_simplified = { 'points': [], 'types': [] }
+
+        for section in morph.iter():
+            section_points = section.points.tolist()
+            flatten_points = list(itertools.chain.from_iterable(section_points))
+            morph_simplified['points'].append(flatten_points)
+        morph_simplified['types'] = morph.section_types.tolist()
+
+        L.debug('morphology points %s', len(morph_simplified['points']))
+        return morph_simplified

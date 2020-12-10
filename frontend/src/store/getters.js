@@ -67,7 +67,15 @@ const getters = {
   },
 
   astrocyte(store, idx) {
-    return { idx };
+    // TODO: add more info
+    return {
+      idx,
+    };
+  },
+
+  astrocytePosition(store, idx) {
+    const { astrocytes } = store.state.circuit;
+    return astrocytes.positions[idx];
   },
 };
 
