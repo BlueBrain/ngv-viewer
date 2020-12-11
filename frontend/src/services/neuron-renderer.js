@@ -145,6 +145,16 @@ class NeuronRenderer {
       map: synapseTexture,
     });
 
+    this.pointCloudMaterial = new PointsMaterial({
+      vertexColors: true,
+      size: store.state.circuit.somaSize,
+      opacity: 0.85,
+      transparent: true,
+      alphaTest: 0.2,
+      sizeAttenuation: true,
+      map: neuronTexture,
+    });
+
     this.onHoverExternalHandler = config.onHover;
     this.onHoverEndExternalHandler = config.onHoverEnd;
     this.onClickExternalHandler = config.onClick;
@@ -172,17 +182,7 @@ class NeuronRenderer {
     geometry.setAttribute('position', this.neuronCloud.positionBufferAttr);
     geometry.setAttribute('color', this.neuronCloud.colorBufferAttr);
 
-    const material = new PointsMaterial({
-      vertexColors: VertexColors,
-      size: store.state.circuit.somaSize,
-      opacity: 0.85,
-      transparent: true,
-      alphaTest: 0.2,
-      sizeAttenuation: true,
-      map: neuronTexture,
-    });
-
-    this.neuronCloud.points = new Points(geometry, material);
+    this.neuronCloud.points = new Points(geometry, this.pointCloudMaterial);
 
     // TODO: measure performance improvement
     this.neuronCloud.points.matrixAutoUpdate = false;
@@ -1150,17 +1150,7 @@ class NeuronRenderer {
     geometry.setAttribute('position', this.astrocyteCloud.positionBufferAttr);
     geometry.setAttribute('color', this.astrocyteCloud.colorBufferAttr);
 
-    const material = new PointsMaterial({
-      vertexColors: VertexColors,
-      size: store.state.circuit.somaSize,
-      opacity: 0.85,
-      transparent: true,
-      alphaTest: 0.2,
-      sizeAttenuation: true,
-      map: neuronTexture,
-    });
-
-    this.astrocyteCloud.points = new Points(geometry, material);
+    this.astrocyteCloud.points = new Points(geometry, this.pointCloudMaterial);
 
     this.astrocyteCloud.points.name = 'astrocyteCloud';
     this.astrocyteCloud.points.frustumCulled = false;
@@ -1202,16 +1192,6 @@ class NeuronRenderer {
 
     const effNeuronInsideVascColors = this.getNeuronColors(effNeuronInsideVascDetails).flat();
 
-    const material = new PointsMaterial({
-      vertexColors: true,
-      size: store.state.circuit.somaSize,
-      opacity: 0.85,
-      transparent: true,
-      alphaTest: 0.2,
-      sizeAttenuation: true,
-      map: neuronTexture,
-    });
-
     this.efferentNeuronsCloud = {
       positionBufferAttr: new Float32BufferAttribute(effNeuronInsideVascPositions, 3),
       colorBufferAttr: new Float32BufferAttribute(effNeuronInsideVascColors, 3),
@@ -1221,7 +1201,7 @@ class NeuronRenderer {
     effNeuronGeometry.setAttribute('position', this.efferentNeuronsCloud.positionBufferAttr);
     effNeuronGeometry.setAttribute('color', this.efferentNeuronsCloud.colorBufferAttr);
 
-    this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, material);
+    this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, this.pointCloudMaterial);
     this.efferentNeuronsCloud.points.name = 'efferentNeurons';
     this.efferentNeuronsCloud.points.visible = true;
 
