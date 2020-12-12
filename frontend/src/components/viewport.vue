@@ -80,6 +80,8 @@
       store.$on('loadVasculature', fileUrl => this.renderer.loadVasculature(fileUrl));
       store.$on('showVasculature', () => this.renderer.showVasculatureCloud());
       store.$on('hideVasculature', () => this.renderer.hideVasculatureCloud());
+      store.$on('showBoundingVasculature', boundingBox => this.renderer.showBoundingVasculature(boundingBox));
+      
 
       store.$on('loadAstrocytesSomas', somas => this.renderer.loadAstrocytesSomas(somas));
       store.$on('showAstrocytes', () => this.renderer.showAstrocyteCloud());

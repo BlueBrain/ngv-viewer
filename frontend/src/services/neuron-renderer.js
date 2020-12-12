@@ -9,7 +9,7 @@ import {
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
   PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
   SphereBufferGeometry, CylinderGeometry, Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3,
+  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane,
 } from 'three';
 
 import { saveAs } from 'file-saver';
@@ -1067,16 +1067,16 @@ class NeuronRenderer {
     };
 
     const onLoad = (gltf) => {
-      const depthMaterial = new MeshLambertMaterial({
-        color: 0xff0000,
-        opacity: 0.4,
-        // map: segRecTexture,
-        transparent: true,
+      const newMat = new MeshLambertMaterial({
+        color: 0x80000f,
+        depthTest: true,
+        depthWrite: true,
       });
 
       const [mesh] = gltf.scene.children;
-      mesh.material.dispose();
-      mesh.material = depthMaterial;
+      mesh.geometry.computeFaceNormals();
+      mesh.geometry.computeVertexNormals();
+      mesh.material = newMat;
       mesh.name = 'vasculature';
       mesh.visible = store.state.circuit.vasculature.visible;
       this.vasculatureCloud.mesh = mesh;
@@ -1200,6 +1200,7 @@ class NeuronRenderer {
     const effNeuronGeometry = new BufferGeometry();
     effNeuronGeometry.setAttribute('position', this.efferentNeuronsCloud.positionBufferAttr);
     effNeuronGeometry.setAttribute('color', this.efferentNeuronsCloud.colorBufferAttr);
+    effNeuronGeometry.computeBoundingBox();
 
     this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, this.pointCloudMaterial);
     this.efferentNeuronsCloud.points.name = 'efferentNeurons';
@@ -1207,6 +1208,8 @@ class NeuronRenderer {
 
     this.scene.add(this.efferentNeuronsCloud.points);
     this.ctrl.renderOnce();
+
+    store.$dispatch('showBoundingVasculature', effNeuronGeometry.boundingBox);
   }
 
   onEfferentNeuronHover(neuronIndex) {
@@ -1279,6 +1282,47 @@ class NeuronRenderer {
     somaSphere.position.set(points[0], points[1], points[2]);
     this.scene.add(somaSphere);
     this.controls.target.copy(new Vector3(points[0], points[1], points[2]));
+    this.ctrl.renderOnce();
+  }
+
+  showBoundingVasculature(boundingBox) {
+    // Generate cutting planes based on efferent neurons bounderies
+    const planes = [
+      new Plane(new Vector3(1, 0, 0), -boundingBox.min.x),
+      new Plane(new Vector3(0, 1, 0), -boundingBox.min.y),
+      new Plane(new Vector3(0, 0, 1), -boundingBox.min.z),
+      new Plane(new Vector3(-1, 0, 0), boundingBox.max.x),
+      new Plane(new Vector3(0, -1, 0), boundingBox.max.y),
+      new Plane(new Vector3(0, 0, -1), boundingBox.max.z),
+    ];
+
+    const loadedVasculature = this.vasculatureCloud.mesh;
+    this.boundingVasculature = {};
+    const newGeom = new BufferGeometry();
+    newGeom.setIndex(loadedVasculature.geometry.index);
+    newGeom.setAttribute('position', loadedVasculature.geometry.attributes.position);
+    newGeom.computeFaceNormals();
+    newGeom.computeVertexNormals();
+
+    const newMat = loadedVasculature.material.clone();
+    newMat.clippingPlanes = planes;
+
+    this.boundingVasculature.mesh = new Mesh(newGeom, newMat);
+    this.boundingVasculature.mesh.scale.set(
+      loadedVasculature.scale.x,
+      loadedVasculature.scale.y,
+      loadedVasculature.scale.z,
+    );
+    this.boundingVasculature.mesh.position.set(
+      loadedVasculature.position.x,
+      loadedVasculature.position.y,
+      loadedVasculature.position.z,
+    );
+    this.boundingVasculature.mesh.name = 'boundingVasculature';
+    this.renderer.localClippingEnabled = true;
+    this.boundingVasculature.mesh.visible = true;
+
+    this.scene.add(this.boundingVasculature.mesh);
     this.ctrl.renderOnce();
   }
 }

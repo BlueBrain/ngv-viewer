@@ -1058,6 +1058,10 @@ const actions = {
   efferentNeuronHoveredEnded(store) {
     store.$emit('hideHoverObjectInfo');
   },
+
+  showBoundingVasculature(store, boundingBox) {
+    store.$emit('showBoundingVasculature', boundingBox);
+  },
 };
 
 export default actions;
