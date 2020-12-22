@@ -51,8 +51,16 @@ class Storage():
         if cells is None:
             bbox = circuit.vasculature.morph.bounding_box
             # get only cells inside vasculature
-            neuron_ids = mask_population_by_geometry(circuit.neurons, bbox)
-            cells = circuit.neurons.get(neuron_ids).drop(['orientation', 'synapse_class'], 1, errors='ignore');
+            # neuron_ids = mask_population_by_geometry(circuit.neurons, bbox)
+            neuron_ids = circuit.neurons.ids()
+            columns_to_drop = [
+                '@dynamics:holding_current', '@dynamics:threshold_current',
+                'etype', 'exc_mini_frequency', 'hypercolumn', 'inh_mini_frequency',
+                'me_combo', 'model_template', 'model_type', 'morph_class',
+                'morphology','mtype','orientation','orientation_w','orientation_x',
+                'orientation_y', 'orientation_z', 'region', 'synapse_class',
+            ]
+            cells = circuit.neurons.get(neuron_ids).drop(columns_to_drop, 1, errors='ignore');
             cache.set('circuit:cells', cells)
         L.debug('getting cells done')
         return cells
