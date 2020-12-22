@@ -190,3 +190,20 @@ class Storage():
 
         L.debug('morphology points %s', len(morph_simplified['points']))
         return morph_simplified
+
+    def get_astrocyte_synapses(self, circuit_path, astrocyte_id, efferent_neuron_id):
+        L.debug('getting synapses for astrocyte %s', astrocyte_id)
+        circuit = get_circuit(circuit_path)
+        location_props = [
+            'efferent_center_x', 'efferent_center_y', 'efferent_center_z',
+        ]
+        target_props = [
+            '@target_node',
+        ]
+        efferent_neurons = self.get_efferent_neurons(circuit_path, astrocyte_id)
+        ng_conn = circuit.neuroglial_connectome
+        synapses_info = ng_conn.astrocyte_synapses_properties(astrocyte_id, location_props + target_props)
+        synapse_ids_of_one_eff_neuron = synapses_info[synapses_info['@target_node'] == efferent_neuron_id]
+        synapse_locations = synapse_ids_of_one_eff_neuron[location_props].to_numpy()
+        L.debug('connected synapses %s', len(synapse_locations))
+        return synapse_locations

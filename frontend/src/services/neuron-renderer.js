@@ -9,7 +9,7 @@ import {
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
   PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
   SphereBufferGeometry, CylinderGeometry, Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane,
+  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, Group,
 } from 'three';
 
 import { saveAs } from 'file-saver';
@@ -1178,6 +1178,9 @@ class NeuronRenderer {
     const effNeuronInsideVascPositions = [];
     const effNeuronInsideVascDetails = [];
 
+    // raycast shows different index than the neuron
+    let raycastIndex = 0;
+    const raycastMapping = {};
     efferentNeuronIds.forEach((id) => {
       const neuronPosition = store.$get('neuronPosition', id);
       const tempV = new Vector3(neuronPosition[0], neuronPosition[1], neuronPosition[2]);
@@ -1188,6 +1191,8 @@ class NeuronRenderer {
       effNeuronInsideVascIds.push(id);
       effNeuronInsideVascPositions.push(...neuronPosition);
       effNeuronInsideVascDetails.push(store.$get('neuron', id));
+      raycastMapping[raycastIndex] = id;
+      raycastIndex += 1;
     });
 
     const effNeuronInsideVascColors = this.getNeuronColors(effNeuronInsideVascDetails).flat();
@@ -1205,34 +1210,35 @@ class NeuronRenderer {
     this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, this.pointCloudMaterial);
     this.efferentNeuronsCloud.points.name = 'efferentNeurons';
     this.efferentNeuronsCloud.points.visible = true;
+    store.state.circuit.efferentNeurons.raycastMapping = raycastMapping;
 
     this.scene.add(this.efferentNeuronsCloud.points);
     this.ctrl.renderOnce();
-
-    store.$dispatch('showBoundingVasculature', effNeuronGeometry.boundingBox);
   }
 
-  onEfferentNeuronHover(neuronIndex) {
+  onEfferentNeuronHover(raycastIndex) {
+    const neuronIndex = store.state.circuit.efferentNeurons.raycastMapping[raycastIndex];
     this.onHoverExternalHandler({
       type: 'efferentNeuronCloud',
       neuronIndex,
+      raycastIndex,
     });
 
     this.hoveredNeuron = [
-      neuronIndex,
-      this.efferentNeuronsCloud.colorBufferAttr.getX(neuronIndex),
-      this.efferentNeuronsCloud.colorBufferAttr.getY(neuronIndex),
-      this.efferentNeuronsCloud.colorBufferAttr.getZ(neuronIndex),
+      raycastIndex,
+      this.efferentNeuronsCloud.colorBufferAttr.getX(raycastIndex),
+      this.efferentNeuronsCloud.colorBufferAttr.getY(raycastIndex),
+      this.efferentNeuronsCloud.colorBufferAttr.getZ(raycastIndex),
     ];
-    this.efferentNeuronsCloud.colorBufferAttr.setXYZ(neuronIndex, ...HOVERED_NEURON_GL_COLOR);
+    this.efferentNeuronsCloud.colorBufferAttr.setXYZ(raycastIndex, ...HOVERED_NEURON_GL_COLOR);
     this.efferentNeuronsCloud.points.geometry.attributes.color.needsUpdate = true;
 
     this.ctrl.renderOnce();
   }
 
-  onEfferentNeuronHoverEnd(neuronIndex) {
+  onEfferentNeuronHoverEnd(raycastIndex) {
     this.onHoverEndExternalHandler({
-      neuronIndex,
+      raycastIndex,
       type: 'efferentNeuronCloud',
     });
 
@@ -1257,8 +1263,11 @@ class NeuronRenderer {
 
     for (let i = 0; i < edgePoints.length; i++) {
       const edgeColor = astrocyteColorMap[types[i]];
-      colors.push(edgeColor);
-      colors.push(edgeColor);
+
+      // same color for all points inside section
+      for (let j = 0; j < edgePoints[i].length / 3; j++) {
+        colors.push(edgeColor);
+      }
     }
 
     const colorsFlat = colors.flat();
@@ -1270,18 +1279,24 @@ class NeuronRenderer {
     const material = new LineBasicMaterial({ vertexColors: VertexColors });
 
     const astrocyteMorph = new LineSegments(astrocyteGeometry, material);
-    astrocyteMorph.name = 'astrocyteSelected';
+    astrocyteMorph.name = 'astrocyteSelectedMorphology';
     astrocyteGeometry.computeBoundingSphere();
-
-    this.scene.add(astrocyteMorph);
+    const group = new Group();
+    group.add(astrocyteMorph);
 
     // add soma
-    const sphereGeometry = new SphereBufferGeometry(3, 15, 15);
+    const somaSize = 3;
+    const sphereGeometry = new SphereBufferGeometry(somaSize, 15, 15);
     const sphereMaterial = new MeshLambertMaterial({ color: 0x000000 });
-    const somaSphere = new Mesh(sphereGeometry, sphereMaterial);
-    somaSphere.position.set(points[0], points[1], points[2]);
-    this.scene.add(somaSphere);
-    this.controls.target.copy(new Vector3(points[0], points[1], points[2]));
+    const astrocyteSoma = new Mesh(sphereGeometry, sphereMaterial);
+    astrocyteSoma.name = 'astrocyteSelectedSoma';
+    const clickedAstrocyteId = store.state.circuit.astrocytes.selectedWithClick;
+    const astrocytePosition = store.$get('astrocytePosition', clickedAstrocyteId);
+    astrocyteSoma.position.set(astrocytePosition[0], astrocytePosition[1], astrocytePosition[2]);
+    group.add(astrocyteSoma);
+
+    this.scene.add(group);
+    this.controls.target.copy(new Vector3(astrocytePosition[0], astrocytePosition[1], astrocytePosition[2]));
     this.ctrl.renderOnce();
   }
 
@@ -1323,6 +1338,45 @@ class NeuronRenderer {
     this.boundingVasculature.mesh.visible = true;
 
     this.scene.add(this.boundingVasculature.mesh);
+    this.ctrl.renderOnce();
+  }
+
+  getSelectedEfferentNeuron3DObject() {
+    this.efferentNeuronsCloud.points.visible = false;
+    // add efferent neuron soma
+    const efferentNeuronSelectedId = store.state.circuit.efferentNeurons.selectedWithClick;
+    const efferentNeuron = store.$get('neuron', efferentNeuronSelectedId);
+    const efferentNeuronPosition = store.$get('neuronPosition', efferentNeuronSelectedId);
+
+    const efferentNeuronGeometry = new BufferGeometry();
+    efferentNeuronGeometry.setAttribute('position', new Float32BufferAttribute(efferentNeuronPosition.flat(), 3));
+    const effNeuronColor = this.getNeuronColors([efferentNeuron]).flat();
+    efferentNeuronGeometry.setAttribute('color', new Float32BufferAttribute(effNeuronColor, 3));
+
+    const efferentCloudMaterial = this.pointCloudMaterial.clone();
+
+    const efferentSomaCloud = new Points(efferentNeuronGeometry, efferentCloudMaterial);
+    return efferentSomaCloud;
+  }
+
+  showSynapseLocations(synapseLocations) {
+    const synapsePoints = synapseLocations.flat();
+    const synapseColor = synapseLocations.map(() => [255, 204, 0]).flat();
+
+    const synapseGeometry = new BufferGeometry();
+    synapseGeometry.setAttribute('position', new Float32BufferAttribute(synapsePoints, 3));
+    synapseGeometry.setAttribute('color', new Float32BufferAttribute(synapseColor, 3));
+
+    const cloudMaterial = this.pointCloudMaterial.clone();
+
+    const synapsesCloud = new Points(synapseGeometry, cloudMaterial);
+    synapsesCloud.name = 'astrocyteSynapses';
+
+    const group = new Group();
+    group.add(synapsesCloud);
+    group.add(this.getSelectedEfferentNeuron3DObject());
+
+    this.scene.add(group);
     this.ctrl.renderOnce();
   }
 }

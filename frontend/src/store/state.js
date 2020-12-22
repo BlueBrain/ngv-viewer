@@ -17,10 +17,16 @@ const state = {
       visible: false,
     },
 
+    efferentNeurons: {
+      raycastMapping: {},
+      selectedWithClick: null,
+    },
+
     astrocytes: {
       positions: null,
       prop: {},
       visible: true,
+      selectedWithClick: null,
     },
 
     vasculature: {

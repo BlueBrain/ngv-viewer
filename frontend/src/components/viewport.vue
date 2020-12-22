@@ -89,6 +89,7 @@
 
       store.$on('showEfferentNeurons', neuronIds => this.renderer.showEfferentNeurons(neuronIds));
       store.$on('showAstrocyteMorphology', morphObj => this.renderer.showAstrocyteMorphology(morphObj));
+      store.$on('showAstrocyteSynapses', synapseLocations => this.renderer.showSynapseLocations(synapseLocations));
     },
     methods: {
       onHover(obj) {
@@ -162,6 +163,10 @@
         case 'astrocyteCloud': {
           const astrocyte = store.$get('astrocyte', obj.index);
           store.$dispatch('astrocyteClicked', astrocyte);
+          break;
+        }
+        case 'efferentNeurons': {
+          store.$dispatch('efferentNeuronClicked', obj.index);
           break;
         }
         default: {

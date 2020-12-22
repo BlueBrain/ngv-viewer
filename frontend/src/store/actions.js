@@ -455,29 +455,52 @@ const actions = {
   async astrocyteClicked(store, astrocyte) {
     const efferentNeuron = new Promise((resolve) => {
       const processEfferentNeurons = (neuronIds) => {
+        storage.setItem(`efferentNeurons:${astrocyte.idx}`, neuronIds);
         store.$emit('showEfferentNeurons', neuronIds);
         store.$off('ws:efferent_neurons', processEfferentNeurons);
         resolve();
       };
 
-      // search in backend
-      store.$on('ws:efferent_neurons', processEfferentNeurons);
-      socket.send('get_efferent_neurons', astrocyte.idx);
+      // try load from cache
+      storage.getItem(`efferentNeurons:${astrocyte.idx}`)
+        .then((efferentNeuronsCached) => {
+          if (efferentNeuronsCached) {
+            store.$emit('showEfferentNeurons', efferentNeuronsCached);
+            resolve();
+            return;
+          }
+
+          // search in backend
+          store.$on('ws:efferent_neurons', processEfferentNeurons);
+          socket.send('get_efferent_neurons', astrocyte.idx);
+        });
     });
 
     const astrocyteMorph = new Promise((resolve) => {
       const processAstrocyteMorph = (morphObj) => {
         // morphObj = { 'points': [], 'types': [] }
+        storage.setItem(`astrocyteMorph:${astrocyte.idx}`, morphObj);
         store.$emit('showAstrocyteMorphology', morphObj);
         store.$off('ws:astrocyte_morph', processAstrocyteMorph);
         resolve();
       };
 
-      // search in backend
-      store.$on('ws:astrocyte_morph', processAstrocyteMorph);
-      socket.send('get_astrocyte_morph', astrocyte.idx);
+      // try load from cache
+      storage.getItem(`astrocyteMorph:${astrocyte.idx}`)
+        .then((astrocyteMorphCached) => {
+          if (astrocyteMorphCached) {
+            store.$emit('showAstrocyteMorphology', astrocyteMorphCached);
+            resolve();
+            return;
+          }
+
+          // search in backend
+          store.$on('ws:astrocyte_morph', processAstrocyteMorph);
+          socket.send('get_astrocyte_morph', astrocyte.idx);
+        });
     });
 
+    store.state.circuit.astrocytes.selectedWithClick = astrocyte.idx;
     store.$emit('showGlobalSpinner');
     await Promise.all([efferentNeuron, astrocyteMorph]);
     store.$emit('hideGlobalSpinner');
@@ -1057,6 +1080,41 @@ const actions = {
 
   efferentNeuronHoveredEnded(store) {
     store.$emit('hideHoverObjectInfo');
+  },
+
+  async efferentNeuronClicked(store, raycastIndex) {
+    const efferentNeuronId = store.state.circuit.efferentNeurons.raycastMapping[raycastIndex];
+    const selectedAstrocyteId = store.state.circuit.astrocytes.selectedWithClick;
+    store.state.circuit.efferentNeurons.selectedWithClick = efferentNeuronId;
+    const synapseLocations = new Promise((resolve) => {
+      const processAstrocyteSynapses = (morphObj) => {
+        storage.setItem(`synapseLocations:${selectedAstrocyteId}:${efferentNeuronId}}`, morphObj);
+        store.$emit('showAstrocyteSynapses', morphObj);
+        store.$off('ws:synapse_locations', processAstrocyteSynapses);
+        resolve();
+      };
+
+      // try load from cache
+      storage.getItem(`synapseLocations:${selectedAstrocyteId}:${efferentNeuronId}}`)
+        .then((synapseLocationsCached) => {
+          if (synapseLocationsCached) {
+            store.$emit('showAstrocyteSynapses', synapseLocationsCached);
+            resolve();
+            return;
+          }
+
+          // search in backend
+          store.$on('ws:synapse_locations', processAstrocyteSynapses);
+          socket.send('get_astrocyte_synapses', {
+            astrocyte: selectedAstrocyteId,
+            neuron: efferentNeuronId,
+          });
+        });
+    });
+
+    store.$emit('showGlobalSpinner');
+    await synapseLocations;
+    store.$emit('hideGlobalSpinner');
   },
 
   showBoundingVasculature(store, boundingBox) {

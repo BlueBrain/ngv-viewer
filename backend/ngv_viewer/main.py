@@ -260,6 +260,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             L.debug('sending astrocyte morphology to the client')
             self.send_message('astrocyte_morph', morph)
 
+        if cmd == 'get_astrocyte_synapses':
+            data_dict = msg['data']
+            synapse_locations = STORAGE.get_astrocyte_synapses(circuit_path, data_dict['astrocyte'], data_dict['neuron'])
+            L.debug('sending astrocyte synapses to the client')
+            self.send_message('synapse_locations', synapse_locations)
+
 
     def send_message(self, cmd, data=None):
         if not self.closed:
