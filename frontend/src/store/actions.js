@@ -457,7 +457,7 @@ const actions = {
       const processEfferentNeurons = (neuronIds) => {
         storage.setItem(`efferentNeurons:${astrocyte.idx}`, neuronIds);
         store.$emit('showEfferentNeurons', neuronIds);
-        store.$off('ws:efferent_neurons', processEfferentNeurons);
+        store.$off('ws:efferent_neuron_ids', processEfferentNeurons);
         resolve();
       };
 
@@ -471,7 +471,7 @@ const actions = {
           }
 
           // search in backend
-          store.$on('ws:efferent_neurons', processEfferentNeurons);
+          store.$on('ws:efferent_neuron_ids', processEfferentNeurons);
           socket.send('get_efferent_neurons', astrocyte.idx);
         });
     });
@@ -1037,10 +1037,10 @@ const actions = {
   },
 
   async loadAstrocytesSomas(store) {
-    const cached = await storage.getItem(store.$get('storageKey', 'astrocytesPositions'));
+    const cached = await storage.getItem(store.$get('storageKey', 'astrocytesSomas'));
     const { astrocytes } = store.state.circuit;
 
-    let somas = [];
+    let somas = {}; // positions, ids
 
     if (cached) {
       somas = cached;
@@ -1055,15 +1055,12 @@ const actions = {
         socket.send('get_astrocytes_somas');
       });
 
-      const somasObj = await done;
-      somas = somasObj.positions;
+      somas = await done;
 
-      astrocytes.positions = somas;
-      await storage.setItem(
-        store.$get('storageKey', 'astrocytesPositions'),
-        astrocytes.positions,
-      );
+      await storage.setItem(store.$get('storageKey', 'astrocytesSomas'), somas);
     }
+    astrocytes.positions = somas.positions;
+    astrocytes.ids = somas.ids;
 
     store.$emit('loadAstrocytesSomas', somas);
   },
@@ -1087,10 +1084,10 @@ const actions = {
     const selectedAstrocyteId = store.state.circuit.astrocytes.selectedWithClick;
     store.state.circuit.efferentNeurons.selectedWithClick = efferentNeuronId;
     const synapseLocations = new Promise((resolve) => {
-      const processAstrocyteSynapses = (morphObj) => {
-        storage.setItem(`synapseLocations:${selectedAstrocyteId}:${efferentNeuronId}}`, morphObj);
-        store.$emit('showAstrocyteSynapses', morphObj);
-        store.$off('ws:synapse_locations', processAstrocyteSynapses);
+      const processAstrocyteSynapses = (synapses) => {
+        storage.setItem(`synapseLocations:${selectedAstrocyteId}:${efferentNeuronId}}`, synapses);
+        store.$emit('showAstrocyteSynapses', synapses);
+        store.$off('ws:synapses', processAstrocyteSynapses);
         resolve();
       };
 
@@ -1104,7 +1101,7 @@ const actions = {
           }
 
           // search in backend
-          store.$on('ws:synapse_locations', processAstrocyteSynapses);
+          store.$on('ws:synapses', processAstrocyteSynapses);
           socket.send('get_astrocyte_synapses', {
             astrocyte: selectedAstrocyteId,
             neuron: efferentNeuronId,

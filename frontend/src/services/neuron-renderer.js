@@ -1137,7 +1137,8 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  loadAstrocytesSomas(somaPositionArray) {
+  loadAstrocytesSomas(astrocyteSomas) {
+    const somaPositionArray = astrocyteSomas.positions;
     const positions = new Float32Array(somaPositionArray.flat());
     const colorBuffer = new Float32Array(positions.length * 3);
 
@@ -1157,17 +1158,21 @@ class NeuronRenderer {
     this.astrocyteCloud.points.visible = store.state.circuit.astrocytes.visible;
     this.scene.add(this.astrocyteCloud.points);
     this.ctrl.renderOnce();
+
+    store.$emit('updateClipboardIds', {
+      name: 'astrocytes ids',
+      data: astrocyteSomas.ids,
+    });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   getNeuronColors(neurons) {
-    /* eslint-disable class-methods-use-this */
     const colorPalette = store.state.circuit.color.palette;
     return neurons.map((neuron) => {
       // remove the transparency
       const [r, g, b] = colorPalette[neuron.layer];
       return [r, g, b];
     });
-     /* eslint-enable class-methods-use-this */
   }
 
   showEfferentNeurons(efferentNeuronIds) {
@@ -1214,6 +1219,11 @@ class NeuronRenderer {
 
     this.scene.add(this.efferentNeuronsCloud.points);
     this.ctrl.renderOnce();
+
+    store.$emit('updateClipboardIds', {
+      name: 'efferent neurons ids',
+      data: efferentNeuronIds,
+    });
   }
 
   onEfferentNeuronHover(raycastIndex) {
@@ -1359,7 +1369,8 @@ class NeuronRenderer {
     return efferentSomaCloud;
   }
 
-  showSynapseLocations(synapseLocations) {
+  showSynapseLocations(synapses) {
+    const synapseLocations = synapses.locations;
     const synapsePoints = synapseLocations.flat();
     const synapseColor = synapseLocations.map(() => [255, 204, 0]).flat();
 
@@ -1378,6 +1389,11 @@ class NeuronRenderer {
 
     this.scene.add(group);
     this.ctrl.renderOnce();
+
+    store.$emit('updateClipboardIds', {
+      name: 'synapses ids',
+      data: synapses.ids,
+    });
   }
 }
 

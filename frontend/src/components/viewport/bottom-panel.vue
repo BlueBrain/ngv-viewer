@@ -20,6 +20,9 @@
         <div class="meshes-toggle">
           <meshes-toggle-ctrl />
         </div>
+        <div class="clipboard-ids">
+          <clipboard-ids />
+        </div>
       </div>
       <div class="sim-panel" v-else-if="mode === 'simulationConfig'">
         <syn-color-palette/>
@@ -51,6 +54,7 @@
   import SectionAlignmentCtrl from './bottom-panel/section-alignment-ctrl.vue';
   import ScreenshotCtrl from './bottom-panel/screenshot-ctrl.vue';
   import MeshesToggleCtrl from './bottom-panel/meshes-toggle-ctrl.vue';
+  import ClipboardIds from './bottom-panel/clipboard-ids.vue';
 
   // Simulation config components
   import SynColorPalette from './bottom-panel/syn-color-palette.vue';
@@ -66,6 +70,7 @@
       'section-alignment-ctrl': SectionAlignmentCtrl,
       'screenshot-ctrl': ScreenshotCtrl,
       'meshes-toggle-ctrl': MeshesToggleCtrl,
+      'clipboard-ids': ClipboardIds,
     },
     data() {
       return {
@@ -120,6 +125,12 @@
       position: absolute;
       right: 52px;
       top: -115px;
+    }
+
+    .clipboard-ids {
+      position: absolute;
+      right: 47px;
+      top: -148px;
     }
   }
 </style>

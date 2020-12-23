@@ -24,6 +24,7 @@ const state = {
 
     astrocytes: {
       positions: null,
+      ids: [],
       prop: {},
       visible: true,
       selectedWithClick: null,

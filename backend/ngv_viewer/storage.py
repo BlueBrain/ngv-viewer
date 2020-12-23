@@ -148,8 +148,10 @@ class Storage():
         L.debug('getting astrocytes %s', circuit_path)
         circuit = get_circuit(circuit_path)
         positions = circuit.astrocytes.positions()
+        ids = circuit.astrocytes.ids()
         soma_positions = positions.values
-        return {'positions': soma_positions}
+        return { 'positions': soma_positions,
+                 'ids': ids }
 
     def get_astrocyte_props(self, circuit_path, astrocyte_id):
         L.debug('getting props for astrocyte %s', astrocyte_id)
@@ -204,6 +206,8 @@ class Storage():
         ng_conn = circuit.neuroglial_connectome
         synapses_info = ng_conn.astrocyte_synapses_properties(astrocyte_id, location_props + target_props)
         synapse_ids_of_one_eff_neuron = synapses_info[synapses_info['@target_node'] == efferent_neuron_id]
+        ids = synapse_ids_of_one_eff_neuron.index.to_numpy()
         synapse_locations = synapse_ids_of_one_eff_neuron[location_props].to_numpy()
         L.debug('connected synapses %s', len(synapse_locations))
-        return synapse_locations
+        return { 'locations': synapse_locations,
+                 'ids': ids }
