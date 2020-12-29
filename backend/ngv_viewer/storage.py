@@ -37,21 +37,12 @@ def get_circuit(circuit_path):
     circuit_cache[circuit_path] = circuit
     return circuit
 
-def mask_population_by_geometry(population, geometry):
-    positions = population.positions().to_numpy()
-    mask = geometry.points_inside(positions)
-    return np.arange(len(positions), dtype=np.int)[mask]
-
-
 class Storage():
     def get_circuit_cells(self, circuit_path):
         L.debug('getting cells')
         circuit = get_circuit(circuit_path)
         cells = cache.get('circuit:cells')
         if cells is None:
-            bbox = circuit.vasculature.morph.bounding_box
-            # get only cells inside vasculature
-            # neuron_ids = mask_population_by_geometry(circuit.neurons, bbox)
             neuron_ids = circuit.neurons.ids()
             columns_to_drop = [
                 '@dynamics:holding_current', '@dynamics:threshold_current',
@@ -211,3 +202,16 @@ class Storage():
         L.debug('connected synapses %s', len(synapse_locations))
         return { 'locations': synapse_locations,
                  'ids': ids }
+
+    def get_full_vasculature_bounding_box(self, circuit_path):
+        L.debug('getting full vasculature bounding box')
+        circuit = get_circuit(circuit_path)
+        bbox = circuit.vasculature.morph.bounding_box
+        max_list = bbox.max_point.tolist()
+        min_list = bbox.min_point.tolist()
+
+        bbox_dict = {
+            'max': { 'x': max_list[0], 'y': max_list[1], 'z': max_list[2] },
+            'min': { 'x': min_list[0], 'y': min_list[1], 'z': min_list[2] },
+        }
+        return bbox_dict

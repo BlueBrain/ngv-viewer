@@ -89,6 +89,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 return
 
             cell_count = len(cells)
+            full_vasculature_bounding_box = STORAGE.get_full_vasculature_bounding_box(circuit_path)
+            L.debug('sending full vasculaure bounding box to the client')
             props = [
                 prop
                 for prop
@@ -108,7 +110,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 'prop': prop_meta,
                 'props': props,
                 'count': cell_count,
-                'cmdid': cmdid
+                'cmdid': cmdid,
+                'bbox': full_vasculature_bounding_box,
             }
             self.send_message('circuit_metadata', circuit_metadata)
 

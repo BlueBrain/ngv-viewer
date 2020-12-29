@@ -182,7 +182,12 @@ class NeuronRenderer {
     geometry.setAttribute('position', this.neuronCloud.positionBufferAttr);
     geometry.setAttribute('color', this.neuronCloud.colorBufferAttr);
 
-    this.neuronCloud.points = new Points(geometry, this.pointCloudMaterial);
+    const planes = this.generateClippingPlanes(store.state.circuit.cells.meta.bbox);
+    const newMat = this.pointCloudMaterial.clone();
+    newMat.clippingPlanes = planes;
+    this.renderer.localClippingEnabled = true;
+
+    this.neuronCloud.points = new Points(geometry, newMat);
 
     // TODO: measure performance improvement
     this.neuronCloud.points.matrixAutoUpdate = false;
@@ -1310,9 +1315,9 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  showBoundingVasculature(boundingBox) {
-    // Generate cutting planes based on efferent neurons bounderies
-    const planes = [
+  // eslint-disable-next-line class-methods-use-this
+  generateClippingPlanes(boundingBox) {
+    return [
       new Plane(new Vector3(1, 0, 0), -boundingBox.min.x),
       new Plane(new Vector3(0, 1, 0), -boundingBox.min.y),
       new Plane(new Vector3(0, 0, 1), -boundingBox.min.z),
@@ -1320,6 +1325,11 @@ class NeuronRenderer {
       new Plane(new Vector3(0, -1, 0), boundingBox.max.y),
       new Plane(new Vector3(0, 0, -1), boundingBox.max.z),
     ];
+  }
+
+  showBoundingVasculature(boundingBox) {
+    // Generate cutting planes based on efferent neurons bounderies
+    const planes = this.generateClippingPlanes(boundingBox);
 
     const loadedVasculature = this.vasculatureCloud.mesh;
     this.boundingVasculature = {};
