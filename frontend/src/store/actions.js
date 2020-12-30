@@ -537,13 +537,9 @@ const actions = {
       items: [{
         type: 'table',
         data: {
-          section: section.data.name,
-          gid: section.data.neuron.gid,
+          section: section.data.name || section.data.id,
+          gid: section.data.hoverInfo.gid || section.data.hoverInfo.idx,
         },
-      }, {
-        subHeader: 'Cell:',
-        type: 'table',
-        data: pickBy(section.data.neuron, (val, prop) => ['etype', 'mtype'].includes(prop)),
       }],
     });
   },

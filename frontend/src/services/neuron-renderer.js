@@ -25,6 +25,8 @@ import store from '@/store';
 import eachAsync from '@/tools/each-async';
 import utils from '@/tools/neuron-renderer-utils';
 
+import { Mesh as MeshType } from '@/constants';
+
 
 const FOG_COLOR = 0xffffff;
 const NEAR = 1;
@@ -402,6 +404,61 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  generateMorphology(morphObj) {
+    const {
+      cellObj3d,
+      gid,
+      secTypes = ALL_SEC_TYPES.filter(defaultSecRenderFilter),
+      sections,
+      addSecOperations,
+      cellIndex = 0,
+      gids = [gid],
+      type,
+    } = morphObj;
+
+    const secTypesToAdd = difference(secTypes, cellObj3d.userData.secTypes);
+    if (!secTypesToAdd.length) return;
+
+    cellObj3d.userData.secTypes.push(...secTypesToAdd);
+
+    let hoverInfo = {};
+    if (type === MeshType.NEURONS) {
+      const neuronIndex = gid - 1;
+      const neuron = store.$get('neuron', neuronIndex);
+      hoverInfo = neuron;
+    }
+    if (type === MeshType.ASTROCYTES) {
+      const astrocyteIndex = gid - 1;
+      const astrocyte = store.$get('astrocyte', astrocyteIndex);
+      hoverInfo = astrocyte;
+    }
+
+    const colorDiff = (((2 * COLOR_DIFF_RANGE * cellIndex) / gids.length)) - COLOR_DIFF_RANGE;
+
+    const materialMap = utils.generateSecMaterialMap(colorDiff);
+
+    const addSecOperation = eachAsync(sections, (section) => {
+      const pts = section.points;
+
+      const secMesh = section.type === 'soma'
+        ? utils.createSomaMeshFromPoints(pts, materialMap[section.type].clone())
+        : utils.createSecMeshFromPoints(pts, materialMap[section.type].clone());
+
+      secMesh.name = 'morphSection';
+      secMesh.userData = {
+        hoverInfo,
+        type: section.type,
+        id: section.id,
+        name: section.name,
+      };
+
+      cellObj3d.add(secMesh);
+    }, sec => secTypesToAdd.includes(sec.type));
+
+    addSecOperations.push(addSecOperation);
+  }
+
   showMorphology(secTypes = ALL_SEC_TYPES.filter(defaultSecRenderFilter)) {
     const gids = store.state.circuit.simAddedNeurons.map(n => n.gid);
 
@@ -421,38 +478,17 @@ class NeuronRenderer {
         this.cellMorphologyObj.add(cellObj3d);
       }
 
-      const secTypesToAdd = difference(secTypes, cellObj3d.userData.secTypes);
-      if (!secTypesToAdd.length) return;
-
-      cellObj3d.userData.secTypes.push(...secTypesToAdd);
-
-      const neuronIndex = gid - 1;
-      const neuron = store.$get('neuron', neuronIndex);
       const { sections } = morphology[gid];
-
-      const colorDiff = (((2 * COLOR_DIFF_RANGE * cellIndex) / gids.length)) - COLOR_DIFF_RANGE;
-
-      const materialMap = utils.generateSecMaterialMap(colorDiff);
-
-      const addSecOperation = eachAsync(sections, (section) => {
-        const pts = section.points;
-
-        const secMesh = section.type === 'soma' ?
-          utils.createSomaMeshFromPoints(pts, materialMap[section.type].clone()) :
-          utils.createSecMeshFromPoints(pts, materialMap[section.type].clone());
-
-        secMesh.name = 'morphSection';
-        secMesh.userData = {
-          neuron,
-          type: section.type,
-          id: section.id,
-          name: section.name,
-        };
-
-        cellObj3d.add(secMesh);
-      }, sec => secTypesToAdd.includes(sec.type));
-
-      addSecOperations.push(addSecOperation);
+      this.generateMorphology({
+        cellObj3d,
+        gid,
+        secTypes,
+        sections,
+        addSecOperations,
+        gids,
+        cellIndex,
+        type: MeshType.NEURONS,
+      });
     });
 
     const stopRender = this.ctrl.renderUntilStopped();
@@ -1265,53 +1301,41 @@ class NeuronRenderer {
   }
 
   showAstrocyteMorphology(morphObj) {
-    // morphObj = { 'points': [], 'types': [] }
-    const { points: edgePoints, types } = morphObj;
+    // morphObj = { 'sections': [], 'orientation': [] }
+    this.astrocyteMorphologyObj = new Object3D();
 
-    const points = edgePoints.flat();
-    const colors = [];
+    const gid = store.state.circuit.astrocytes.selectedWithClick;
+    const addSecOperations = [];
 
-    const astrocyteColorMap = {
-      2: [255, 0, 0],
-      3: [0, 0, 255],
+    const { sections } = morphObj;
+
+    const cellObj3d = new Object3D();
+    cellObj3d.userData = {
+      gid,
+      secTypes: [],
     };
 
-    for (let i = 0; i < edgePoints.length; i++) {
-      const edgeColor = astrocyteColorMap[types[i]];
+    this.astrocyteMorphologyObj.add(cellObj3d);
 
-      // same color for all points inside section
-      for (let j = 0; j < edgePoints[i].length / 3; j++) {
-        colors.push(edgeColor);
-      }
-    }
+    this.generateMorphology({
+      cellObj3d,
+      gid,
+      sections,
+      addSecOperations,
+      type: MeshType.ASTROCYTES,
+    });
 
-    const colorsFlat = colors.flat();
+    const stopRender = this.ctrl.renderUntilStopped();
 
-    const astrocyteGeometry = new BufferGeometry();
-    astrocyteGeometry.setAttribute('position', new Float32BufferAttribute(points, 3));
-    astrocyteGeometry.setAttribute('color', new Float32BufferAttribute(colorsFlat, 3));
+    Promise.all(addSecOperations).then(() => {
+      store.$dispatch('morphRenderFinished');
+      stopRender();
+    });
 
-    const material = new LineBasicMaterial({ vertexColors: VertexColors });
-
-    const astrocyteMorph = new LineSegments(astrocyteGeometry, material);
-    astrocyteMorph.name = 'astrocyteSelectedMorphology';
-    astrocyteGeometry.computeBoundingSphere();
-    const group = new Group();
-    group.add(astrocyteMorph);
-
-    // add soma
-    const somaSize = 3;
-    const sphereGeometry = new SphereBufferGeometry(somaSize, 15, 15);
-    const sphereMaterial = new MeshLambertMaterial({ color: 0x000000 });
-    const astrocyteSoma = new Mesh(sphereGeometry, sphereMaterial);
-    astrocyteSoma.name = 'astrocyteSelectedSoma';
-    const clickedAstrocyteId = store.state.circuit.astrocytes.selectedWithClick;
-    const astrocytePosition = store.$get('astrocytePosition', clickedAstrocyteId);
-    astrocyteSoma.position.set(astrocytePosition[0], astrocytePosition[1], astrocytePosition[2]);
-    group.add(astrocyteSoma);
-
-    this.scene.add(group);
-    this.controls.target.copy(new Vector3(astrocytePosition[0], astrocytePosition[1], astrocytePosition[2]));
+    this.astrocyteMorphologyObj.visible = true;
+    this.scene.add(this.astrocyteMorphologyObj);
+    const centerTarget = sections[0]['points'][0];
+    this.controls.target.copy(new Vector3(centerTarget[0], centerTarget[1], centerTarget[2]));
     this.ctrl.renderOnce();
   }
 
