@@ -30,6 +30,10 @@ const state = {
       selectedWithClick: null,
     },
 
+    astrocyteSynapses: {
+      raycastMapping: {},
+    },
+
     vasculature: {
       mesh: null,
       visible: false,

@@ -117,6 +117,10 @@
           store.$dispatch('efferentNeuronHovered', neuron);
           break;
         }
+        case 'astrocyteSynapse': {
+          store.$dispatch('astrocyteSynapseHovered', obj.astrocyteSynapseIndex);
+          break;
+        }
         default: {
           break;
         }
@@ -142,6 +146,10 @@
         }
         case 'efferentNeuronCloud': {
           store.$dispatch('efferentNeuronHoveredEnded');
+          break;
+        }
+        case 'astrocyteSynapse': {
+          store.$dispatch('astrocyteSynapseHoveredEnded');
           break;
         }
         default: {

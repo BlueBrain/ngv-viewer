@@ -1113,6 +1113,24 @@ const actions = {
   showBoundingVasculature(store, boundingBox) {
     store.$emit('showBoundingVasculature', boundingBox);
   },
+
+  async astrocyteSynapseHovered(store, synapseId) {
+    const efferentNeuronId = store.state.circuit.efferentNeurons.selectedWithClick;
+    store.$emit('showHoverObjectInfo', {
+      header: 'Astrocyte Synapse',
+      items: [{
+        type: 'table',
+        data: {
+          id: synapseId,
+          efferentNeuron: efferentNeuronId,
+        },
+      }],
+    });
+  },
+
+  astrocyteSynapseHoveredEnded(store) {
+    store.$emit('hideHoverObjectInfo');
+  },
 };
 
 export default actions;

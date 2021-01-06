@@ -820,6 +820,10 @@ class NeuronRenderer {
       this.onEfferentNeuronHover(mesh.index);
       break;
     }
+    case 'astrocyteSynapses': {
+      this.onAstrocyteSynapseHover(mesh.index);
+      break;
+    }
     default: {
       break;
     }
@@ -846,6 +850,10 @@ class NeuronRenderer {
     }
     case 'efferentNeurons': {
       this.onEfferentNeuronHoverEnd(mesh.index);
+      break;
+    }
+    case 'astrocyteSynapses': {
+      this.onAstrocyteSynapseHoverEnd(mesh.index);
       break;
     }
     default: {
@@ -1404,21 +1412,26 @@ class NeuronRenderer {
   }
 
   showSynapseLocations(synapses) {
+    // raycast shows different index than the neuron
+    store.state.circuit.astrocyteSynapses.raycastMapping = { ...synapses.ids };
+
     const synapseLocations = synapses.locations;
     const synapsePoints = synapseLocations.flat();
     const synapseColor = synapseLocations.map(() => [255, 204, 0]).flat();
 
-    const synapseGeometry = new BufferGeometry();
-    synapseGeometry.setAttribute('position', new Float32BufferAttribute(synapsePoints, 3));
-    synapseGeometry.setAttribute('color', new Float32BufferAttribute(synapseColor, 3));
+    this.astrocyteSynapsesCloud = {
+      positionBufferAttr: new Float32BufferAttribute(synapsePoints, 3),
+      colorBufferAttr: new Float32BufferAttribute(synapseColor, 3),
+    };
+    const astrocyteSynapseGeometry = new BufferGeometry();
+    astrocyteSynapseGeometry.setAttribute('position', this.astrocyteSynapsesCloud.positionBufferAttr);
+    astrocyteSynapseGeometry.setAttribute('color', this.astrocyteSynapsesCloud.colorBufferAttr);
 
-    const cloudMaterial = this.pointCloudMaterial.clone();
-
-    const synapsesCloud = new Points(synapseGeometry, cloudMaterial);
-    synapsesCloud.name = 'astrocyteSynapses';
+    this.astrocyteSynapsesCloud.points = new Points(astrocyteSynapseGeometry, this.pointCloudMaterial.clone());
+    this.astrocyteSynapsesCloud.points.name = 'astrocyteSynapses';
 
     const group = new Group();
-    group.add(synapsesCloud);
+    group.add(this.astrocyteSynapsesCloud.points);
     group.add(this.getSelectedEfferentNeuron3DObject());
 
     this.scene.add(group);
@@ -1428,6 +1441,39 @@ class NeuronRenderer {
       name: 'synapses ids',
       data: synapses.ids,
     });
+  }
+
+  onAstrocyteSynapseHover(raycastIndex) {
+    const astrocyteSynapseIndex = store.state.circuit.astrocyteSynapses.raycastMapping[raycastIndex];
+    this.onHoverExternalHandler({
+      astrocyteSynapseIndex,
+      type: 'astrocyteSynapse',
+    });
+
+    this.hoveredSynapse = [
+      raycastIndex,
+      this.astrocyteSynapsesCloud.colorBufferAttr.getX(raycastIndex),
+      this.astrocyteSynapsesCloud.colorBufferAttr.getY(raycastIndex),
+      this.astrocyteSynapsesCloud.colorBufferAttr.getZ(raycastIndex),
+    ];
+    this.astrocyteSynapsesCloud.colorBufferAttr.setXYZ(raycastIndex, ...HOVERED_SYN_GL_COLOR);
+    this.astrocyteSynapsesCloud.points.geometry.attributes.color.needsUpdate = true;
+
+    this.ctrl.renderOnce();
+  }
+
+  onAstrocyteSynapseHoverEnd(raycastIndex) {
+    const astrocyteSynapseIndex = store.state.circuit.astrocyteSynapses.raycastMapping[raycastIndex];
+    this.onHoverEndExternalHandler({
+      astrocyteSynapseIndex,
+      type: 'astrocyteSynapse',
+    });
+
+    this.astrocyteSynapsesCloud.colorBufferAttr.setXYZ(...this.hoveredSynapse);
+    this.astrocyteSynapsesCloud.points.geometry.attributes.color.needsUpdate = true;
+    this.hoveredSynapse = null;
+
+    this.ctrl.renderOnce();
   }
 }
 
