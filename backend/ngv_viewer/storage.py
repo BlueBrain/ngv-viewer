@@ -137,14 +137,62 @@ class Storage():
         L.debug('getting cell morph for %s done', gids)
         return {'cells': cells}
 
+    def get_astrocytes_layers(self, circuit):
+        L.debug('getting astrocytes layers')
+        def bounding_box(points):
+            x_coordinates, y_coordinates, z_coordinates = zip(*points)
+            return {
+                'max_point': [ max(x_coordinates), max(y_coordinates), max(z_coordinates) ],
+                'min_point': [ min(x_coordinates), min(y_coordinates), min(z_coordinates) ],
+            }
+        # taken from https://bbpcode.epfl.ch/browse/code/molecularsystems/ArchNGV/tree/archngv/spatial/bounding_box.py?h=refs/heads/master#n114
+        def points_in_rectangle(points, min_point, max_point):
+            """
+            Args:
+                points: array[float, (N, M)]
+                min_point: array[float, (M,)]
+                max_point: array[float, (M, )]
+
+            Returns: array[bool, (N,)]
+            """
+            greater_or_equal = (min_point < points) | np.isclose(min_point, points)
+            smaller_or_equal = (points < max_point) | np.isclose(max_point, points)
+            return np.all(np.logical_and(smaller_or_equal, greater_or_equal), axis=1)
+
+        def points_inside(points, bbox_dict):
+            """ Returns a boolean mask of the points included in the
+            bounding box
+            """
+            return points_in_rectangle(np.array(points), bbox_dict['min_point'], bbox_dict['max_point'])
+
+        all_neurons = circuit.neurons.get()
+        layers = all_neurons['layer'].unique()
+
+        all_astrocyte_positions_array = circuit.astrocytes.positions().values
+        masks_array = []
+        new_value_names = []
+
+        for layer in layers:
+            neurons_in_layer = all_neurons[all_neurons['layer'] == layer]
+            positions_in_layer = circuit.neurons.positions(neurons_in_layer.index)
+            bbox = bounding_box(positions_in_layer.to_numpy())
+            astrocytes_inside_layer = points_inside(all_astrocyte_positions_array, bbox)
+            masks_array.append(astrocytes_inside_layer)
+            new_value_names.append(layer)
+
+        layers_column = np.select(masks_array, new_value_names, default=np.nan)
+        return layers_column
+
     def get_astrocytes_somas(self, circuit_path):
         L.debug('getting astrocytes %s', circuit_path)
         circuit = get_circuit(circuit_path)
         positions = circuit.astrocytes.positions()
         ids = circuit.astrocytes.ids()
         soma_positions = positions.values
+        layers = self.get_astrocytes_layers(circuit)
         return { 'positions': soma_positions,
-                 'ids': ids }
+                 'ids': ids,
+                 'layers': layers }
 
     def get_astrocyte_props(self, circuit_path, astrocyte_id):
         L.debug('getting props for astrocyte %s', astrocyte_id)

@@ -1186,10 +1186,19 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  loadAstrocytesSomas(astrocyteSomas) {
-    const somaPositionArray = astrocyteSomas.positions;
+  loadAstrocytesSomas(astrocyteSomasObj) {
+    const somaPositionArray = astrocyteSomasObj.positions;
+    const layersArray = astrocyteSomasObj.layers;
+
+    const colorPalette = store.state.circuit.color.palette;
+    const layersColors = layersArray.map((layerNumber) => {
+      // remove the transparency
+      const [r, g, b] = colorPalette[layerNumber];
+      return [r, g, b];
+    });
+
     const positions = new Float32Array(somaPositionArray.flat());
-    const colorBuffer = new Float32Array(positions.length * 3);
+    const colorBuffer = new Float32Array(layersColors.flat());
 
     this.astrocyteCloud = {
       positionBufferAttr: new BufferAttribute(positions, 3),
@@ -1210,7 +1219,7 @@ class NeuronRenderer {
 
     store.$emit('updateClipboardIds', {
       name: 'astrocytes ids',
-      data: astrocyteSomas.ids,
+      data: astrocyteSomasObj.ids,
     });
   }
 
