@@ -1,7 +1,7 @@
 
 <template>
   <div
-    v-if="name"
+    v-if="name && isExpert"
     class="clipboard-ids-container"
   >
     <span class="name">{{name}}</span>
@@ -27,7 +27,6 @@
   import store from '@/store';
   import { saveAs } from 'file-saver';
 
-
   export default {
     name: 'clipboard-ids',
     data() {
@@ -40,6 +39,11 @@
     },
     mounted() {
       this.init();
+    },
+    computed: {
+      isExpert() {
+        return window.location.href.includes('expert');
+      },
     },
     methods: {
       init() {

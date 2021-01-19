@@ -23,6 +23,9 @@
         <div class="clipboard-ids">
           <clipboard-ids />
         </div>
+        <div class="counter-ids">
+          <counter-ids />
+        </div>
       </div>
       <div class="sim-panel" v-else-if="mode === 'simulationConfig'">
         <syn-color-palette/>
@@ -55,6 +58,7 @@
   import ScreenshotCtrl from './bottom-panel/screenshot-ctrl.vue';
   import MeshesToggleCtrl from './bottom-panel/meshes-toggle-ctrl.vue';
   import ClipboardIds from './bottom-panel/clipboard-ids.vue';
+  import CounterIds from './bottom-panel/counter-ids.vue';
 
   // Simulation config components
   import SynColorPalette from './bottom-panel/syn-color-palette.vue';
@@ -71,6 +75,7 @@
       'screenshot-ctrl': ScreenshotCtrl,
       'meshes-toggle-ctrl': MeshesToggleCtrl,
       'clipboard-ids': ClipboardIds,
+      'counter-ids': CounterIds,
     },
     data() {
       return {
@@ -130,7 +135,13 @@
     .clipboard-ids {
       position: absolute;
       right: 47px;
-      top: -148px;
+      top: -170px;
+    }
+
+    .counter-ids {
+      position: absolute;
+      right: 47px;
+      top: -140px;
     }
   }
 </style>
