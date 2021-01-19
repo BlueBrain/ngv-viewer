@@ -5,7 +5,6 @@
       :class="{'cursor-crosshair': selectionMode}"
       :id="canvasId"
     />
-    <morph-section-poptip/>
     <bottom-panel/>
   </div>
 </template>
@@ -15,7 +14,6 @@
   import store from '@/store';
   import NeuronRenderer from '@/services/neuron-renderer';
   import BottomPanel from './viewport/bottom-panel.vue';
-  import MorphSectionPoptip from './viewport/morph-section-poptip.vue';
 
   export default {
     name: 'viewport-component',
@@ -27,7 +25,6 @@
     },
     components: {
       'bottom-panel': BottomPanel,
-      'morph-section-poptip': MorphSectionPoptip,
     },
     mounted() {
       const canvas = document.getElementById(this.canvasId);
@@ -81,7 +78,6 @@
       store.$on('showVasculature', () => this.renderer.showVasculatureCloud());
       store.$on('hideVasculature', () => this.renderer.hideVasculatureCloud());
       store.$on('showBoundingVasculature', boundingBox => this.renderer.showBoundingVasculature(boundingBox));
-      
 
       store.$on('loadAstrocytesSomas', somas => this.renderer.loadAstrocytesSomas(somas));
       store.$on('showAstrocytes', () => this.renderer.showAstrocyteCloud());

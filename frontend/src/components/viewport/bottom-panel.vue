@@ -13,9 +13,6 @@
     <transition name="fade">
       <div class="circuit-panel" v-if="mode === 'cellSelection'">
         <color-palette />
-        <div class="soma-size-ctrl">
-          <soma-size-ctrl />
-        </div>
 
         <div class="meshes-toggle">
           <meshes-toggle-ctrl />
@@ -50,7 +47,6 @@
 
   // Cell selection components
   import ColorPalette from './bottom-panel/color-palette.vue';
-  import SomaSizeCtrl from './bottom-panel/soma-size-ctrl.vue';
   import SynapseSizeCtrl from './bottom-panel/synapse-size-ctrl.vue';
   import HoverObjectInfo from './bottom-panel/hover-object-info.vue';
   import AxonVisibilityCtrl from './bottom-panel/axon-visibility-ctrl.vue';
@@ -66,7 +62,6 @@
   export default {
     components: {
       'color-palette': ColorPalette,
-      'soma-size-ctrl': SomaSizeCtrl,
       'syn-color-palette': SynColorPalette,
       'synapse-size-ctrl': SynapseSizeCtrl,
       'hover-object-info': HoverObjectInfo,
@@ -90,27 +85,22 @@
 
 
 <style lang="scss" scoped>
+  $left-position: 12px; 
   .bottom-panel-container {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
 
-    .soma-size-ctrl, .synapse-size-ctrl {
-      position: absolute;
-      right: 12px;
-      top: -224px;
-    }
-
     .section-alignment-ctrl {
       position: absolute;
-      right: 12px;
+      right: $left-position;
       top: -260px;
     }
 
     .screenshot-ctrl {
       position: absolute;
-      right: 52px;
+      right: $left-position;
       top: -41px;
     }
 
@@ -128,19 +118,19 @@
 
     .meshes-toggle {
       position: absolute;
-      right: 52px;
+      right: $left-position;
       top: -115px;
     }
 
     .clipboard-ids {
       position: absolute;
-      right: 47px;
+      right: $left-position;
       top: -170px;
     }
 
     .counter-ids {
       position: absolute;
-      right: 47px;
+      right: $left-position;
       top: -140px;
     }
   }
