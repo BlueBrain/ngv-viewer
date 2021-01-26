@@ -40,11 +40,17 @@
     },
     methods: {
       init() {
-        const { vasculature, cells, astrocytes } = store.state.circuit;
+        const {
+          vasculature,
+          cells,
+          astrocytes,
+          boundingVasculature,
+        } = store.state.circuit;
         const meshes = [
           { name: Mesh.NEURONS, visible: cells.visible },
           { name: Mesh.ASTROCYTES, visible: astrocytes.visible },
           { name: Mesh.VASCULATURE, visible: vasculature.visible },
+          { name: Mesh.BOUNDING_VASCULATURE, visible: boundingVasculature.visible },
         ];
         this.$set(this, 'meshes', meshes);
       },
@@ -74,6 +80,14 @@
           }
           break;
         }
+        case Mesh.BOUNDING_VASCULATURE: {
+          if (display) {
+            store.$emit('showBoundingVasculature');
+          } else {
+            store.$emit('hideBoundingVasculature');
+          }
+          break;
+        }
         default: {
           break;
         }
@@ -88,6 +102,7 @@
   .mesh-toggle-main {
     .row {
       display: flex;
+      justify-content: flex-end;
     }
     .name {
       min-width: 75px;

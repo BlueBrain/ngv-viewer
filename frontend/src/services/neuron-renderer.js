@@ -1123,11 +1123,6 @@ class NeuronRenderer {
     const onLoad = (gltf) => {
       const newMat = new MeshLambertMaterial({
         color: vasculatureColors.color,
-        depthTest: true,
-        depthWrite: true,
-        transparent: true,
-        opacity: 0.9,
-        side: FrontSide,
       });
 
       const [mesh] = gltf.scene.children;
@@ -1139,9 +1134,10 @@ class NeuronRenderer {
       this.vasculatureCloud.mesh = mesh;
       this.scene.add(this.vasculatureCloud.mesh);
       this.ctrl.renderOnce();
+      console.log('Vasculature loaded');
     };
 
-    const onProgress = (xhr) => { console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`); };
+    const onProgress = () => {};
 
     const onError = (error) => { console.error(error); };
 
@@ -1290,6 +1286,8 @@ class NeuronRenderer {
       name: 'efferent neurons ids',
       data: efferentNeuronIds,
     });
+
+    store.$dispatch('createBoundingVasculature', effNeuronGeometry.boundingBox);
   }
 
   onEfferentNeuronHover(raycastIndex) {
@@ -1376,7 +1374,7 @@ class NeuronRenderer {
     ];
   }
 
-  showBoundingVasculature(boundingBox) {
+  createBoundingVasculature(boundingBox) {
     // Generate cutting planes based on efferent neurons bounderies
     const planes = this.generateClippingPlanes(boundingBox);
 
@@ -1387,9 +1385,15 @@ class NeuronRenderer {
     newGeom.setAttribute('position', loadedVasculature.geometry.attributes.position);
     newGeom.computeFaceNormals();
     newGeom.computeVertexNormals();
+    newGeom.computeBoundingBox();
 
     const newMat = loadedVasculature.material.clone();
     newMat.clippingPlanes = planes;
+    newMat.depthTest = true;
+    newMat.depthWrite = true;
+    newMat.transparent = true;
+    newMat.opacity = 0.5;
+    newMat.side = FrontSide;
 
     this.boundingVasculature.mesh = new Mesh(newGeom, newMat);
     this.boundingVasculature.mesh.scale.set(
@@ -1404,9 +1408,27 @@ class NeuronRenderer {
     );
     this.boundingVasculature.mesh.name = 'boundingVasculature';
     this.renderer.localClippingEnabled = true;
-    this.boundingVasculature.mesh.visible = true;
+
+    this.boundingVasculature.mesh.visible = store.state.circuit.boundingVasculature.visible;
+    store.state.circuit.boundingVasculature.mesh = this.boundingVasculature.mesh;
 
     this.scene.add(this.boundingVasculature.mesh);
+    this.ctrl.renderOnce();
+  }
+
+  showBoundingVasculature() {
+    const { boundingVasculature } = store.state.circuit;
+    boundingVasculature.visible = true;
+    if (!this.boundingVasculature?.mesh) return;
+    this.boundingVasculature.mesh.visible = boundingVasculature.visible;
+    this.ctrl.renderOnce();
+  }
+
+  hideBoundingVasculature() {
+    const { boundingVasculature } = store.state.circuit;
+    boundingVasculature.visible = false;
+    if (!this.boundingVasculature?.mesh) return;
+    this.boundingVasculature.mesh.visible = boundingVasculature.visible;
     this.ctrl.renderOnce();
   }
 

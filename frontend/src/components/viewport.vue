@@ -77,7 +77,10 @@
       store.$on('loadVasculature', fileUrl => this.renderer.loadVasculature(fileUrl));
       store.$on('showVasculature', () => this.renderer.showVasculatureCloud());
       store.$on('hideVasculature', () => this.renderer.hideVasculatureCloud());
-      store.$on('showBoundingVasculature', boundingBox => this.renderer.showBoundingVasculature(boundingBox));
+      store.$on('createBoundingVasculature', boundingBox => this.renderer.createBoundingVasculature(boundingBox));
+      store.$on('showBoundingVasculature', () => this.renderer.showBoundingVasculature());
+      store.$on('hideBoundingVasculature', () => this.renderer.hideBoundingVasculature());
+
 
       store.$on('loadAstrocytesSomas', somas => this.renderer.loadAstrocytesSomas(somas));
       store.$on('showAstrocytes', () => this.renderer.showAstrocyteCloud());

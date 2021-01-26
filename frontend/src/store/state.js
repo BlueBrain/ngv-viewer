@@ -39,6 +39,11 @@ const state = {
       visible: false,
     },
 
+    boundingVasculature: {
+      mesh: null,
+      visible: true,
+    },
+
     somaSize: 10,
     globalFilterIndex: [],
     connectionFilterIndex: [],

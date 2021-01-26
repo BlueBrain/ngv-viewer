@@ -8,6 +8,7 @@ export const Mesh = {
   NEURONS: 'neurons',
   ASTROCYTES: 'astrocytes',
   VASCULATURE: 'vasculature',
+  BOUNDING_VASCULATURE: 'local vasculature',
 };
 
 export const colors = {

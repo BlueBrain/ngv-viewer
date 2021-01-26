@@ -1079,6 +1079,7 @@ const actions = {
     const efferentNeuronId = store.state.circuit.efferentNeurons.raycastMapping[raycastIndex];
     const selectedAstrocyteId = store.state.circuit.astrocytes.selectedWithClick;
     store.state.circuit.efferentNeurons.selectedWithClick = efferentNeuronId;
+    console.log('[efferentNeuronClicked] efferentNeuronId', efferentNeuronId);
     const synapseLocations = new Promise((resolve) => {
       const processAstrocyteSynapses = (synapses) => {
         storage.setItem(`synapseLocations:${selectedAstrocyteId}:${efferentNeuronId}}`, synapses);
@@ -1110,8 +1111,8 @@ const actions = {
     store.$emit('hideGlobalSpinner');
   },
 
-  showBoundingVasculature(store, boundingBox) {
-    store.$emit('showBoundingVasculature', boundingBox);
+  createBoundingVasculature(store, boundingBox) {
+    store.$emit('createBoundingVasculature', boundingBox);
   },
 
   async astrocyteSynapseHovered(store, synapseId) {

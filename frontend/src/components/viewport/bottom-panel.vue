@@ -119,7 +119,7 @@
     .meshes-toggle {
       position: absolute;
       right: $left-position;
-      top: -115px;
+      top: -135px;
     }
 
     .clipboard-ids {
@@ -131,7 +131,7 @@
     .counter-ids {
       position: absolute;
       right: $left-position;
-      top: -140px;
+      top: -160px;
     }
   }
 </style>
