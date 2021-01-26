@@ -9,7 +9,7 @@ import {
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
   PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
   SphereBufferGeometry, CylinderGeometry, Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, Group,
+  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, Group, FrontSide,
 } from 'three';
 
 import { saveAs } from 'file-saver';
@@ -25,7 +25,10 @@ import store from '@/store';
 import eachAsync from '@/tools/each-async';
 import utils from '@/tools/neuron-renderer-utils';
 
-import { Mesh as MeshType } from '@/constants';
+import {
+  Mesh as MeshType,
+  colors as ConstantColors,
+} from '@/constants';
 
 
 const FOG_COLOR = 0xffffff;
@@ -1115,11 +1118,16 @@ class NeuronRenderer {
       mesh: null,
     };
 
+    const vasculatureColors = ConstantColors.extraPalette.VASCULATURE;
+
     const onLoad = (gltf) => {
       const newMat = new MeshLambertMaterial({
-        color: 0x80000f,
+        color: vasculatureColors.color,
         depthTest: true,
         depthWrite: true,
+        transparent: true,
+        opacity: 0.9,
+        side: FrontSide,
       });
 
       const [mesh] = gltf.scene.children;
@@ -1426,7 +1434,9 @@ class NeuronRenderer {
 
     const synapseLocations = synapses.locations;
     const synapsePoints = synapseLocations.flat();
-    const synapseColor = synapseLocations.map(() => [255, 204, 0]).flat();
+
+    const synColor = new Color(ConstantColors.extraPalette.SYNAPSES.color);
+    const synapseColor = synapseLocations.map(() => [synColor.r, synColor.g, synColor.b]).flat();
 
     this.astrocyteSynapsesCloud = {
       positionBufferAttr: new Float32BufferAttribute(synapsePoints, 3),
