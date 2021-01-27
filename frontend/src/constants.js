@@ -33,6 +33,18 @@ export const colors = {
   },
 };
 
+export const CurrentDetailedLevel = {
+  ASTROCYTES: 'astrocytes', // initial page
+  EFFERENTS: 'efferents', // after clicking an astrocyte
+  SYNAPSES: 'synapses', // after selecting efferent
+};
+
+export const CounterIdText = {
+  ASTROCYTES: 'astrocytes ids',
+  EFFERENTS: 'efferent neurons ids',
+  SYNAPSES: 'synapses ids',
+};
+
 export default {
   Entity,
 };

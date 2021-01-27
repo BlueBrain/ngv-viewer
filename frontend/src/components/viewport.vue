@@ -1,6 +1,7 @@
 
 <template>
   <div id="container">
+    <go-back-ctrl/>
     <canvas
       :class="{'cursor-crosshair': selectionMode}"
       :id="canvasId"
@@ -14,6 +15,7 @@
   import store from '@/store';
   import NeuronRenderer from '@/services/neuron-renderer';
   import BottomPanel from './viewport/bottom-panel.vue';
+  import GoBackCtrl from './viewport/go-back-ctrl.vue';
 
   export default {
     name: 'viewport-component',
@@ -25,6 +27,7 @@
     },
     components: {
       'bottom-panel': BottomPanel,
+      'go-back-ctrl': GoBackCtrl,
     },
     mounted() {
       const canvas = document.getElementById(this.canvasId);
@@ -80,15 +83,21 @@
       store.$on('createBoundingVasculature', boundingBox => this.renderer.createBoundingVasculature(boundingBox));
       store.$on('showBoundingVasculature', () => this.renderer.showBoundingVasculature());
       store.$on('hideBoundingVasculature', () => this.renderer.hideBoundingVasculature());
-
+      store.$on('destroyBoundingVasculature', () => this.renderer.destroyBoundingVasculature());
 
       store.$on('loadAstrocytesSomas', somas => this.renderer.loadAstrocytesSomas(somas));
       store.$on('showAstrocytes', () => this.renderer.showAstrocyteCloud());
       store.$on('hideAstrocytes', () => this.renderer.hideAstrocyteCloud());
 
-      store.$on('showEfferentNeurons', neuronIds => this.renderer.showEfferentNeurons(neuronIds));
+      store.$on('createEfferentNeurons', neuronIds => this.renderer.createEfferentNeurons(neuronIds));
+      store.$on('showEfferentNeuronsCloud', () => this.renderer.showEfferentNeuronsCloud());
+      store.$on('hideEfferentNeuronsCloud', () => this.renderer.hideEfferentNeuronsCloud());
+      store.$on('destroyEfferentNeuronsCloud', () => this.renderer.destroyEfferentNeuronsCloud());
+
       store.$on('showAstrocyteMorphology', morphObj => this.renderer.showAstrocyteMorphology(morphObj));
       store.$on('showAstrocyteSynapses', synapseLocations => this.renderer.showSynapseLocations(synapseLocations));
+      store.$on('destroySynapseLocations', () => this.renderer.destroySynapseLocations());
+      store.$on('destroyAstrocyteMorphology', () => this.renderer.destroyAstrocyteMorphology());
     },
     methods: {
       onHover(obj) {

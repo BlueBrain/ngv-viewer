@@ -19,7 +19,9 @@ const state = {
 
     efferentNeurons: {
       raycastMapping: {},
+      visible: false,
       selectedWithClick: null,
+      allIds: [],
     },
 
     astrocytes: {
@@ -41,7 +43,7 @@ const state = {
 
     boundingVasculature: {
       mesh: null,
-      visible: true,
+      visible: false,
     },
 
     somaSize: 10,
@@ -53,6 +55,8 @@ const state = {
       palette: {},
     },
   },
+  // used to manage the go back button
+  currentDetailedLevel: null,
   simulation: {
     running: false,
     synapseSize: 5,

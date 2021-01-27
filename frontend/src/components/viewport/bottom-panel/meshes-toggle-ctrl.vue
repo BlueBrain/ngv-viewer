@@ -6,6 +6,7 @@
         class="row"
         v-for="mesh in meshes"
         :key="mesh.name"
+        :class="{ disabled: mesh.disabled }"
       >
         <div class="name">{{ mesh.name }}</div>
         <div class="toggle">
@@ -26,7 +27,7 @@
 
 <script>
   import store from '@/store';
-  import { Mesh } from '@/constants';
+  import { Mesh, CurrentDetailedLevel } from '@/constants';
 
   export default {
     name: 'meshes-toggle-ctrl',
@@ -37,6 +38,12 @@
     },
     mounted() {
       this.init();
+      store.$on('detailedLevelChanged', () => {
+        const boundingVasculatureIsVisible = !!store.state.currentDetailedLevel
+          && store.state.currentDetailedLevel !== CurrentDetailedLevel.ASTROCYTES;
+        const mesh = this.meshes.find(mesh => mesh.name === Mesh.BOUNDING_VASCULATURE);
+        this.$set(mesh, 'disabled', !boundingVasculatureIsVisible);
+      });
     },
     methods: {
       init() {
@@ -50,7 +57,7 @@
           { name: Mesh.NEURONS, visible: cells.visible },
           { name: Mesh.ASTROCYTES, visible: astrocytes.visible },
           { name: Mesh.VASCULATURE, visible: vasculature.visible },
-          { name: Mesh.BOUNDING_VASCULATURE, visible: boundingVasculature.visible },
+          { name: Mesh.BOUNDING_VASCULATURE, visible: boundingVasculature.visible, disabled: true },
         ];
         this.$set(this, 'meshes', meshes);
       },
@@ -103,6 +110,10 @@
     .row {
       display: flex;
       justify-content: flex-end;
+      &.disabled {
+        pointer-events: none;
+        opacity: 0.2;
+      }
     }
     .name {
       min-width: 75px;

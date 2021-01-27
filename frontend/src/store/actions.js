@@ -13,13 +13,12 @@ import MinSizeUintArray from '@/tools/min-size-uint-array';
 import socket from '@/services/websocket';
 import storage from '@/services/storage';
 import config from '@/config';
-import constants from '@/constants';
+import { Entity, CounterIdText } from '@/constants';
 
 // TODO: prefix events with target component's names
 
 const recAndInjCompareKeys = ['sectionName', 'gid'];
 const APP_VERSION = process.env.VUE_APP_VERSION;
-const { Entity } = constants;
 
 const actions = {
   async init(store) {
@@ -456,7 +455,7 @@ const actions = {
     const efferentNeuron = new Promise((resolve) => {
       const processEfferentNeurons = (neuronIds) => {
         storage.setItem(`efferentNeurons:${astrocyte.idx}`, neuronIds);
-        store.$emit('showEfferentNeurons', neuronIds);
+        store.$emit('createEfferentNeurons', neuronIds);
         store.$off('ws:efferent_neuron_ids', processEfferentNeurons);
         resolve();
       };
@@ -465,7 +464,7 @@ const actions = {
       storage.getItem(`efferentNeurons:${astrocyte.idx}`)
         .then((efferentNeuronsCached) => {
           if (efferentNeuronsCached) {
-            store.$emit('showEfferentNeurons', efferentNeuronsCached);
+            store.$emit('createEfferentNeurons', efferentNeuronsCached);
             resolve();
             return;
           }
@@ -1079,7 +1078,6 @@ const actions = {
     const efferentNeuronId = store.state.circuit.efferentNeurons.raycastMapping[raycastIndex];
     const selectedAstrocyteId = store.state.circuit.astrocytes.selectedWithClick;
     store.state.circuit.efferentNeurons.selectedWithClick = efferentNeuronId;
-    console.log('[efferentNeuronClicked] efferentNeuronId', efferentNeuronId);
     const synapseLocations = new Promise((resolve) => {
       const processAstrocyteSynapses = (synapses) => {
         storage.setItem(`synapseLocations:${selectedAstrocyteId}:${efferentNeuronId}}`, synapses);
@@ -1131,6 +1129,30 @@ const actions = {
 
   astrocyteSynapseHoveredEnded(store) {
     store.$emit('hideHoverObjectInfo');
+  },
+
+  goToAstrocyteDetailedLevel(store) {
+    store.$emit('destroyEfferentNeuronsCloud');
+    store.$emit('destroyAstrocyteMorphology');
+    store.$emit('destroyBoundingVasculature');
+    store.$emit('showAstrocytes');
+
+    store.$emit('updateClipboardIds', {
+      name: CounterIdText.ASTROCYTES,
+      data: store.state.circuit.astrocytes.ids,
+    });
+    store.$emit('detailedLevelChanged');
+  },
+
+  goToEfferentDetailedLevel(store) {
+    store.$emit('destroySynapseLocations');
+    store.$emit('showEfferentNeuronsCloud');
+
+    store.$emit('updateClipboardIds', {
+      name: CounterIdText.EFFERENTS,
+      data: store.state.circuit.efferentNeurons.allIds,
+    });
+    store.$emit('detailedLevelChanged');
   },
 };
 

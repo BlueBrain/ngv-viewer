@@ -9,7 +9,7 @@ import {
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
   PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
   SphereBufferGeometry, CylinderGeometry, Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, Group, FrontSide,
+  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, FrontSide,
 } from 'three';
 
 import { saveAs } from 'file-saver';
@@ -27,7 +27,9 @@ import utils from '@/tools/neuron-renderer-utils';
 
 import {
   Mesh as MeshType,
-  colors as ConstantColors,
+  ColorConvention,
+  CurrentDetailedLevel,
+  CounterIdText,
 } from '@/constants';
 
 
@@ -1193,6 +1195,7 @@ class NeuronRenderer {
   loadAstrocytesSomas(astrocyteSomasObj) {
     const somaPositionArray = astrocyteSomasObj.positions;
     const layersArray = astrocyteSomasObj.layers;
+    store.state.currentDetailedLevel = CurrentDetailedLevel.ASTROCYTES;
 
     const colorPalette = store.state.circuit.color.palette;
     const layersColors = layersArray.map((layerNumber) => {
@@ -1222,9 +1225,10 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
 
     store.$emit('updateClipboardIds', {
-      name: 'astrocytes ids',
+      name: CounterIdText.ASTROCYTES,
       data: astrocyteSomasObj.ids,
     });
+    store.$emit('detailedLevelChanged');
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -1237,9 +1241,11 @@ class NeuronRenderer {
     });
   }
 
-  showEfferentNeurons(efferentNeuronIds) {
+  createEfferentNeurons(efferentNeuronIds) {
     this.hideNeuronCloud();
     this.hideAstrocyteCloud();
+    store.state.currentDetailedLevel = CurrentDetailedLevel.EFFERENTS;
+    store.state.circuit.efferentNeurons.allIds = efferentNeuronIds;
 
     const effNeuronInsideVascIds = [];
     const effNeuronInsideVascPositions = [];
@@ -1283,11 +1289,34 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
 
     store.$emit('updateClipboardIds', {
-      name: 'efferent neurons ids',
+      name: CounterIdText.EFFERENTS,
       data: efferentNeuronIds,
     });
+    store.$emit('detailedLevelChanged');
 
     store.$dispatch('createBoundingVasculature', effNeuronGeometry.boundingBox);
+  }
+
+  destroyEfferentNeuronsCloud() {
+    if (!this.efferentNeuronsCloud) return;
+
+    this.scene.remove(this.efferentNeuronsCloud.points);
+    this.efferentNeuronsCloud = null;
+    this.ctrl.renderOnce();
+  }
+
+  showEfferentNeuronsCloud() {
+    const { efferentNeurons } = store.state.circuit;
+    efferentNeurons.visible = true;
+    this.efferentNeuronsCloud.points.visible = efferentNeurons.visible;
+    this.ctrl.renderOnce();
+  }
+
+  hideEfferentNeuronsCloud() {
+    const { efferentNeurons } = store.state.circuit;
+    efferentNeurons.visible = false;
+    this.efferentNeuronsCloud.points.visible = efferentNeurons.visible;
+    this.ctrl.renderOnce();
   }
 
   onEfferentNeuronHover(raycastIndex) {
@@ -1362,6 +1391,14 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
+  destroyAstrocyteMorphology() {
+    if (!this.astrocyteMorphologyObj) return;
+
+    this.scene.remove(this.astrocyteMorphologyObj);
+    this.astrocyteMorphologyObj = null;
+    this.ctrl.renderOnce();
+  }
+
   // eslint-disable-next-line class-methods-use-this
   generateClippingPlanes(boundingBox) {
     return [
@@ -1416,6 +1453,14 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
+  destroyBoundingVasculature() {
+    if (!this.boundingVasculature) return;
+
+    this.scene.remove(this.boundingVasculature.mesh);
+    this.boundingVasculature = null;
+    this.ctrl.renderOnce();
+  }
+
   showBoundingVasculature() {
     const { boundingVasculature } = store.state.circuit;
     boundingVasculature.visible = true;
@@ -1433,7 +1478,7 @@ class NeuronRenderer {
   }
 
   getSelectedEfferentNeuron3DObject() {
-    this.efferentNeuronsCloud.points.visible = false;
+    this.hideEfferentNeuronsCloud();
     // add efferent neuron soma
     const efferentNeuronSelectedId = store.state.circuit.efferentNeurons.selectedWithClick;
     const efferentNeuron = store.$get('neuron', efferentNeuronSelectedId);
@@ -1453,6 +1498,7 @@ class NeuronRenderer {
   showSynapseLocations(synapses) {
     // raycast shows different index than the neuron
     store.state.circuit.astrocyteSynapses.raycastMapping = { ...synapses.ids };
+    store.state.currentDetailedLevel = CurrentDetailedLevel.SYNAPSES;
 
     const synapseLocations = synapses.locations;
     const synapsePoints = synapseLocations.flat();
@@ -1471,17 +1517,27 @@ class NeuronRenderer {
     this.astrocyteSynapsesCloud.points = new Points(astrocyteSynapseGeometry, this.pointCloudMaterial.clone());
     this.astrocyteSynapsesCloud.points.name = 'astrocyteSynapses';
 
-    const group = new Group();
-    group.add(this.astrocyteSynapsesCloud.points);
-    group.add(this.getSelectedEfferentNeuron3DObject());
+    this.efferentNeuronSelected = this.getSelectedEfferentNeuron3DObject();
 
-    this.scene.add(group);
+    this.scene.add(this.astrocyteSynapsesCloud.points);
+    this.scene.add(this.efferentNeuronSelected);
     this.ctrl.renderOnce();
 
     store.$emit('updateClipboardIds', {
-      name: 'synapses ids',
+      name: CounterIdText.SYNAPSES,
       data: synapses.ids,
     });
+    store.$emit('detailedLevelChanged');
+  }
+
+  destroySynapseLocations() {
+    if (!this.astrocyteSynapsesCloud) return;
+
+    this.scene.remove(this.astrocyteSynapsesCloud.points);
+    this.scene.remove(this.efferentNeuronSelected);
+    this.astrocyteSynapsesCloud = null;
+    this.efferentNeuronSelected = null;
+    this.ctrl.renderOnce();
   }
 
   onAstrocyteSynapseHover(raycastIndex) {
