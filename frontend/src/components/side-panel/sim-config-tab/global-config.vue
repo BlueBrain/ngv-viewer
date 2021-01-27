@@ -157,11 +157,9 @@
 
 <script>
   import store from '@/store';
-  import constants from '@/constants';
+  import { Entity } from '@/constants';
   import SimProgress from './global-config/sim-progress.vue';
   import SimInitModal from './global-config/sim-init-modal.vue';
-
-  const { Entity } = constants;
 
   export default {
     name: 'global-config',

@@ -1,5 +1,5 @@
 
-const Entity = {
+export const Entity = {
   SIMULATION: 'simulation',
   CIRCUIT: 'circuit',
 };
@@ -11,7 +11,7 @@ export const Mesh = {
   BOUNDING_VASCULATURE: 'local vasculature',
 };
 
-export const colors = {
+export const ColorConvention = {
   LAYERS: {
     1: '#FFF200',
     2: '#F7941D',

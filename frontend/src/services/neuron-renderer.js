@@ -1120,7 +1120,7 @@ class NeuronRenderer {
       mesh: null,
     };
 
-    const vasculatureColors = ConstantColors.extraPalette.VASCULATURE;
+    const vasculatureColors = ColorConvention.extraPalette.VASCULATURE;
 
     const onLoad = (gltf) => {
       const newMat = new MeshLambertMaterial({
@@ -1199,7 +1199,7 @@ class NeuronRenderer {
 
     const colorPalette = store.state.circuit.color.palette;
     const layersColors = layersArray.map((layerNumber) => {
-      // remove the transparency
+      // remove the transparency argument
       const [r, g, b] = colorPalette[layerNumber];
       return [r, g, b];
     });
@@ -1235,7 +1235,7 @@ class NeuronRenderer {
   getNeuronColors(neurons) {
     const colorPalette = store.state.circuit.color.palette;
     return neurons.map((neuron) => {
-      // remove the transparency
+      // remove the transparency argument
       const [r, g, b] = colorPalette[neuron.layer];
       return [r, g, b];
     });
@@ -1503,7 +1503,7 @@ class NeuronRenderer {
     const synapseLocations = synapses.locations;
     const synapsePoints = synapseLocations.flat();
 
-    const synColor = new Color(ConstantColors.extraPalette.SYNAPSES.color);
+    const synColor = new Color(ColorConvention.extraPalette.SYNAPSES.color);
     const synapseColor = synapseLocations.map(() => [synColor.r, synColor.g, synColor.b]).flat();
 
     this.astrocyteSynapsesCloud = {

@@ -1,7 +1,5 @@
 
-import constants from '@/constants';
-
-const { Entity } = constants;
+import { Entity } from '@/constants';
 
 const circuits = [
   {

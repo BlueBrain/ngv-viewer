@@ -48,7 +48,7 @@
   import * as chroma from 'chroma-js';
 
   import store from '@/store';
-  import { colors } from '@/constants.js';
+  import { ColorConvention } from '@/constants.js';
 
   export default {
     name: 'color-palette',
@@ -71,8 +71,8 @@
       generatePalette() {
         // colors taken from https://bbpteam.epfl.ch/project/issues/browse/NGVDISS-127
         const prop = ['layer'];
-        const colorPalette = Object.keys(colors.LAYERS).reduce((acc, key) => {
-          const value = colors.LAYERS[key];
+        const colorPalette = Object.keys(ColorConvention.LAYERS).reduce((acc, key) => {
+          const value = ColorConvention.LAYERS[key];
           acc[key] = chroma(value).gl();
           return acc;
         }, {});
@@ -86,8 +86,8 @@
       },
 
       generateExtraPalette() {
-        this.extraColorPaletteArray = Object.keys(colors.extraPalette).map((key) => {
-          const value = colors.extraPalette[key];
+        this.extraColorPaletteArray = Object.keys(ColorConvention.extraPalette).map((key) => {
+          const value = ColorConvention.extraPalette[key];
           return {
             key,
             color: value.color,

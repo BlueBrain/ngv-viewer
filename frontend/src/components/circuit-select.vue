@@ -126,12 +126,11 @@
   import config from '@/config';
   import store from '@/store';
   import storage from '@/services/storage';
-  import constants from '@/constants';
+  import { Entity } from '@/constants';
 
   import modelConfig from '@/../../backend/config.json';
 
   const { circuits: allCircuits } = config;
-  const { Entity } = constants;
 
   const circuits = allCircuits.filter(e => e.type === Entity.CIRCUIT);
   const simulations = allCircuits.filter(e => e.type === Entity.SIMULATION);
