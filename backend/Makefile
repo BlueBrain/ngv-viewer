@@ -9,7 +9,10 @@ SIM_MODELS_DIR:=tmp/sim-models
 SIM_MODELS_REPO_BASE:=ssh://bbpcode.epfl.ch/sim/models
 NEURODAMUS_CORE_REPO:=ssh://bbpcode.epfl.ch/sim/neurodamus-core
 NEURODAMUS_CORE_DIR:=tmp/neurodamus-core
-IMAGE_NAME:=ngv-viewer
+IMAGE_NAME:=ngv-viewer-svc
+
+DOCKER_REGISTRY?=docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse
+
 
 REDIS_HOST?=
 
@@ -74,24 +77,19 @@ python_build: | $(VENV_DIR)
 run_dev:
 	docker run \
 		--rm \
-		--user 1000 \
 		-it \
-		-v /gpfs:/gpfs:ro \
 		-e DEBUG=True \
 		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
-		-v /Users/antonel/Desktop/circuit:/circuits:ro \
 		-v $$(pwd)/config.json:/opt/ngv-viewer/config.json \
 		-p 8888:8000 \
 		--entrypoint python \
-		$$(IMAGE_NAME) \
+		$(IMAGE_NAME) \
 		-m ngv_viewer.main
 
 run_dev_debug:
 	docker run \
 		--rm \
-		--user 1000 \
 		-it \
-		-v /gpfs:/gpfs:ro \
 		-v /Users/antonel/Desktop/circuit:/circuits:ro \
 		-e DEBUG=True \
 		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
@@ -117,12 +115,18 @@ docker_build_latest: python_build | $(NEURON_SRC_DIR) $(SIM_MODELS_DIR)
 		.
 
 docker_push_version: docker_build_version
-	docker tag $(IMAGE_NAME):$(VERSION) docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):$(VERSION)
-	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):$(VERSION)
+	docker tag $(IMAGE_NAME):$(VERSION) $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(VERSION)
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(VERSION)
 	@echo 'backend version($(VERSION)) pushed to OpenShift registy'
 
 docker_push_latest: docker_build_latest
-	docker tag $(IMAGE_NAME):latest docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):latest
-	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(IMAGE_NAME):latest
+	docker tag $(IMAGE_NAME):latest $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
+	@echo 'backend latest version pushed to OpenShift registry.'
+	@echo 'backend release done'
+
+docker_only_push_latest:
+	docker tag $(IMAGE_NAME):latest $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
 	@echo 'backend latest version pushed to OpenShift registry.'
 	@echo 'backend release done'

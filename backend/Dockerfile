@@ -49,15 +49,13 @@ ENV REDIS_HOST=$redis_host
 ENV PYTHONPATH="/usr/local/nrn/lib/python"
 ENV PATH="/usr/local/nrn/x86_64/bin:${PATH}"
 
-COPY dist/* ./dist/
-COPY config.json .
 COPY --from=builder /usr/local/nrn /usr/local/nrn
 COPY --from=builder /build/sim-models sim-models
-
+COPY config.json .
 COPY entrypoint.sh .
+COPY dist/* ./dist/
 
 RUN pip install \
-    --no-cache-dir \
     -i https://bbpteam.epfl.ch/repository/devpi/simple \
     $(ls -t $PWD/dist/*.* | head -n 1)
 

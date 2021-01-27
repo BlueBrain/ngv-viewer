@@ -5,7 +5,7 @@ const { Entity } = constants;
 
 const circuits = [
   {
-    name: 'NGV',
+    name: 'ngv-20201006',
     type: Entity.CIRCUIT,
     urlName: 'ngv-20201006',
     path: '/circuits/ngv/ngv_config.json',

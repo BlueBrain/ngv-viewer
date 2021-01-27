@@ -4,11 +4,13 @@ VERSION?=$(shell cat ../VERSION)
 
 NODE_MODULES:=node_modules
 
-SINGLE_CIRCUIT?=
+SINGLE_CIRCUIT?=ngv-20201006
 
-APP_NAME?=ngv-viewer
+APP_NAME?=ngv-viewer-ui
 SERVER_HOST:=ngv-viewer.ocp.bbp.epfl.ch
 SERVER_PORT:=80
+
+DOCKER_REGISTRY?=docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse
 
 
 define HELPTEXT
@@ -55,12 +57,12 @@ docker_build_latest: build
 		.
 
 docker_push_version: docker_build_version
-	docker tag $(APP_NAME):$(VERSION) docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(APP_NAME):$(VERSION)
-	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(APP_NAME):$(VERSION)
+	docker tag $(APP_NAME):$(VERSION) $(DOCKER_REGISTRY)/$(APP_NAME):$(VERSION)
+	docker push $(DOCKER_REGISTRY)/$(APP_NAME):$(VERSION)
 	@echo 'frontend version($(VERSION)) pushed to OpenShift registy'
 
 docker_push_latest: docker_build_latest
-	docker tag $(APP_NAME):latest docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(APP_NAME):latest
-	docker push docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse/$(APP_NAME):latest
+	docker tag $(APP_NAME):latest $(DOCKER_REGISTRY)/$(APP_NAME):latest
+	docker push $(DOCKER_REGISTRY)/$(APP_NAME):latest
 	@echo 'frontend latest version pushed to OpenShift registry.'
 	@echo 'frontend release done'

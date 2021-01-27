@@ -1,6 +1,7 @@
 **/*.pyc
 *.egg-info
-venv
-tools
+venv/
+build/
+tools/
 tmp/*-list.txt
 **/.git
