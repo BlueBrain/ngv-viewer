@@ -20,9 +20,11 @@ function getSocketUrlFromConfig(conf) {
 
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = get(conf, 'server.host', location.host);
-  const port = get(conf, 'server.port', '');
+  const baseUrl = get(conf, 'baseUrl', '');
+  let port = get(conf, 'server.port', null);
+  port = port ? `:${port}` : '';
 
-  const socketUrl = `${protocol}//${host}:${port}/ws`;
+  const socketUrl = `${protocol}//${host}${port}${baseUrl}/ws`;
 
   return socketUrl;
 }

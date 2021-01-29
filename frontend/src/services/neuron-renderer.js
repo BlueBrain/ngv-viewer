@@ -24,6 +24,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import store from '@/store';
 import eachAsync from '@/tools/each-async';
 import utils from '@/tools/neuron-renderer-utils';
+import config from '@/config';
 
 import {
   Mesh as MeshType,
@@ -32,6 +33,8 @@ import {
   CounterIdText,
 } from '@/constants';
 
+// used for the textures
+const { baseUrl } = config;
 
 const FOG_COLOR = 0xffffff;
 const NEAR = 1;
@@ -63,8 +66,8 @@ const ALL_SEC_TYPES = [
 const COLOR_DIFF_RANGE = 1;
 const HALF_PI = Math.PI * 0.5;
 
-const neuronTexture = new TextureLoader().load('/neuron-texture.png');
-const synapseTexture = new TextureLoader().load('/ball.png');
+const neuronTexture = new TextureLoader().load(`${baseUrl}/neuron-texture.png`);
+const synapseTexture = new TextureLoader().load(`${baseUrl}/ball.png`);
 
 const defaultSecRenderFilter = t => store.state.simulation.view.axonsVisible || t !== 'axon';
 
@@ -122,8 +125,8 @@ class NeuronRenderer {
     this.pickingCellMorphologyObj = new Object3D();
     this.pickingScene.add(this.pickingCellMorphologyObj);
 
-    const segInjTexture = new TextureLoader().load('/seg-inj-texture.png');
-    const segRecTexture = new TextureLoader().load('/seg-rec-texture.png');
+    const segInjTexture = new TextureLoader().load(`${baseUrl}/seg-inj-texture.png`);
+    const segRecTexture = new TextureLoader().load(`${baseUrl}/seg-rec-texture.png`);
 
     this.recMarkerMaterial = new MeshLambertMaterial({
       color: 0x00bfff,

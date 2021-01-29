@@ -12,6 +12,8 @@ SERVER_PORT:=80
 
 DOCKER_REGISTRY?=docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse
 
+PROD_BASE_URL?=/ngv-viewer
+
 
 define HELPTEXT
 Makefile usage
@@ -42,6 +44,7 @@ build: | $(NODE_MODULES)
 	VUE_APP_SERVER_PORT=$(SERVER_PORT) \
 	VUE_APP_SINGLE_CIRCUIT="${SINGLE_CIRCUIT}" \
 	VUE_APP_VERSION=$(VERSION) \
+	VUE_APP_BASE_URL=$(PROD_BASE_URL) \
 	npm run build --modern
 
 docker_build_version: build

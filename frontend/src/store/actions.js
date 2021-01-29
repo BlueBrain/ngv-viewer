@@ -109,21 +109,11 @@ const actions = {
     store.$emit('updateAvailableSimConfigOptions');
     store.$emit('setSelectedCircuitConfig', circuitConfig);
     store.$dispatch('reset');
-    store.$dispatch('setCircuitRoute', circuitConfig);
     store.$emit('setCircuitName', circuitConfig.name);
     store.$emit('initExampleNeuronSets', circuitConfig.examples);
 
     // FIXME: make sure the whole block makes sense
     store.$dispatch('loadCircuit');
-  },
-
-  setCircuitRoute(store, circuitConfig) {
-    const path = `/${circuitConfig.type}s/${circuitConfig.custom ? '' : circuitConfig.urlName}`;
-    const query = circuitConfig.custom
-      ? qs.stringify(pick(circuitConfig, ['name', 'path', 'simModel']))
-      : null;
-
-    window.history.pushState(null, null, `${path}${query ? `?${query}` : ''}`);
   },
 
   reset(store) {

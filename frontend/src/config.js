@@ -1,13 +1,9 @@
 
-import { Entity } from '@/constants';
-
 const circuits = [
   {
     name: 'ngv-20201006',
-    type: Entity.CIRCUIT,
-    urlName: 'ngv-20201006',
     path: '/circuits/ngv/ngv_config.json',
-    vasculatureGlbUrl: 'https://bbp.epfl.ch/public/test-ngv-viewer/simplified.glb',
+    vasculatureGlbUrl: 'https://bbp.epfl.ch/public/ngv-viewer-data/simplified.glb',
     simModel: '???',
     description: '',
   },
@@ -22,9 +18,12 @@ const devConfig = {
     host: 'localhost',
     port: 8888,
   },
+  baseUrl: '',
 };
 
-const prodConfig = {};
+const prodConfig = {
+  baseUrl: process.env.VUE_APP_BASE_URL || '',
+};
 
 const prodMode = process.env.NODE_ENV === 'production';
 
