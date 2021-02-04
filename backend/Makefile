@@ -81,6 +81,7 @@ run_dev:
 		-e DEBUG=True \
 		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
 		-v $$(pwd)/config.json:/opt/ngv-viewer/config.json \
+		-v /Users/antonel/gpfs:/gpfs \
 		-p 8888:8000 \
 		--entrypoint python \
 		$(IMAGE_NAME) \
@@ -90,8 +91,8 @@ run_dev_debug:
 	docker run \
 		--rm \
 		-it \
-		-v /Users/antonel/Desktop/circuit:/circuits:ro \
 		-e DEBUG=True \
+		-v /Users/antonel/gpfs:/gpfs \
 		-v $$(pwd)/ngv_viewer:/usr/local/lib/python3.7/site-packages/ngv_viewer \
 		-v $$(pwd)/config.json:/opt/ngv-viewer/config.json \
 		-p 8888:8000 \

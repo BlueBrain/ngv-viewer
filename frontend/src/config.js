@@ -2,7 +2,7 @@
 const circuits = [
   {
     name: 'ngv-20201006',
-    path: '/circuits/ngv/ngv_config.json',
+    path: '/gpfs/bbp.cscs.ch/project/proj62/scratch/ngv_circuits/20201006_full_sonata/build/ngv_config.json',
     vasculatureGlbUrl: 'https://bbp.epfl.ch/public/ngv-viewer-data/simplified.glb',
     simModel: '???',
     description: '',
