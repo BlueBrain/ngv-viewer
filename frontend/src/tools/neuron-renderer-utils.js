@@ -86,8 +86,8 @@ function createSecGeometryFromPoints(pts, simplificationRatio = 2) {
     const distance = vstart.distanceTo(vend);
     const position = vend.clone().add(vstart).divideScalar(2);
 
-    const dStart = pts[i][3];
-    const dEnd = (pts[i + sRatio] ? pts[i + sRatio][3] : last(pts)[3]);
+    const dStart = pts[i][3] * 2;
+    const dEnd = (pts[i + sRatio] ? pts[i + sRatio][3] : last(pts)[3]) * 2;
 
     const geometry = new CylinderGeometry(
       dStart,
@@ -151,14 +151,15 @@ function getSomaRadiusFromPoints(pts) {
     const thirdPt = new Vector3().fromArray(pts[2]);
     radius = (position.distanceTo(secondPt) + position.distanceTo(thirdPt)) / 2;
   } else {
-    // radius = pts.reduce((distance, pt) => distance + position.distanceTo(new THREE.Vector3().fromArray(pt)), 0) / pts.length;
-    radius = Math.max(...pts.map(pt => position.distanceTo(new Vector3().fromArray(pt)))) / 2;
+    radius = Math.max(...pts.map(pt => position.distanceTo(new Vector3().fromArray(pt))));
   }
 
   return radius;
 }
 
 function createSomaMeshFromPoints(pts, material) {
+  if (pts.length < 3) return new Mesh(); // not enough information
+
   const position = getSomaPositionFromPoints(pts);
   const radius = getSomaRadiusFromPoints(pts);
 

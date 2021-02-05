@@ -15,6 +15,8 @@ const state = {
       prop: {},
       meta: null,
       visible: false,
+      selectedMorphologies: [],
+      morphologyData: {},
     },
 
     efferentNeurons: {

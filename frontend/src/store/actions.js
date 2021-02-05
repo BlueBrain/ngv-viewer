@@ -556,7 +556,13 @@ const actions = {
   },
 
   neuronClicked(store, neuron) {
-    store.$emit('addNeuronToSim', neuron);
+    store.$dispatch('showGlobalSpinner');
+    store.state.circuit.cells.selectedMorphologies.push(neuron.gid - 1);
+
+    store.$dispatch('fetchNeuronMorphologies').then(() => {
+      store.$emit('showCellMorphology');
+      store.$dispatch('hideGlobalSpinner');
+    });
   },
 
   neuronAddedToSim(store, neuron) {
@@ -884,31 +890,7 @@ const actions = {
     store.$emit('updateSimCellConfig', store.state.circuit.simAddedNeurons);
     const gids = store.state.circuit.simAddedNeurons.map(n => n.gid);
 
-    await Promise.all(gids.map(async (gid) => {
-      if (store.state.simulation.morphology[gid]) return;
-
-      const cellMorph = await storage.getItem(`morph:${gid}`);
-      if (cellMorph) store.state.simulation.morphology[gid] = cellMorph;
-    }));
-
-    const cachedGids = Object.keys(store.state.simulation.morphology).map(gid => parseInt(gid, 10));
-
-    const gidsToLoad = gids.filter(gid => !cachedGids.includes(gid));
-    if (gidsToLoad.length) {
-      const morph = await socket.request('get_cell_morphology', gidsToLoad);
-      Object.entries(morph.cells).forEach(([, cellMorph]) => {
-        let i;
-        let currentType;
-        const { sections } = cellMorph;
-        sections.forEach((section) => {
-          i = section.type === currentType ? i + 1 : 0;
-          currentType = section.type;
-          section.name = `${section.type}[${i}]`;
-        });
-      });
-      Object.assign(store.state.simulation.morphology, morph.cells);
-      gidsToLoad.forEach(gid => storage.setItem(`morph:${gid}`, morph.cells[gid]));
-    }
+    await store.$dispatch('fetchNeuronMorphologies');
 
     // update cell-config: remove stimuli, recordings, synaptic inputs
     // for the cells which are have been removed from simulation
@@ -932,6 +914,36 @@ const actions = {
     store.$emit('setSimulationConfigTabActive');
 
     store.$dispatch('initSynapses');
+  },
+
+  async fetchNeuronMorphologies(store) {
+    const gids = store.state.circuit.cells.selectedMorphologies;
+
+    await Promise.all(gids.map(async (gid) => {
+      if (store.state.circuit.cells.morphologyData[gid]) return;
+
+      const cellMorph = await storage.getItem(`morph:${gid}`);
+      if (cellMorph) store.state.circuit.cells.morphologyData[gid] = cellMorph;
+    }));
+
+    const cachedGids = Object.keys(store.state.circuit.cells.morphologyData).map(gid => parseInt(gid, 10));
+
+    const gidsToLoad = gids.filter(gid => !cachedGids.includes(gid));
+    if (gidsToLoad.length) {
+      const morph = await socket.request('get_cell_morphology', gidsToLoad);
+      Object.entries(morph.cells).forEach(([, cellMorph]) => {
+        let i;
+        let currentType;
+        const { sections } = cellMorph;
+        sections.forEach((section) => {
+          i = section.type === currentType ? i + 1 : 0;
+          currentType = section.type;
+          section.name = `${section.type}[${i}]`;
+        });
+      });
+      Object.assign(store.state.circuit.cells.morphologyData, morph.cells);
+      gidsToLoad.forEach(gid => storage.setItem(`morph:${gid}`, morph.cells[gid]));
+    }
   },
 
   makeScreenshotBtnClicked(store) {
@@ -1068,6 +1080,7 @@ const actions = {
     const efferentNeuronId = store.state.circuit.efferentNeurons.raycastMapping[raycastIndex];
     const selectedAstrocyteId = store.state.circuit.astrocytes.selectedWithClick;
     store.state.circuit.efferentNeurons.selectedWithClick = efferentNeuronId;
+
     const synapseLocations = new Promise((resolve) => {
       const processAstrocyteSynapses = (synapses) => {
         storage.setItem(`synapseLocations:${selectedAstrocyteId}:${efferentNeuronId}}`, synapses);
@@ -1096,6 +1109,11 @@ const actions = {
 
     store.$emit('showGlobalSpinner');
     await synapseLocations;
+
+    // display efferent neuron morphology
+    const neuron = store.$get('neuron', efferentNeuronId);
+    store.$dispatch('neuronClicked', neuron);
+
     store.$emit('hideGlobalSpinner');
   },
 

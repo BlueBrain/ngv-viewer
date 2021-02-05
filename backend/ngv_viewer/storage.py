@@ -117,7 +117,7 @@ class Storage():
         for gid in gids:
             cell_morph = cache.get('cell:morph:{}'.format(gid))
             if cell_morph is None:
-                cell = circuit.v2.morph.get(gid, transform=True)
+                cell = circuit.neurons.morph.get(gid, transform=True)
                 morphology = [
                     {
                         'points': [point[:4] for point in section.points],
@@ -127,8 +127,8 @@ class Storage():
                     for section in cell.sections]
 
                 cache.set('cell:morph:{}'.format(gid), morphology)
-
-                orientation = circuit.v2.cells.get(gid)['orientation']
+                
+                orientation = circuit.neurons.orientations(group=gid)
 
                 cells[gid] = {
                     'sections': morphology,

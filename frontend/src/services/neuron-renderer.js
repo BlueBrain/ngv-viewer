@@ -468,9 +468,9 @@ class NeuronRenderer {
   }
 
   showMorphology(secTypes = ALL_SEC_TYPES.filter(defaultSecRenderFilter)) {
-    const gids = store.state.circuit.simAddedNeurons.map(n => n.gid);
+    const gids = store.state.circuit.cells.selectedMorphologies;
 
-    const { morphology } = store.state.simulation;
+    const morphology = store.state.circuit.cells.morphologyData;
 
     const addSecOperations = [];
 
