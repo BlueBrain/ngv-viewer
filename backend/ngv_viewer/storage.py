@@ -5,7 +5,7 @@ import numpy as np
 
 import archngv
 
-from bluepy.v2.enums import Synapse
+from bluepy.enums import Synapse
 
 from .redis_client import RedisClient
 

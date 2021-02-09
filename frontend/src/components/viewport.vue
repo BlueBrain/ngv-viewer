@@ -6,6 +6,7 @@
       :class="{'cursor-crosshair': selectionMode}"
       :id="canvasId"
     />
+    <morph-section-poptip/>
     <bottom-panel/>
   </div>
 </template>
@@ -16,6 +17,7 @@
   import NeuronRenderer from '@/services/neuron-renderer';
   import BottomPanel from './viewport/bottom-panel.vue';
   import GoBackCtrl from './viewport/go-back-ctrl.vue';
+  import MorphSectionPoptip from './viewport/morph-section-poptip.vue';
 
   export default {
     name: 'viewport-component',
@@ -28,6 +30,7 @@
     components: {
       'bottom-panel': BottomPanel,
       'go-back-ctrl': GoBackCtrl,
+      'morph-section-poptip': MorphSectionPoptip,
     },
     mounted() {
       const canvas = document.getElementById(this.canvasId);
