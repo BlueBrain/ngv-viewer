@@ -29,9 +29,12 @@ const state = {
     astrocytes: {
       positions: null,
       ids: [],
+      fullLayersArray: [],
       prop: {},
       visible: true,
       selectedWithClick: null,
+      raycastMapping: {},
+      filterLayers: [],
     },
 
     astrocyteSynapses: {

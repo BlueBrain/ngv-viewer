@@ -1149,19 +1149,20 @@ class NeuronRenderer {
     loader.load(fileUrl, onLoad, onProgress, onError);
   }
 
-  onAstrocyteHover(astrocyteIndex) {
+  onAstrocyteHover(raycastIndex) {
+    const astrocyteIndex = store.state.circuit.astrocytes.raycastMapping[raycastIndex];
     this.onHoverExternalHandler({
       type: 'astrocyteCloud',
       astrocyteIndex,
     });
 
-    this.hoveredNeuron = [
-      astrocyteIndex,
-      this.astrocyteCloud.colorBufferAttr.getX(astrocyteIndex),
-      this.astrocyteCloud.colorBufferAttr.getY(astrocyteIndex),
-      this.astrocyteCloud.colorBufferAttr.getZ(astrocyteIndex),
+    this.hoveredAstrocyte = [
+      raycastIndex,
+      this.astrocyteCloud.colorBufferAttr.getX(raycastIndex),
+      this.astrocyteCloud.colorBufferAttr.getY(raycastIndex),
+      this.astrocyteCloud.colorBufferAttr.getZ(raycastIndex),
     ];
-    this.astrocyteCloud.colorBufferAttr.setXYZ(astrocyteIndex, ...HOVERED_NEURON_GL_COLOR);
+    this.astrocyteCloud.colorBufferAttr.setXYZ(raycastIndex, ...HOVERED_NEURON_GL_COLOR);
     this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
 
     this.ctrl.renderOnce();
@@ -1173,7 +1174,7 @@ class NeuronRenderer {
       astrocyteIndex,
     });
 
-    this.astrocyteCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
+    this.astrocyteCloud.colorBufferAttr.setXYZ(...this.hoveredAstrocyte);
     this.astrocyteCloud.points.geometry.attributes.color.needsUpdate = true;
     this.hoveredAstrocyte = null;
 
@@ -1195,19 +1196,37 @@ class NeuronRenderer {
   }
 
   loadAstrocytesSomas(astrocyteSomasObj) {
-    const somaPositionArray = astrocyteSomasObj.positions;
-    const layersArray = astrocyteSomasObj.layers;
+    const {
+      positions: somaPositionArray,
+      layers: layersArray,
+      filterLayers,
+     } = astrocyteSomasObj;
+
     store.state.currentDetailedLevel = CurrentDetailedLevel.ASTROCYTES;
 
     const colorPalette = store.state.circuit.color.palette;
-    const layersColors = layersArray.map((layerNumber) => {
+    const newPositions = [];
+    const newLayerColors = [];
+    // Raycast show added id that is different to the real one.
+    let raycastIndex = 0;
+    const raycastMapping = {};
+    layersArray.forEach((layerNumber, index) => {
+      if (filterLayers?.length && !filterLayers.includes(String(layerNumber))) return;
+
+      newPositions.push(somaPositionArray[index]);
       // remove the transparency argument
       const [r, g, b] = colorPalette[layerNumber];
-      return [r, g, b];
+      newLayerColors.push([r, g, b]);
+      raycastMapping[raycastIndex] = index;
+      raycastIndex += 1;
     });
 
-    const positions = new Float32Array(somaPositionArray.flat());
-    const colorBuffer = new Float32Array(layersColors.flat());
+    store.state.circuit.astrocytes.filterLayers = filterLayers;
+    store.state.circuit.astrocytes.raycastMapping = raycastMapping;
+    store.state.circuit.astrocytes.astrocyteSomasObj = astrocyteSomasObj;
+
+    const positions = new Float32Array(newPositions.flat());
+    const colorBuffer = new Float32Array(newLayerColors.flat());
 
     this.astrocyteCloud = {
       positionBufferAttr: new BufferAttribute(positions, 3),
@@ -1228,9 +1247,17 @@ class NeuronRenderer {
 
     store.$emit('updateClipboardIds', {
       name: CounterIdText.ASTROCYTES,
-      data: astrocyteSomasObj.ids,
+      data: newPositions,
     });
     store.$emit('detailedLevelChanged');
+  }
+
+  destroyAstrocytesCloud() {
+    if (!this.astrocyteCloud.points) return;
+
+    this.scene.remove(this.astrocyteCloud.points);
+    this.astrocyteCloud = null;
+    this.ctrl.renderOnce();
   }
 
   // eslint-disable-next-line class-methods-use-this

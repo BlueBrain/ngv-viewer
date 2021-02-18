@@ -23,6 +23,9 @@
         <div class="counter-ids">
           <counter-ids />
         </div>
+        <div class="layers-toggle">
+          <layers-toggle-ctrl />
+        </div>
       </div>
       <div class="sim-panel" v-else-if="mode === 'simulationConfig'">
         <syn-color-palette/>
@@ -55,6 +58,7 @@
   import MeshesToggleCtrl from './bottom-panel/meshes-toggle-ctrl.vue';
   import ClipboardIds from './bottom-panel/clipboard-ids.vue';
   import CounterIds from './bottom-panel/counter-ids.vue';
+  import LayersToggleCtrl from './bottom-panel/layers-toggle-ctrl.vue';
 
   // Simulation config components
   import SynColorPalette from './bottom-panel/syn-color-palette.vue';
@@ -71,6 +75,7 @@
       'meshes-toggle-ctrl': MeshesToggleCtrl,
       'clipboard-ids': ClipboardIds,
       'counter-ids': CounterIds,
+      'layers-toggle-ctrl': LayersToggleCtrl,
     },
     data() {
       return {
@@ -85,7 +90,8 @@
 
 
 <style lang="scss" scoped>
-  $left-position: 12px; 
+  $right-position: 12px; 
+  $top-position: -40px; 
   .bottom-panel-container {
     position: absolute;
     left: 0;
@@ -94,14 +100,14 @@
 
     .section-alignment-ctrl {
       position: absolute;
-      right: $left-position;
-      top: -260px;
+      right: $right-position;
+      top: $top-position;
     }
 
     .screenshot-ctrl {
       position: absolute;
-      right: $left-position;
-      top: -41px;
+      right: $right-position;
+      top: $top-position;
     }
 
     .hover-object-info-container {
@@ -118,20 +124,26 @@
 
     .meshes-toggle {
       position: absolute;
-      right: $left-position;
-      top: -135px;
+      right: $right-position;
+      top: $top-position - 130px;
     }
 
     .clipboard-ids {
       position: absolute;
-      right: $left-position;
-      top: -170px;
+      right: $right-position;
+      top: $top-position;
     }
 
     .counter-ids {
       position: absolute;
-      right: $left-position;
-      top: -160px;
+      right: $right-position;
+      top: $top-position - 180px;
+    }
+
+    .layers-toggle {
+      position: absolute;
+      right: $right-position - 10px;
+      top: $top-position - 35px;
     }
   }
 </style>

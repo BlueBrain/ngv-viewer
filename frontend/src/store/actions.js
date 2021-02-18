@@ -1064,11 +1064,6 @@ const actions = {
 
     if (cached) {
       somas = cached;
-      astrocytes.positions = cached;
-      await storage.setItem(
-        store.$get('storageKey', 'astrocytesPositions'),
-        astrocytes.positions,
-      );
     } else {
       const done = new Promise((resolve) => {
         store.$on('ws:astrocytes_somas', resolve);
@@ -1081,8 +1076,21 @@ const actions = {
     }
     astrocytes.positions = somas.positions;
     astrocytes.ids = somas.ids;
+    astrocytes.fullLayersArray = somas.layers;
 
     store.$emit('loadAstrocytesSomas', somas);
+  },
+
+
+  astrocyteLayerFilterChanged(store, layers) {
+    const { astrocytes } = store.state.circuit;
+    const somasObj = {
+      positions: astrocytes.positions,
+      layers: astrocytes.fullLayersArray,
+      filterLayers: layers,
+    };
+    store.$emit('destroyAstrocytesCloud');
+    store.$emit('loadAstrocytesSomas', somasObj);
   },
 
   async efferentNeuronHovered(store, neuron) {
