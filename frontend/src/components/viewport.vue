@@ -98,9 +98,11 @@
       store.$on('destroyEfferentNeuronsCloud', () => this.renderer.destroyEfferentNeuronsCloud());
 
       store.$on('showAstrocyteMorphology', morphObj => this.renderer.showAstrocyteMorphology(morphObj));
+      store.$on('showAstrocyteMicrodomain', microdomainObj => this.renderer.showAstrocyteMicrodomain(microdomainObj));
       store.$on('showAstrocyteSynapses', synapseLocations => this.renderer.showSynapseLocations(synapseLocations));
       store.$on('destroySynapseLocations', () => this.renderer.destroySynapseLocations());
       store.$on('destroyAstrocyteMorphology', () => this.renderer.destroyAstrocyteMorphology());
+      store.$on('destroyAstrocyteMicrodomain', () => this.renderer.destroyAstrocyteMicrodomain());
     },
     methods: {
       onHover(obj) {

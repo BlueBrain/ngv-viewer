@@ -489,9 +489,32 @@ const actions = {
         });
     });
 
+    const astrocyteMicrodomain = new Promise((resolve) => {
+      const processMicrodomain = (microdomainObj) => {
+        storage.setItem(`microdomain:${astrocyte.idx}`, microdomainObj);
+        store.$emit('showAstrocyteMicrodomain', microdomainObj);
+        store.$off('ws:astrocyte_microdomain', astrocyteMicrodomain);
+        resolve();
+      };
+
+      // try load from cache
+      storage.getItem(`microdomain:${astrocyte.idx}`)
+        .then((microdomainCached) => {
+          if (microdomainCached) {
+            store.$emit('showAstrocyteMicrodomain', microdomainCached);
+            resolve();
+            return;
+          }
+
+          // search in backend
+          store.$on('ws:astrocyte_microdomain', processMicrodomain);
+          socket.send('get_astrocyte_microdomain', astrocyte.idx);
+        });
+    });
+
     store.state.circuit.astrocytes.selectedWithClick = astrocyte.idx;
     store.$emit('showGlobalSpinner');
-    await Promise.all([efferentNeuron, astrocyteMorph]);
+    await Promise.all([efferentNeuron, astrocyteMorph, astrocyteMicrodomain]);
     store.$emit('hideGlobalSpinner');
   },
 
@@ -1142,6 +1165,7 @@ const actions = {
   goToAstrocyteDetailedLevel(store) {
     store.$emit('destroyEfferentNeuronsCloud');
     store.$emit('destroyAstrocyteMorphology');
+    store.$emit('destroyAstrocyteMicrodomain');
     store.$emit('destroyBoundingVasculature');
     store.$emit('showAstrocytes');
 

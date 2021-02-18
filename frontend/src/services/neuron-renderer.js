@@ -1402,6 +1402,36 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
+  showAstrocyteMicrodomain(microdomainObj) {
+    // microdomainObj = { 'indexes': [[]], 'vertices': [[]] }
+    const microdomainGeometry = new BufferGeometry();
+    microdomainGeometry.setIndex(microdomainObj.indexes.flat());
+    const vertices = new Float32BufferAttribute(microdomainObj.vertices.flat(), 3);
+    microdomainGeometry.setAttribute('position', vertices);
+    const material = new MeshLambertMaterial({
+      color: ColorConvention.extraPalette.MICRODOMAIN.color,
+      transparent: true,
+      opacity: 0.7,
+      side: DoubleSide,
+    });
+    microdomainGeometry.computeVertexNormals();
+    microdomainGeometry.computeFaceNormals();
+    this.astrocyteMicrodomain = new Mesh(microdomainGeometry, material);
+    this.astrocyteMicrodomain.renderOrder = 5;
+    this.astrocyteMicrodomain.name = 'microdomain';
+    this.astrocyteMicrodomain.visible = true;
+    this.scene.add(this.astrocyteMicrodomain);
+    this.ctrl.renderOnce();
+  }
+
+  destroyAstrocyteMicrodomain() {
+    if (!this.astrocyteMicrodomain) return;
+
+    this.scene.remove(this.astrocyteMicrodomain);
+    this.astrocyteMicrodomain = null;
+    this.ctrl.renderOnce();
+  }
+
   // eslint-disable-next-line class-methods-use-this
   generateClippingPlanes(boundingBox) {
     return [

@@ -225,6 +225,24 @@ class Storage():
             L.debug('using cached morphology')
         return morph_dict
 
+    def get_astrocyte_microdomain(self, circuit_path, astrocyte_id):
+        L.debug('getting microdomain for astrocyte  %s', astrocyte_id)
+        microdomain_dict = cache.get('astrocyte:microdomain:{}'.format(astrocyte_id))
+        if microdomain_dict is None:
+            circuit = get_circuit(circuit_path)
+            microdomains = circuit.astrocytes.microdomains
+            indexes = microdomains.tesselation.domain_triangles(astrocyte_id)
+            points = microdomains.tesselation.domain_points(astrocyte_id)
+            microdomain_dict = {
+                'indexes': indexes.tolist(),
+                'vertices': points.tolist(),
+            }
+
+            cache.set('astrocyte:microdomain:{}'.format(astrocyte_id), microdomain_dict)
+        else:
+            L.debug('using cached microdomain')
+        return microdomain_dict
+
     def get_astrocyte_synapses(self, circuit_path, astrocyte_id, efferent_neuron_id):
         L.debug('getting synapses for astrocyte %s', astrocyte_id)
         circuit = get_circuit(circuit_path)

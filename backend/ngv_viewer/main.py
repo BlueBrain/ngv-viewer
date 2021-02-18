@@ -263,6 +263,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             L.debug('sending astrocyte morphology to the client')
             self.send_message('astrocyte_morph', morph)
 
+        if cmd == 'get_astrocyte_microdomain':
+            astrocyte_id = msg['data']
+            microdomain = STORAGE.get_astrocyte_microdomain(circuit_path, astrocyte_id)
+            L.debug('sending astrocyte microdomain to the client')
+            self.send_message('astrocyte_microdomain', microdomain)
+
         if cmd == 'get_astrocyte_synapses':
             data_dict = msg['data']
             synapses = STORAGE.get_astrocyte_synapses(circuit_path, data_dict['astrocyte'], data_dict['neuron'])

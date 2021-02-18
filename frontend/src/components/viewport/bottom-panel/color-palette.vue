@@ -132,6 +132,7 @@
     margin-left: 20px;
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .palette-item {

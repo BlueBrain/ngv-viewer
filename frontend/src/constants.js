@@ -30,6 +30,10 @@ export const ColorConvention = {
       color: '#FFCB00',
       name: 'Synapses',
     },
+    MICRODOMAIN: {
+      color: '#3bbfe3',
+      name: 'Microdomain',
+    },
   },
 };
 
