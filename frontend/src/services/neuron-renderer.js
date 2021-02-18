@@ -446,7 +446,7 @@ class NeuronRenderer {
 
     const materialMap = utils.generateSecMaterialMap(colorDiff);
 
-    const addSecOperation = eachAsync(sections, (section) => {
+    sections.forEach((section) => {
       const pts = section.points;
 
       const secMesh = section.type === 'soma'
@@ -462,9 +462,8 @@ class NeuronRenderer {
       };
 
       cellObj3d.add(secMesh);
-    }, sec => secTypesToAdd.includes(sec.type));
-
-    addSecOperations.push(addSecOperation);
+    });
+    addSecOperations.push(Promise.resolve());
   }
 
   showMorphology(secTypes = ALL_SEC_TYPES.filter(defaultSecRenderFilter)) {
