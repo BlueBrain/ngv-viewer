@@ -8,6 +8,7 @@
     />
     <morph-section-poptip/>
     <bottom-panel/>
+    <right-panel/>
   </div>
 </template>
 
@@ -18,6 +19,7 @@
   import BottomPanel from './viewport/bottom-panel.vue';
   import GoBackCtrl from './viewport/go-back-ctrl.vue';
   import MorphSectionPoptip from './viewport/morph-section-poptip.vue';
+  import RightPanel from './viewport/right-panel.vue';
 
   export default {
     name: 'viewport-component',
@@ -31,6 +33,7 @@
       'bottom-panel': BottomPanel,
       'go-back-ctrl': GoBackCtrl,
       'morph-section-poptip': MorphSectionPoptip,
+      'right-panel': RightPanel,
     },
     mounted() {
       const canvas = document.getElementById(this.canvasId);
