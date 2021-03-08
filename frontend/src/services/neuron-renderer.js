@@ -1488,7 +1488,7 @@ class NeuronRenderer {
     newMat.depthTest = true;
     newMat.depthWrite = true;
     newMat.transparent = true;
-    newMat.opacity = 0.5;
+    newMat.opacity = store.state.circuit.boundingVasculature.opacity / 100;
     newMat.side = FrontSide;
 
     this.boundingVasculature.mesh = new Mesh(newGeom, newMat);
@@ -1503,6 +1503,7 @@ class NeuronRenderer {
       loadedVasculature.position.z,
     );
     this.boundingVasculature.mesh.name = 'boundingVasculature';
+    this.boundingVasculature.mesh.renderOrder = 2;
     this.renderer.localClippingEnabled = true;
 
     this.boundingVasculature.mesh.visible = store.state.circuit.boundingVasculature.visible;
@@ -1520,18 +1521,14 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  showBoundingVasculature() {
-    const { boundingVasculature } = store.state.circuit;
-    boundingVasculature.visible = true;
+  changeBoundingVasculatureOpacity() {
     if (!this.boundingVasculature?.mesh) return;
-    this.boundingVasculature.mesh.visible = boundingVasculature.visible;
-    this.ctrl.renderOnce();
-  }
 
-  hideBoundingVasculature() {
     const { boundingVasculature } = store.state.circuit;
-    boundingVasculature.visible = false;
-    if (!this.boundingVasculature?.mesh) return;
+    boundingVasculature.visible = boundingVasculature.opacity !== 0;
+
+    const { material } = this.boundingVasculature.mesh;
+    material.opacity = boundingVasculature.opacity / 100;
     this.boundingVasculature.mesh.visible = boundingVasculature.visible;
     this.ctrl.renderOnce();
   }

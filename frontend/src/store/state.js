@@ -49,6 +49,7 @@ const state = {
     boundingVasculature: {
       mesh: null,
       visible: false,
+      opacity: 0,
     },
 
     somaSize: 10,

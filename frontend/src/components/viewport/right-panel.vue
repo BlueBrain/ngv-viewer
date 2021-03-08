@@ -10,6 +10,9 @@
     <div class="meshes-toggle ctrl-background">
       <meshes-toggle-ctrl />
     </div>
+    <div class="local-vasc-slider ctrl-background">
+      <local-vasculature-slider />
+    </div>
     <div class="layers-toggle ctrl-background">
       <layers-toggle-ctrl />
     </div>
@@ -26,6 +29,7 @@
   import ClipboardIds from './right-panel/clipboard-ids.vue';
   import CounterIds from './right-panel/counter-ids.vue';
   import LayersToggleCtrl from './right-panel/layers-toggle-ctrl.vue';
+  import LocalVasculatureSlider from './right-panel/local-vasculature-slider.vue';
 
 
   export default {
@@ -35,6 +39,7 @@
       'clipboard-ids': ClipboardIds,
       'counter-ids': CounterIds,
       'layers-toggle-ctrl': LayersToggleCtrl,
+      'local-vasculature-slider': LocalVasculatureSlider,
     },
   };
 </script>
