@@ -6,7 +6,7 @@
       <hover-object-info class="hover-object-info-container" />
     </div>
 
-    <div class="screenshot-ctrl">
+    <div class="screenshot-ctrl ctrl-background">
       <screenshot-ctrl />
     </div>
 
@@ -14,16 +14,16 @@
       <div class="circuit-panel" v-if="mode === 'cellSelection'">
         <color-palette />
 
-        <div class="meshes-toggle">
+        <div class="meshes-toggle ctrl-background">
           <meshes-toggle-ctrl />
         </div>
-        <div class="clipboard-ids">
+        <div class="clipboard-ids ctrl-background">
           <clipboard-ids />
         </div>
-        <div class="counter-ids">
+        <div class="counter-ids ctrl-background">
           <counter-ids />
         </div>
-        <div class="layers-toggle">
+        <div class="layers-toggle ctrl-background">
           <layers-toggle-ctrl />
         </div>
       </div>
@@ -144,6 +144,11 @@
       position: absolute;
       right: $right-position - 10px;
       top: $top-position - 35px;
+    }
+    .ctrl-background {
+      background-color: #ffffffcc;
+      padding: 5px;
+      border-radius: 5px;
     }
   }
 </style>
