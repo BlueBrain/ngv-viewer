@@ -53,6 +53,7 @@
       background-color: #ffffffcc;
       padding: 5px;
       border-radius: 5px;
+      margin-bottom: 5px;
     }
   }
 </style>

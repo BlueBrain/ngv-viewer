@@ -2,7 +2,7 @@
 <template>
   <div class="layers-toggle-main">
     <div class="container" v-if="showSelector">
-      <span class="title">layers:</span>
+      <div><strong>show layers</strong></div>
       <CheckboxGroup
         v-model="layersToShow"
         @on-change=hideLayersChanged
@@ -57,11 +57,7 @@
 
 <style lang="scss" scoped>
   .layers-toggle-main {
-    .container {
-      display: flex;
-      .title {
-        margin-right: 5px;
-      }
-    }
+    text-align: right;
+    max-width: 125px;
   }
 </style>

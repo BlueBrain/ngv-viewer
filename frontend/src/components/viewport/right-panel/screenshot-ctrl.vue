@@ -2,7 +2,7 @@
 <template>
   <div>
     <Tooltip
-      placement="top"
+      placement="left"
       :disabled="active"
     >
       <div slot="content">

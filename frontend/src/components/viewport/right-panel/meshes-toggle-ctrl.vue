@@ -2,6 +2,7 @@
 <template>
   <div class="mesh-toggle-main">
     <div class="container">
+      <span><strong>show / hide mesh</strong></span>
       <div
         class="row"
         v-for="mesh in meshes"
@@ -27,7 +28,7 @@
 
 <script>
   import store from '@/store';
-  import { Mesh, CurrentDetailedLevel } from '@/constants';
+  import { Mesh } from '@/constants';
 
   export default {
     name: 'meshes-toggle-ctrl',
@@ -38,12 +39,6 @@
     },
     mounted() {
       this.init();
-      store.$on('detailedLevelChanged', () => {
-        const boundingVasculatureIsVisible = !!store.state.currentDetailedLevel
-          && store.state.currentDetailedLevel !== CurrentDetailedLevel.ASTROCYTES;
-        const mesh = this.meshes.find(mesh => mesh.name === Mesh.BOUNDING_VASCULATURE);
-        this.$set(mesh, 'disabled', !boundingVasculatureIsVisible);
-      });
     },
     methods: {
       init() {
@@ -51,13 +46,11 @@
           vasculature,
           cells,
           astrocytes,
-          boundingVasculature,
         } = store.state.circuit;
         const meshes = [
           { name: Mesh.NEURONS, visible: cells.visible },
           { name: Mesh.ASTROCYTES, visible: astrocytes.visible },
           { name: Mesh.VASCULATURE, visible: vasculature.visible },
-          { name: Mesh.BOUNDING_VASCULATURE, visible: boundingVasculature.visible, disabled: true },
         ];
         this.$set(this, 'meshes', meshes);
       },
@@ -84,14 +77,6 @@
             store.$emit('showVasculature');
           } else {
             store.$emit('hideVasculature');
-          }
-          break;
-        }
-        case Mesh.BOUNDING_VASCULATURE: {
-          if (display) {
-            store.$emit('showBoundingVasculature');
-          } else {
-            store.$emit('hideBoundingVasculature');
           }
           break;
         }

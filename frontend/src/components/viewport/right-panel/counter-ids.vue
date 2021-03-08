@@ -40,6 +40,7 @@
   .counter-ids-container {
     .count {
       margin-right: 5px;
+      font-weight: bold;
     }
     .container {
       cursor: pointer;
