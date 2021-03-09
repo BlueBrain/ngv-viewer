@@ -16,9 +16,6 @@
     <div class="microdomain-slider">
       <microdomain-slider />
     </div>
-    <div class="layers-toggle">
-      <layers-toggle-ctrl />
-    </div>
     <div class="screenshot-ctrl">
       <screenshot-ctrl />
     </div>
@@ -31,7 +28,6 @@
   import MeshesToggleCtrl from './right-panel/meshes-toggle-ctrl.vue';
   import ClipboardIds from './right-panel/clipboard-ids.vue';
   import CounterIds from './right-panel/counter-ids.vue';
-  import LayersToggleCtrl from './right-panel/layers-toggle-ctrl.vue';
   import LocalVasculatureSlider from './right-panel/local-vasculature-slider.vue';
   import MicrodomainSlider from './right-panel/microdomain-slider.vue';
 
@@ -42,7 +38,6 @@
       'meshes-toggle-ctrl': MeshesToggleCtrl,
       'clipboard-ids': ClipboardIds,
       'counter-ids': CounterIds,
-      'layers-toggle-ctrl': LayersToggleCtrl,
       'local-vasculature-slider': LocalVasculatureSlider,
       'microdomain-slider': MicrodomainSlider,
     },

@@ -5,27 +5,41 @@
       <span>Layer</span>
     </div>
     <div class="palette-container">
-      <div
-        class="palette-item"
-        v-for="(color, paletteKey) in colorPalette"
-        :key="paletteKey"
+      <CheckboxGroup
+        class="palette-container"
+        @on-change=hideLayersChanged
       >
-        <small>{{ paletteKey }}</small>
         <div
-          class="color-block"
-          :style="{'background-color': color}"
-        ></div>
-      </div>
+          class="palette-item"
+          v-for="(color, paletteKey) in colorPalette"
+          :key="paletteKey"
+        >
+          <Checkbox
+            v-if="showLayerCheckboxes"
+            class="custom-checkbox"
+            :label="paletteKey"
+            :checked="true"
+          >
+          </Checkbox>
+          <small v-if="!showLayerCheckboxes">
+            {{ paletteKey }}
+          </small>
+          <div
+            class="color-block"
+            :style="{'background-color': color}"
+          ></div>
+        </div>
+      </CheckboxGroup>
     </div>
 
     <div
-      class="extra-color-container"
+      class="extra-color-container display-flex"
       v-if="extraColorPaletteArray.length"
     >
       <div
         v-for="extraColor in extraColorPaletteArray"
         :key="extraColor.key"
-        class="extra-color-container"
+        class="display-flex"
       >
         <div class="name-container">{{ extraColor.name }}</div>
 
@@ -48,7 +62,7 @@
   import * as chroma from 'chroma-js';
 
   import store from '@/store';
-  import { ColorConvention } from '@/constants.js';
+  import { ColorConvention, CurrentDetailedLevel } from '@/constants.js';
 
   export default {
     name: 'color-palette',
@@ -56,6 +70,7 @@
       return {
         colorPalette: {},
         extraColorPaletteArray: [],
+        showLayerCheckboxes: true,
       };
     },
     mounted() {
@@ -66,6 +81,10 @@
       });
       store.$on('updateColorPalette', () => this.updateColorPalette());
       store.$on('initNeuronColor', this.generatePalette);
+      store.$on('detailedLevelChanged', () => {
+        this.showLayerCheckboxes = !!store.state.currentDetailedLevel
+          && store.state.currentDetailedLevel === CurrentDetailedLevel.ASTROCYTES;
+      });
     },
     methods: {
       generatePalette() {
@@ -104,6 +123,10 @@
           return Object.assign(palette, { [colorKey]: color });
         }, {});
       },
+
+      hideLayersChanged(param) {
+        store.$dispatch('astrocyteLayerFilterChanged', param);
+      },
     },
   };
 </script>
@@ -122,14 +145,14 @@
   .palette-container {
     display: flex;
     flex-wrap: wrap;
+    flex-grow: 1;
   }
 
   .name-container {
     margin-right: 10px;
   }
 
-  .extra-color-container {
-    margin-left: 20px;
+  .display-flex {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
@@ -144,7 +167,7 @@
 
     small {
       padding: 0 6px;
-      min-width: 56px;
+      min-width: 20px;
     }
 
     .color-block {
@@ -152,5 +175,17 @@
       width: 18px;
       display: inline-block;
     }
+
+    .custom-checkbox {
+      margin-right: 5px;
+    }
+  }
+</style>
+
+<style>
+  .palette-item .custom-checkbox .ivu-checkbox-inner {
+    top: -1px;
+    margin-right: 5px;
+    border: 2px solid black;
   }
 </style>
