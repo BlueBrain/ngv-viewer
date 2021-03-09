@@ -1428,7 +1428,7 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  showAstrocyteMicrodomain(microdomainObj) {
+  createAstrocyteMicrodomain(microdomainObj) {
     // microdomainObj = { 'indexes': [[]], 'vertices': [[]] }
     const microdomainGeometry = new BufferGeometry();
     microdomainGeometry.setIndex(microdomainObj.indexes.flat());
@@ -1437,23 +1437,36 @@ class NeuronRenderer {
     const material = new MeshLambertMaterial({
       color: ColorConvention.extraPalette.MICRODOMAIN.color,
       transparent: true,
-      opacity: 0.7,
+      opacity: store.state.circuit.microdomain.opacity / 100,
       side: DoubleSide,
     });
     microdomainGeometry.computeVertexNormals();
     microdomainGeometry.computeFaceNormals();
-    this.astrocyteMicrodomain = new Mesh(microdomainGeometry, material);
-    this.astrocyteMicrodomain.renderOrder = 5;
-    this.astrocyteMicrodomain.name = 'microdomain';
-    this.astrocyteMicrodomain.visible = true;
-    this.scene.add(this.astrocyteMicrodomain);
+    this.astrocyteMicrodomain = {};
+    this.astrocyteMicrodomain.mesh = new Mesh(microdomainGeometry, material);
+    this.astrocyteMicrodomain.mesh.renderOrder = 1;
+    this.astrocyteMicrodomain.mesh.name = 'microdomain';
+    this.astrocyteMicrodomain.mesh.visible = store.state.circuit.microdomain.visible;
+    this.scene.add(this.astrocyteMicrodomain.mesh);
+    this.ctrl.renderOnce();
+  }
+
+  changeMicrodomainOpacity() {
+    if (!this.astrocyteMicrodomain?.mesh) return;
+
+    const { microdomain } = store.state.circuit;
+    microdomain.visible = microdomain.opacity !== 0;
+
+    const { material } = this.astrocyteMicrodomain.mesh;
+    material.opacity = microdomain.opacity / 100;
+    this.astrocyteMicrodomain.mesh.visible = microdomain.visible;
     this.ctrl.renderOnce();
   }
 
   destroyAstrocyteMicrodomain() {
     if (!this.astrocyteMicrodomain) return;
 
-    this.scene.remove(this.astrocyteMicrodomain);
+    this.scene.remove(this.astrocyteMicrodomain.mesh);
     this.astrocyteMicrodomain = null;
     this.ctrl.renderOnce();
   }
@@ -1472,6 +1485,10 @@ class NeuronRenderer {
 
   createBoundingVasculature(boundingBox) {
     // Generate cutting planes based on efferent neurons bounderies
+    if (!this.vasculatureCloud?.mesh?.geometry?.index) {
+      console.warn('Vasculature not available');
+      return;
+    }
     const planes = this.generateClippingPlanes(boundingBox);
 
     const loadedVasculature = this.vasculatureCloud.mesh;

@@ -52,6 +52,12 @@ const state = {
       opacity: 0,
     },
 
+    microdomain: {
+      mesh: null,
+      visible: true,
+      opacity: 100,
+    },
+
     somaSize: 10,
     globalFilterIndex: [],
     connectionFilterIndex: [],

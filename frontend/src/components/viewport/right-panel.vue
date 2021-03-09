@@ -13,6 +13,9 @@
     <div class="local-vasc-slider">
       <local-vasculature-slider />
     </div>
+    <div class="microdomain-slider">
+      <microdomain-slider />
+    </div>
     <div class="layers-toggle">
       <layers-toggle-ctrl />
     </div>
@@ -30,6 +33,7 @@
   import CounterIds from './right-panel/counter-ids.vue';
   import LayersToggleCtrl from './right-panel/layers-toggle-ctrl.vue';
   import LocalVasculatureSlider from './right-panel/local-vasculature-slider.vue';
+  import MicrodomainSlider from './right-panel/microdomain-slider.vue';
 
 
   export default {
@@ -40,6 +44,7 @@
       'counter-ids': CounterIds,
       'layers-toggle-ctrl': LayersToggleCtrl,
       'local-vasculature-slider': LocalVasculatureSlider,
+      'microdomain-slider': MicrodomainSlider,
     },
   };
 </script>

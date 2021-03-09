@@ -492,7 +492,7 @@ const actions = {
     const astrocyteMicrodomain = new Promise((resolve) => {
       const processMicrodomain = (microdomainObj) => {
         storage.setItem(`microdomain:${astrocyte.idx}`, microdomainObj);
-        store.$emit('showAstrocyteMicrodomain', microdomainObj);
+        store.$emit('createAstrocyteMicrodomain', microdomainObj);
         store.$off('ws:astrocyte_microdomain', astrocyteMicrodomain);
         resolve();
       };
@@ -501,7 +501,7 @@ const actions = {
       storage.getItem(`microdomain:${astrocyte.idx}`)
         .then((microdomainCached) => {
           if (microdomainCached) {
-            store.$emit('showAstrocyteMicrodomain', microdomainCached);
+            store.$emit('createAstrocyteMicrodomain', microdomainCached);
             resolve();
             return;
           }
