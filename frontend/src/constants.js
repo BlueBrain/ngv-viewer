@@ -43,9 +43,9 @@ export const CurrentDetailedLevel = {
 };
 
 export const CounterIdText = {
-  ASTROCYTES: 'astrocytes ids',
-  EFFERENTS: 'efferent neurons ids',
-  SYNAPSES: 'synapses ids',
+  ASTROCYTES: 'astrocytes',
+  EFFERENTS: 'efferent neurons',
+  SYNAPSES: 'synapses',
 };
 
 export default {
