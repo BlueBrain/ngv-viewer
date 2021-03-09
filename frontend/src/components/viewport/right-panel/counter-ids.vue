@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="name"
-    class="counter-ids-container"
+    class="counter-ids-container ctrl-background"
   >
     <span class="count">{{data.length}}</span>
     <span class="name">{{name}}</span>

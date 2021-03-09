@@ -1,7 +1,7 @@
 
 <template>
   <div class="mesh-toggle-main">
-    <div class="container">
+    <div class="container ctrl-background">
       <span><strong>show / hide mesh</strong></span>
       <div
         class="row"

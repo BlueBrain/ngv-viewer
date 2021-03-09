@@ -1,22 +1,22 @@
 
 <template>
   <div class="right-panel-container">
-    <div class="clipboard-ids ctrl-background">
+    <div class="clipboard-ids">
       <clipboard-ids />
     </div>
-    <div class="counter-ids ctrl-background">
+    <div class="counter-ids">
       <counter-ids />
     </div>
-    <div class="meshes-toggle ctrl-background">
+    <div class="meshes-toggle">
       <meshes-toggle-ctrl />
     </div>
-    <div class="local-vasc-slider ctrl-background">
+    <div class="local-vasc-slider">
       <local-vasculature-slider />
     </div>
-    <div class="layers-toggle ctrl-background">
+    <div class="layers-toggle">
       <layers-toggle-ctrl />
     </div>
-    <div class="screenshot-ctrl ctrl-background">
+    <div class="screenshot-ctrl">
       <screenshot-ctrl />
     </div>
   </div>
@@ -45,15 +45,16 @@
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
   .right-panel-container {
     position: absolute;
     bottom: 80px;
-    right: 0;
+    right: 10px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
 
+    /* to be used by the component if needed */
     .ctrl-background {
       background-color: #ffffffcc;
       padding: 5px;

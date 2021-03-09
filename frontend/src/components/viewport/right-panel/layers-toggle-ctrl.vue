@@ -1,7 +1,7 @@
 
 <template>
   <div class="layers-toggle-main">
-    <div class="container" v-if="showSelector">
+    <div class="container ctrl-background" v-if="showSelector">
       <div><strong>show layers</strong></div>
       <CheckboxGroup
         v-model="layersToShow"

@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="name && isExpert"
-    class="clipboard-ids-container"
+    class="clipboard-ids-container ctrl-background"
   >
     <span class="name">{{name}}</span>
     <span

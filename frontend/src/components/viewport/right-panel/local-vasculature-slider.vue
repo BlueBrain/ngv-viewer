@@ -1,11 +1,14 @@
 
 <template>
-  <div class="local-vasculature-slider-container" v-if="show">
-    <span><strong>local vasculature opacity</strong></span>
-    <Slider
-      v-model="opacity"
-      @on-change="opacityChanged"
-    />
+  <div class="local-vasculature-slider-container">
+    <div class="ctrl-background" v-if="show">
+      <span><strong>local vasculature opacity</strong></span>
+      <Slider
+        v-model="opacity"
+        class="custom-slider"
+        @on-change="opacityChanged"
+      />
+    </div>
   </div>
 </template>
 
@@ -52,4 +55,9 @@
 
 
 <style lang="scss" scoped>
+  .local-vasculature-slider-container {
+    .custom-slider {
+      padding: 0 10px;
+    }
+  }
 </style>
