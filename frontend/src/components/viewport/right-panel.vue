@@ -54,12 +54,12 @@
     flex-direction: column;
     align-items: flex-end;
 
-    /* to be used by the component if needed */
-    .ctrl-background {
-      background-color: #ffffffcc;
-      padding: 5px;
-      border-radius: 5px;
-      margin-bottom: 5px;
-    }
+  }
+  /* to be used by the component if needed */
+  .ctrl-background {
+    background-color: #ffffffcc;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 5px;
   }
 </style>

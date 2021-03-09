@@ -48,6 +48,11 @@ export const CounterIdText = {
   SYNAPSES: 'synapses',
 };
 
+export const PageHelperTitleText = {
+  [CurrentDetailedLevel.ASTROCYTES]: 'Select Astrocyte',
+  [CurrentDetailedLevel.EFFERENTS]: 'Select Efferent Neuron',
+};
+
 export default {
   Entity,
 };

@@ -2,6 +2,7 @@
 <template>
   <div id="container">
     <go-back-ctrl/>
+    <page-helper-title/>
     <canvas
       :class="{'cursor-crosshair': selectionMode}"
       :id="canvasId"
@@ -20,6 +21,7 @@
   import GoBackCtrl from './viewport/go-back-ctrl.vue';
   import MorphSectionPoptip from './viewport/morph-section-poptip.vue';
   import RightPanel from './viewport/right-panel.vue';
+  import PageHelperTitle from './viewport/page-helper-title.vue';
 
   export default {
     name: 'viewport-component',
@@ -34,6 +36,7 @@
       'go-back-ctrl': GoBackCtrl,
       'morph-section-poptip': MorphSectionPoptip,
       'right-panel': RightPanel,
+      'page-helper-title': PageHelperTitle,
     },
     mounted() {
       const canvas = document.getElementById(this.canvasId);
