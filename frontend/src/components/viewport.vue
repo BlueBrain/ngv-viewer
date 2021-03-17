@@ -19,7 +19,7 @@
   import NeuronRenderer from '@/services/neuron-renderer';
   import BottomPanel from './viewport/bottom-panel.vue';
   import GoBackCtrl from './viewport/go-back-ctrl.vue';
-  import MorphSectionPoptip from './viewport/morph-section-poptip.vue';
+  import MorphSectionPoptip from './viewport/morph-poptip.vue';
   import RightPanel from './viewport/right-panel.vue';
   import PageHelperTitle from './viewport/page-helper-title.vue';
 
@@ -124,8 +124,8 @@
           store.$dispatch('synapseHovered', obj.synapseIndex);
           break;
         }
-        case 'morphSection': {
-          store.$dispatch('morphSectionHovered', obj);
+        case 'morph': {
+          store.$dispatch('morphHovered', obj);
           break;
         }
         case 'astrocyteCloud': {
@@ -157,8 +157,8 @@
           store.$dispatch('synapseHoverEnded');
           break;
         }
-        case 'morphSection': {
-          store.$dispatch('morphSectionHoverEnded');
+        case 'morph': {
+          store.$dispatch('morphHoverEnded');
           break;
         }
         case 'astrocyteCloud': {
@@ -185,8 +185,8 @@
           store.$dispatch('neuronClicked', neuron);
           break;
         }
-        case 'morphSection': {
-          store.$dispatch('morphSectionClicked', obj);
+        case 'morph': {
+          store.$dispatch('morphClicked', obj);
           break;
         }
         case 'astrocyteCloud': {

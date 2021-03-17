@@ -25,12 +25,14 @@ import store from '@/store';
 import eachAsync from '@/tools/each-async';
 import utils from '@/tools/neuron-renderer-utils';
 import config from '@/config';
+import createMorph from '@/tools/morph-smoother';
 
 import {
   Mesh as MeshType,
   ColorConvention,
   CurrentDetailedLevel,
   CounterIdText,
+  NeuronParts,
 } from '@/constants';
 
 // used for the textures
@@ -56,10 +58,10 @@ const SQUARE_DOT_SCALE = 1.3;
 const HEADER_HEIGHT = 36;
 
 const ALL_SEC_TYPES = [
-  'soma',
-  'axon',
-  'apic',
-  'dend',
+  NeuronParts.SOMA,
+  NeuronParts.AXON,
+  NeuronParts.APIC,
+  NeuronParts.DEND,
   'myelin',
 ];
 
@@ -466,45 +468,15 @@ class NeuronRenderer {
     addSecOperations.push(Promise.resolve());
   }
 
-  showMorphology(secTypes = ALL_SEC_TYPES.filter(defaultSecRenderFilter)) {
+  showMorphology() {
     const gids = store.state.circuit.cells.selectedMorphologies;
 
     const morphology = store.state.circuit.cells.morphologyData;
 
-    const addSecOperations = [];
-
-    gids.forEach((gid, cellIndex) => {
-      let cellObj3d = this.cellMorphologyObj.children.find(cell => get(cell, 'userData.gid') === gid);
-
-      if (!cellObj3d) {
-        cellObj3d = new Object3D();
-        cellObj3d.userData = {
-          gid,
-          secTypes: [],
-        };
-        this.cellMorphologyObj.add(cellObj3d);
-      }
-
-      const { sections } = morphology[gid];
-      this.generateMorphology({
-        cellObj3d,
-        gid,
-        secTypes,
-        sections,
-        addSecOperations,
-        gids,
-        cellIndex,
-        type: MeshType.NEURONS,
-      });
+    gids.forEach((gid) => {
+      const hoverInfo = { gid, isNeuron: true };
+      this.cellMorphologyObj.add(createMorph(morphology[gid], hoverInfo));
     });
-
-    const stopRender = this.ctrl.renderUntilStopped();
-
-    Promise.all(addSecOperations).then(() => {
-      store.$dispatch('morphRenderFinished');
-      stopRender();
-    });
-
     this.cellMorphologyObj.visible = true;
   }
 
@@ -811,8 +783,8 @@ class NeuronRenderer {
       this.onNeuronHover(mesh.index);
       break;
     }
-    case 'morphSection': {
-      this.onMorphSectionHover(mesh);
+    case 'morph': {
+      this.onMorphHover(mesh);
       break;
     }
     case 'synapseCloud': {
@@ -843,8 +815,8 @@ class NeuronRenderer {
       this.onNeuronHoverEnd(mesh.index);
       break;
     }
-    case 'morphSection': {
-      this.onMorphSectionHoverEnd(mesh);
+    case 'morph': {
+      this.onMorphHoverEnd(mesh);
       break;
     }
     case 'synapseCloud': {
@@ -931,7 +903,7 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  onMorphSectionHover(mesh) {
+  onMorphHover(mesh) {
     const geometry = new EdgesGeometry(mesh.object.geometry);
     const material = new LineBasicMaterial({
       color: HOVER_BOX_COLOR,
@@ -946,20 +918,20 @@ class NeuronRenderer {
     this.scene.add(this.hoverBox);
 
     this.onHoverExternalHandler({
-      type: 'morphSection',
+      type: 'morph',
       data: mesh.object.userData,
     });
 
     this.ctrl.renderOnce();
   }
 
-  onMorphSectionHoverEnd(mesh) {
+  onMorphHoverEnd(mesh) {
     this.scene.remove(this.hoverBox);
     utils.disposeMesh(this.hoverBox);
     this.hoverBox = null;
 
     this.onHoverEndExternalHandler({
-      type: 'morphSection',
+      type: 'morph',
       data: mesh.object.userData,
     });
 
@@ -1382,41 +1354,17 @@ class NeuronRenderer {
   }
 
   showAstrocyteMorphology(morphObj) {
-    // morphObj = { 'sections': [], 'orientation': [] }
-    this.astrocyteMorphologyObj = new Object3D();
-
     const gid = store.state.circuit.astrocytes.selectedWithClick;
-    const addSecOperations = [];
-
-    const { sections } = morphObj;
-
-    const cellObj3d = new Object3D();
-    cellObj3d.userData = {
-      gid,
-      secTypes: [],
-    };
-
-    this.astrocyteMorphologyObj.add(cellObj3d);
-
-    this.generateMorphology({
-      cellObj3d,
-      gid,
-      sections,
-      addSecOperations,
-      type: MeshType.ASTROCYTES,
-    });
-
-    const stopRender = this.ctrl.renderUntilStopped();
-
-    Promise.all(addSecOperations).then(() => {
-      store.$dispatch('morphRenderFinished');
-      stopRender();
-    });
+    const hoverInfo = { gid, isNeuron: false };
+    this.astrocyteMorphologyObj = createMorph(morphObj, hoverInfo);
 
     this.astrocyteMorphologyObj.visible = true;
     this.scene.add(this.astrocyteMorphologyObj);
-    const centerTarget = sections[0]['points'][0];
-    this.controls.target.copy(new Vector3(centerTarget[0], centerTarget[1], centerTarget[2]));
+
+    // center to astrocyte soma
+    const position = get(this, 'astrocyteMorphologyObj.children[0].position');
+    this.controls.target.copy(new Vector3(position.x, position.y, position.z));
+
     this.ctrl.renderOnce();
   }
 

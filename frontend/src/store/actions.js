@@ -543,20 +543,19 @@ const actions = {
     store.$emit('hideHoverObjectInfo');
   },
 
-  morphSectionHovered(store, section) {
+  morphHovered(store, section) {
     store.$emit('showHoverObjectInfo', {
-      header: 'Section',
+      header: 'Morphology',
       items: [{
         type: 'table',
         data: {
-          section: section.data.name || section.data.id,
-          gid: section.data.hoverInfo.gid || section.data.hoverInfo.idx,
+          gid: section.data.name || section.data.gid,
         },
       }],
     });
   },
 
-  morphSectionHoverEnded(store) {
+  morphHoverEnded(store) {
     store.$emit('hideHoverObjectInfo');
   },
 
@@ -644,7 +643,7 @@ const actions = {
     store.$emit('setShowAxonBtnActive');
   },
 
-  morphSectionClicked(store, context) {
+  morphClicked(store, context) {
     const { simulation } = store.state;
     const section = context.data;
 
@@ -658,9 +657,9 @@ const actions = {
 
     if (section.type === 'axon') return;
 
-    if (!simulation.waitingSecSelection) store.$emit('showMorphSectionPoptip', context);
+    if (!simulation.waitingSecSelection) store.$emit('showMorphPoptip', context);
 
-    store.$emit('morphSectionSelected', section);
+    store.$emit('morphSelected', section);
   },
 
   paletteKeyHover(store, paletteKey) {
@@ -1176,6 +1175,7 @@ const actions = {
     store.$emit('destroyAstrocyteMicrodomain');
     store.$emit('destroyBoundingVasculature');
     store.$emit('showAstrocytes');
+    store.$emit('removeCellMorphologies', (() => true));
 
     store.$emit('updateClipboardIds', {
       name: CounterIdText.ASTROCYTES,
@@ -1187,6 +1187,7 @@ const actions = {
   goToEfferentDetailedLevel(store) {
     store.$emit('destroySynapseLocations');
     store.$emit('showEfferentNeuronsCloud');
+    store.$emit('removeCellMorphologies', (() => true));
 
     store.$emit('updateClipboardIds', {
       name: CounterIdText.EFFERENTS,

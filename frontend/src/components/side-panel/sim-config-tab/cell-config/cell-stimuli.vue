@@ -80,7 +80,7 @@
         // this.uncollapsePanel(PANEL.stimuli);
       });
 
-      store.$on('morphSectionSelected', (section) => {
+      store.$on('morphSelected', (section) => {
         if (this.tmpStimulus && !store.$get('isStimulusPresent', section)) {
           store.$dispatch('addStimulus', {
             gid: section.neuron.gid,

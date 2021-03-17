@@ -25,7 +25,7 @@
   import PositionedPoptip from '@/components/shared/positioned-poptip.vue';
 
   export default {
-    name: 'morph-section-poptip',
+    name: 'morph-poptip',
     components: {
       'positioned-poptip': PositionedPoptip,
     },
@@ -35,25 +35,29 @@
           x: -20,
           y: -20,
         },
-        section: null,
+        morphInfo: null,
       };
     },
     mounted() {
-      store.$on('showMorphSectionPoptip', (context) => {
+      store.$on('showMorphPoptip', (context) => {
         this.position = context.clickPosition;
 
-        this.section = {
-          gid: context.data.hoverInfo.gid,
+        this.morphInfo = {
+          gid: context.data.gid,
           name: context.data.name,
-          type: context.data.type,
+          isNeuron: context.data.isNeuron,
         };
       });
     },
     methods: {
       onRemoveMorph() {
-        store.$emit('removeCellMorphologies', cellMorph => this.section.gid === cellMorph.gid);
-        const morphGids = store.state.circuit.cells.selectedMorphologies;
-        store.state.circuit.cells.selectedMorphologies = morphGids.filter(gid => gid !== this.section.gid);
+        if (this.morphInfo.isNeuron) {
+          store.$emit('removeCellMorphologies', cellMorph => this.morphInfo.gid === cellMorph.gid);
+          const morphGids = store.state.circuit.cells.selectedMorphologies;
+          store.state.circuit.cells.selectedMorphologies = morphGids.filter(gid => gid !== this.morphInfo.gid);
+          return;
+        }
+        store.$emit('destroyAstrocyteMorphology');
       },
     },
   };

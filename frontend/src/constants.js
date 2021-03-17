@@ -53,6 +53,13 @@ export const PageHelperTitleText = {
   [CurrentDetailedLevel.EFFERENTS]: 'Select Efferent Neuron',
 };
 
+export const NeuronParts = {
+  SOMA: 'soma',
+  AXON: 'axon',
+  APIC: 'apic',
+  DEND: 'dend',
+};
+
 export default {
   Entity,
 };

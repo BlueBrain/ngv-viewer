@@ -78,7 +78,7 @@
         this.synInputsByGid = groupBy(store.$get('synInputs'), synInput => synInput.gid);
       });
       store.$on('addSynInput', gid => this.addSynInput(gid));
-      store.$on('morphSectionSelected', (section) => {
+      store.$on('morphSelected', (section) => {
         if (!this.tmpSynInput) return;
 
         store.$dispatch('addSynInput', section.neuron.gid);

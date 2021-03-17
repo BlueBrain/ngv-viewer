@@ -115,7 +115,7 @@
         this.recordings = groupBy(store.$get('recordings'), recording => recording.gid);
         // this.uncollapsePanel(PANEL.recordings);
       });
-      store.$on('morphSectionSelected', (section) => {
+      store.$on('morphSelected', (section) => {
         if (this.tmpRecording && !store.$get('isRecordingPresent', section)) {
           store.$dispatch('addRecording', {
             gid: section.neuron.gid,
