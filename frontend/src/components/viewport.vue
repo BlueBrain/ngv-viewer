@@ -86,7 +86,7 @@
 
       store.$on('clearScene', () => this.renderer.clearScene());
 
-      store.$on('loadVasculature', fileUrl => this.renderer.loadVasculature(fileUrl));
+      store.$on('loadVasculature', () => this.renderer.loadVasculature());
       store.$on('showVasculature', () => this.renderer.showVasculatureCloud());
       store.$on('hideVasculature', () => this.renderer.hideVasculatureCloud());
       store.$on('createBoundingVasculature', boundingBox => this.renderer.createBoundingVasculature(boundingBox));

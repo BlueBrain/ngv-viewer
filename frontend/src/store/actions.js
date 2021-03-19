@@ -1051,8 +1051,7 @@ const actions = {
   },
 
   loadVasculature(store) {
-    const fileUrl = store.state.circuitConfig.vasculatureGlbUrl;
-    store.$emit('loadVasculature', fileUrl);
+    store.$emit('loadVasculature');
   },
 
   async loadAstrocytesSomas(store) {

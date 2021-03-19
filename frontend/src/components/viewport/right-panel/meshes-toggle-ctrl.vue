@@ -50,9 +50,14 @@
         const meshes = [
           { name: Mesh.NEURONS, visible: cells.visible },
           { name: Mesh.ASTROCYTES, visible: astrocytes.visible },
-          { name: Mesh.VASCULATURE, visible: vasculature.visible },
+          { name: Mesh.VASCULATURE, visible: vasculature.visible, disabled: true },
         ];
         this.$set(this, 'meshes', meshes);
+
+        store.$on('vasculatureLoaded', () => {
+          const vascMesh = this.meshes.find(m => m.name === Mesh.VASCULATURE);
+          this.$set(vascMesh, 'disabled', false);
+        });
       },
       meshChanges(meshName, display) {
         switch (meshName) {

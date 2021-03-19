@@ -50,6 +50,7 @@ const state = {
       mesh: null,
       visible: false,
       opacity: 0,
+      boundingBox: null,
     },
 
     microdomain: {

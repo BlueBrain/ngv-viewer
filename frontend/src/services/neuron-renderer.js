@@ -208,7 +208,6 @@ class NeuronRenderer {
     this.neuronCloud.points.name = 'neuronCloud';
     this.neuronCloud.points.frustumCulled = false;
     this.neuronCloud.points.visible = store.state.circuit.cells.visible;
-    this.scene.add(this.neuronCloud.points);
 
     // picking cloud setup
     const pickingColorBuffer = new Float32Array(cloudSize * 3);
@@ -383,6 +382,7 @@ class NeuronRenderer {
     const { cells } = store.state.circuit;
     cells.visible = true;
     this.neuronCloud.points.visible = cells.visible;
+    this.scene.add(this.neuronCloud.points);
     this.ctrl.renderOnce();
   }
 
@@ -390,6 +390,7 @@ class NeuronRenderer {
     const { cells } = store.state.circuit;
     cells.visible = false;
     this.neuronCloud.points.visible = cells.visible;
+    this.scene.remove(this.neuronCloud.points);
     this.ctrl.renderOnce();
   }
 
@@ -1075,21 +1076,8 @@ class NeuronRenderer {
     requestAnimationFrame(this.startRenderLoop.bind(this));
   }
 
-  showVasculatureCloud() {
-    const { vasculature } = store.state.circuit;
-    vasculature.visible = true;
-    this.vasculatureCloud.mesh.visible = vasculature.visible;
-    this.ctrl.renderOnce();
-  }
-
-  hideVasculatureCloud() {
-    const { vasculature } = store.state.circuit;
-    vasculature.visible = false;
-    this.vasculatureCloud.mesh.visible = vasculature.visible;
-    this.ctrl.renderOnce();
-  }
-
-  loadVasculature(fileUrl) {
+  loadVasculature() {
+    const fileUrl = store.state.circuitConfig.vasculatureGlbUrl;
     this.vasculatureCloud = {
       mesh: null,
     };
@@ -1108,8 +1096,7 @@ class NeuronRenderer {
       mesh.name = 'vasculature';
       mesh.visible = store.state.circuit.vasculature.visible;
       this.vasculatureCloud.mesh = mesh;
-      this.scene.add(this.vasculatureCloud.mesh);
-      this.ctrl.renderOnce();
+      store.$emit('vasculatureLoaded');
       console.log('Vasculature loaded');
     };
 
@@ -1119,6 +1106,22 @@ class NeuronRenderer {
 
     const loader = new GLTFLoader();
     loader.load(fileUrl, onLoad, onProgress, onError);
+  }
+
+  showVasculatureCloud() {
+    const { vasculature } = store.state.circuit;
+    vasculature.visible = true;
+    this.vasculatureCloud.mesh.visible = vasculature.visible;
+    this.scene.add(this.vasculatureCloud.mesh);
+    this.ctrl.renderOnce();
+  }
+
+  hideVasculatureCloud() {
+    const { vasculature } = store.state.circuit;
+    vasculature.visible = false;
+    this.vasculatureCloud.mesh.visible = vasculature.visible;
+    this.scene.remove(this.vasculatureCloud.mesh);
+    this.ctrl.renderOnce();
   }
 
   onAstrocyteHover(raycastIndex) {
@@ -1295,7 +1298,8 @@ class NeuronRenderer {
     });
     store.$emit('detailedLevelChanged');
 
-    store.$dispatch('createBoundingVasculature', effNeuronGeometry.boundingBox);
+    store.state.circuit.boundingVasculature.boundingBox = effNeuronGeometry.boundingBox;
+    store.$dispatch('createBoundingVasculature');
   }
 
   destroyEfferentNeuronsCloud() {
@@ -1431,7 +1435,8 @@ class NeuronRenderer {
     ];
   }
 
-  createBoundingVasculature(boundingBox) {
+  createBoundingVasculature() {
+    const { boundingBox } = store.state.circuit.boundingVasculature;
     // Generate cutting planes based on efferent neurons bounderies
     if (!this.vasculatureCloud?.mesh?.geometry?.index) {
       console.warn('Vasculature not available');
@@ -1473,9 +1478,6 @@ class NeuronRenderer {
 
     this.boundingVasculature.mesh.visible = store.state.circuit.boundingVasculature.visible;
     store.state.circuit.boundingVasculature.mesh = this.boundingVasculature.mesh;
-
-    this.scene.add(this.boundingVasculature.mesh);
-    this.ctrl.renderOnce();
   }
 
   destroyBoundingVasculature() {
@@ -1487,11 +1489,23 @@ class NeuronRenderer {
   }
 
   changeBoundingVasculatureOpacity() {
-    if (!this.boundingVasculature?.mesh) return;
-
     const { boundingVasculature } = store.state.circuit;
-    boundingVasculature.visible = boundingVasculature.opacity !== 0;
+    if (boundingVasculature.opacity === 0) {
+      this.destroyBoundingVasculature();
+      return;
+    }
 
+    if (!this.boundingVasculature?.mesh) {
+      this.createBoundingVasculature();
+      this.scene.add(this.boundingVasculature.mesh);
+    }
+
+    const vasculatureInScene = this.scene.children.filter(c => c.name === 'boundingVasculature');
+    if (!vasculatureInScene.length) {
+      this.scene.add(this.boundingVasculature.mesh);
+    }
+
+    boundingVasculature.visible = boundingVasculature.opacity !== 0;
     const { material } = this.boundingVasculature.mesh;
     material.opacity = boundingVasculature.opacity / 100;
     this.boundingVasculature.mesh.visible = boundingVasculature.visible;
