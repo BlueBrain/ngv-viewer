@@ -70,6 +70,7 @@ const HALF_PI = Math.PI * 0.5;
 
 const neuronTexture = new TextureLoader().load(`${baseUrl}/neuron-texture.png`);
 const synapseTexture = new TextureLoader().load(`${baseUrl}/ball.png`);
+const astrocyteTexture = new TextureLoader().load(`${baseUrl}/astrocyte.png`);
 
 const defaultSecRenderFilter = t => store.state.simulation.view.axonsVisible || t !== 'axon';
 
@@ -166,6 +167,9 @@ class NeuronRenderer {
       sizeAttenuation: true,
       map: neuronTexture,
     });
+
+    this.pointAstrocyteCloudMaterial = this.pointCloudMaterial.clone();
+    this.pointAstrocyteCloudMaterial.map = astrocyteTexture;
 
     this.onHoverExternalHandler = config.onHover;
     this.onHoverEndExternalHandler = config.onHoverEnd;
@@ -1212,7 +1216,7 @@ class NeuronRenderer {
     geometry.setAttribute('position', this.astrocyteCloud.positionBufferAttr);
     geometry.setAttribute('color', this.astrocyteCloud.colorBufferAttr);
 
-    this.astrocyteCloud.points = new Points(geometry, this.pointCloudMaterial);
+    this.astrocyteCloud.points = new Points(geometry, this.pointAstrocyteCloudMaterial);
 
     this.astrocyteCloud.points.name = 'astrocyteCloud';
     this.astrocyteCloud.points.frustumCulled = false;
