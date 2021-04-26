@@ -8,8 +8,8 @@ import {
   Color, TextureLoader, WebGLRenderer, Scene, Fog, AmbientLight, PointLight, Vector2,
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
   PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
-  SphereBufferGeometry, CylinderGeometry, Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  Matrix4, WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, FrontSide,
+  Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
+  WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, FrontSide,
 } from 'three';
 
 import { saveAs } from 'file-saver';
@@ -22,7 +22,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 // TODO: refactor to remove store operations
 // and move them to vue viewport component
 import store from '@/store';
-import eachAsync from '@/tools/each-async';
 import utils from '@/tools/neuron-renderer-utils';
 import config from '@/config';
 import createMorph from '@/tools/morph-smoother';
@@ -47,8 +46,6 @@ const BACKGROUND_COLOR = 0xfefdfb;
 // TODO: make it possible to switch bg color
 // const BACKGROUND_COLOR = 0x272821;
 const HOVER_BOX_COLOR = 0xffdf00;
-const EXC_SYN_GL_COLOR = new Color(0xe48457).toArray();
-const INH_SYN_GL_COLOR = new Color(0x0080ff).toArray();
 const HOVERED_NEURON_GL_COLOR = new Color(0xf26d21).toArray();
 const HOVERED_SYN_GL_COLOR = new Color(0xf26d21).toArray();
 
@@ -66,10 +63,8 @@ const ALL_SEC_TYPES = [
 ];
 
 const COLOR_DIFF_RANGE = 1;
-const HALF_PI = Math.PI * 0.5;
 
 const neuronTexture = new TextureLoader().load(`${baseUrl}/neuron-texture.png`);
-const synapseTexture = new TextureLoader().load(`${baseUrl}/ball.png`);
 const astrocyteTexture = new TextureLoader().load(`${baseUrl}/astrocyte.png`);
 
 const defaultSecRenderFilter = t => store.state.simulation.view.axonsVisible || t !== 'axon';
@@ -89,6 +84,7 @@ class NeuronRenderer {
 
     this.renderer.setSize(clientWidth, clientHeight);
     this.renderer.setPixelRatio(window.devicePixelRatio || 1);
+    this.renderer.localClippingEnabled = true;
 
     this.scene = new Scene();
     this.scene.background = new Color(BACKGROUND_COLOR);
@@ -127,36 +123,6 @@ class NeuronRenderer {
 
     this.pickingCellMorphologyObj = new Object3D();
     this.pickingScene.add(this.pickingCellMorphologyObj);
-
-    const segInjTexture = new TextureLoader().load(`${baseUrl}/seg-inj-texture.png`);
-    const segRecTexture = new TextureLoader().load(`${baseUrl}/seg-rec-texture.png`);
-
-    this.recMarkerMaterial = new MeshLambertMaterial({
-      color: 0x00bfff,
-      opacity: 0.6,
-      map: segRecTexture,
-      transparent: true,
-      side: DoubleSide,
-      depthWrite: false,
-    });
-
-    this.injMarkerMaterial = new MeshLambertMaterial({
-      color: 0xffa500,
-      opacity: 0.6,
-      map: segInjTexture,
-      transparent: true,
-      side: DoubleSide,
-      depthWrite: false,
-    });
-
-    this.synapseMaterial = new PointsMaterial({
-      vertexColors: VertexColors,
-      size: store.state.simulation.synapseSize,
-      transparent: true,
-      alphaTest: 0.5,
-      sizeAttenuation: true,
-      map: synapseTexture,
-    });
 
     this.pointCloudMaterial = new PointsMaterial({
       vertexColors: true,
@@ -198,10 +164,10 @@ class NeuronRenderer {
     geometry.setAttribute('position', this.neuronCloud.positionBufferAttr);
     geometry.setAttribute('color', this.neuronCloud.colorBufferAttr);
 
+    // clip only neurons that are inside the vasculature / circuit bbox
     const planes = this.generateClippingPlanes(store.state.circuit.cells.meta.bbox);
     const newMat = this.pointCloudMaterial.clone();
     newMat.clippingPlanes = planes;
-    this.renderer.localClippingEnabled = true;
 
     this.neuronCloud.points = new Points(geometry, newMat);
 
@@ -267,25 +233,6 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  initSynapseCloud(cloudSize) {
-    const positionBuffer = new Float32Array(cloudSize * 3);
-    const colorBuffer = new Float32Array(cloudSize * 3);
-
-    this.synapseCloud = {
-      positionBufferAttr: new BufferAttribute(positionBuffer, 3),
-      colorBufferAttr: new BufferAttribute(colorBuffer, 3),
-    };
-
-    const geometry = new BufferGeometry();
-    geometry.setAttribute('position', this.synapseCloud.positionBufferAttr);
-    geometry.setAttribute('color', this.synapseCloud.colorBufferAttr);
-
-    this.synapseCloud.points = new Points(geometry, this.synapseMaterial);
-    this.synapseCloud.points.name = 'synapseCloud';
-    this.synapseCloud.points.frustumCulled = false;
-    this.scene.add(this.synapseCloud.points);
-  }
-
   destroySynapseCloud() {
     if (!this.synapseCloud) return;
 
@@ -299,7 +246,6 @@ class NeuronRenderer {
     this.destroyNeuronCloud();
     this.destroySynapseCloud();
     this.removeCellMorphologies(() => true);
-    this.disposeSecMarkers();
     this.ctrl.renderOnce();
   }
 
@@ -354,32 +300,6 @@ class NeuronRenderer {
       .eventCallback('onComplete', animateCamera);
 
       this.ctrl.renderFor(500);
-  }
-
-  updateSynapses() {
-    const { synapses } = store.state.simulation;
-    const { positionBufferAttr, colorBufferAttr } = this.synapseCloud;
-
-    synapses.forEach((synapse, neuronIndex) => {
-      if (!synapse.visible) {
-        // TODO: find a better way to hide part of the cloud
-        positionBufferAttr.setXYZ(neuronIndex, 10000, 10000, 10000);
-        return;
-      }
-
-      const position = [synapse.postXCenter, synapse.postYCenter, synapse.postZCenter];
-
-      const color = synapse.type >= 100 ? EXC_SYN_GL_COLOR : INH_SYN_GL_COLOR;
-
-      positionBufferAttr.setXYZ(neuronIndex, ...position);
-      colorBufferAttr.setXYZ(neuronIndex, ...color);
-    });
-
-    this.synapseCloud.points.geometry.attributes.position.needsUpdate = true;
-    this.synapseCloud.points.geometry.attributes.color.needsUpdate = true;
-    this.synapseCloud.points.geometry.computeBoundingSphere();
-
-    this.ctrl.renderOnce();
   }
 
   showNeuronCloud() {
@@ -483,201 +403,6 @@ class NeuronRenderer {
       this.cellMorphologyObj.add(createMorph(morphology[gid], hoverInfo));
     });
     this.cellMorphologyObj.visible = true;
-  }
-
-  showAxons() {
-    const axonsAdded = this.cellMorphologyObj.children
-      .every(cellMesh => cellMesh.userData.secTypes.includes('axon'));
-
-    if (!axonsAdded) {
-      this.showMorphology(['axon']);
-      return;
-    }
-
-    const materialsToAnimate = [];
-    this.cellMorphologyObj.traverse((obj) => {
-      if (obj instanceof Mesh && get(obj, 'userData.type') === 'axon') {
-        materialsToAnimate.push(obj.material);
-      }
-    });
-
-    materialsToAnimate.forEach((m) => { m.visible = true; });
-
-    const stopRender = this.ctrl.renderUntilStopped();
-    const onAnimationEnd = () => {
-      store.$dispatch('showAxonsFinished');
-      stopRender();
-    };
-
-    TweenLite
-      .to(materialsToAnimate, 0.3, { opacity: 1 })
-      .eventCallback('onComplete', onAnimationEnd);
-  }
-
-  hideAxons() {
-    const materialsToAnimate = [];
-    this.cellMorphologyObj.traverse((obj) => {
-      if (obj instanceof Mesh && get(obj, 'userData.type') === 'axon') {
-        materialsToAnimate.push(obj.material);
-      }
-    });
-
-    const stopRender = this.ctrl.renderUntilStopped();
-    const onAnimationEnd = () => {
-      materialsToAnimate.forEach((m) => { m.visible = false; });
-      store.$dispatch('hideAxonsFinished');
-      stopRender();
-    };
-
-    TweenLite
-      .to(materialsToAnimate, 0.3, { opacity: 0 })
-      .eventCallback('onComplete', onAnimationEnd);
-  }
-
-  addSecMarker(config) {
-    const minSecMarkerLength = 12;
-
-    const { morphology } = store.state.simulation;
-
-    const pts = morphology[config.gid].sections
-      .find(sec => config.sectionName === sec.name)
-      .points;
-
-    const secMarkerObj3d = new Object3D();
-    const secMarkerGeo = new Geometry();
-
-    if (config.sectionType === 'soma') {
-      const position = utils.getSomaPositionFromPoints(pts);
-      const radius = utils.getSomaRadiusFromPoints(pts);
-
-      const material = config.type === 'recording' ? this.recMarkerMaterial : this.injMarkerMaterial;
-      const somaBufferedGeometry = new SphereBufferGeometry(radius * 1.05, 14, 14);
-      const somaMesh = new Mesh(somaBufferedGeometry, material.clone());
-      somaMesh.position.copy(position);
-      somaMesh.updateMatrix();
-      somaMesh.matrixAutoUpdate = false;
-
-      somaMesh.name = 'sectionMarker';
-      somaMesh.userData = Object.assign({ skipHoverDetection: true }, config);
-
-      secMarkerObj3d.add(somaMesh);
-      secMarkerObj3d.name = 'sectionMarker';
-      secMarkerObj3d.userData = Object.assign({ skipHoverDetection: true }, config);
-
-      this.secMarkerObj.add(secMarkerObj3d);
-      return;
-    }
-
-    let i = 0;
-    while (i + 1 < pts.length) {
-      const vstart = new Vector3(pts[i][0], pts[i][1], pts[i][2]);
-      const diameters = [pts[i][3]];
-
-      let vend;
-      while (!vend) {
-        const tmpEndVec = new Vector3(pts[i + 1][0], pts[i + 1][1], pts[i + 1][2]);
-
-        if (
-          vstart.distanceTo(tmpEndVec) >= minSecMarkerLength ||
-          i + 2 === pts.length
-        ) {
-          vend = tmpEndVec;
-        }
-
-        diameters.push(pts[i + 1][3]);
-
-        i += 1;
-      }
-
-      const d = Math.max(...diameters);
-
-      const distance = vstart.distanceTo(vend);
-      const position = vend.clone().add(vstart).divideScalar(2);
-
-      const dDelta = 3 / Math.ceil(Math.sqrt(d));
-      const secMarkerD = (d * 1.2) + dDelta;
-
-      const geometry = new CylinderGeometry(
-        secMarkerD,
-        secMarkerD,
-        distance,
-        18,
-        1,
-        true,
-      );
-
-      const orientation = new Matrix4();
-      const offsetRotation = new Matrix4();
-      orientation.lookAt(vstart, vend, new Vector3(0, 1, 0));
-      offsetRotation.makeRotationX(HALF_PI);
-      orientation.multiply(offsetRotation);
-      geometry.applyMatrix4(orientation);
-
-      const cylinder = new Mesh(geometry);
-      cylinder.position.copy(position);
-      cylinder.updateMatrix();
-      secMarkerGeo.merge(cylinder.geometry, cylinder.matrix);
-    }
-
-    const material = config.type === 'recording' ? this.recMarkerMaterial : this.injMarkerMaterial;
-    const secMarkerMesh = new Mesh(secMarkerGeo, material.clone());
-    secMarkerMesh.updateMatrix();
-    secMarkerMesh.matrixAutoUpdate = false;
-    // TODO: remove redundancy of names and userData of Obj3D and child Meshes
-    secMarkerMesh.name = 'sectionMarker';
-    secMarkerMesh.userData = Object.assign({ skipHoverDetection: true }, config);
-    secMarkerObj3d.add(secMarkerMesh);
-
-    secMarkerObj3d.name = 'sectionMarker';
-    secMarkerObj3d.userData = Object.assign({ skipHoverDetection: true }, config);
-    this.secMarkerObj.add(secMarkerObj3d);
-
-    this.ctrl.renderOnce();
-  }
-
-  removeSecMarker(secMarkerConfig) {
-    // TODO: refactor
-    const cfg = secMarkerConfig;
-    const secMarkerObj3d = this.secMarkerObj.children
-      .find(obj3d => obj3d.userData.sectionName === cfg.sectionName && obj3d.userData.type === cfg.type);
-
-    this.secMarkerObj.remove(secMarkerObj3d);
-    utils.disposeMesh(secMarkerObj3d.children[0]);
-
-    this.ctrl.renderOnce();
-  }
-
-  removeSectionMarkers(filterFunction) {
-    const secMarkerConfigsToRemove = [];
-
-    this.secMarkerObj.children.forEach((child) => {
-      if (filterFunction(child.userData)) secMarkerConfigsToRemove.push(child.userData);
-    });
-
-    secMarkerConfigsToRemove.forEach(secMarkerConfig => this.removeSecMarker(secMarkerConfig));
-
-    this.ctrl.renderOnce();
-  }
-
-  hideSectionMarkers() {
-    this.secMarkerObj.visible = false;
-    this.ctrl.renderOnce();
-  }
-
-  showSectionMarkers() {
-    this.secMarkerObj.visible = true;
-    this.ctrl.renderOnce();
-  }
-
-  disposeSecMarkers() {
-    this.scene.remove(this.secMarkerObj);
-    this.secMarkerObj.traverse((child) => {
-      if (child instanceof Mesh) utils.disposeMesh(child);
-    });
-
-    this.secMarkerObj = new Object3D();
-    this.scene.add(this.secMarkerObj);
-    this.ctrl.renderOnce();
   }
 
   setNeuronCloudPointSize(size) {
@@ -792,10 +517,6 @@ class NeuronRenderer {
       this.onMorphHover(mesh);
       break;
     }
-    case 'synapseCloud': {
-      this.onSynapseHover(mesh.index);
-      break;
-    }
     case 'astrocyteCloud': {
       this.onAstrocyteHover(mesh.index);
       break;
@@ -822,10 +543,6 @@ class NeuronRenderer {
     }
     case 'morph': {
       this.onMorphHoverEnd(mesh);
-      break;
-    }
-    case 'synapseCloud': {
-      this.onSynapseHoverEnd(mesh.index);
       break;
     }
     case 'astrocyteCloud': {
@@ -873,37 +590,6 @@ class NeuronRenderer {
     this.neuronCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
     this.neuronCloud.points.geometry.attributes.color.needsUpdate = true;
     this.hoveredNeuron = null;
-
-    this.ctrl.renderOnce();
-  }
-
-  onSynapseHover(synapseIndex) {
-    this.onHoverExternalHandler({
-      synapseIndex,
-      type: 'synapse',
-    });
-
-    this.hoveredSynapse = [
-      synapseIndex,
-      this.synapseCloud.colorBufferAttr.getX(synapseIndex),
-      this.synapseCloud.colorBufferAttr.getY(synapseIndex),
-      this.synapseCloud.colorBufferAttr.getZ(synapseIndex),
-    ];
-    this.synapseCloud.colorBufferAttr.setXYZ(synapseIndex, ...HOVERED_SYN_GL_COLOR);
-    this.synapseCloud.points.geometry.attributes.color.needsUpdate = true;
-
-    this.ctrl.renderOnce();
-  }
-
-  onSynapseHoverEnd(synapseIndex) {
-    this.onHoverEndExternalHandler({
-      synapseIndex,
-      type: 'synapse',
-    });
-
-    this.synapseCloud.colorBufferAttr.setXYZ(...this.hoveredSynapse);
-    this.synapseCloud.points.geometry.attributes.color.needsUpdate = true;
-    this.hoveredSynapse = null;
 
     this.ctrl.renderOnce();
   }

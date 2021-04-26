@@ -37,40 +37,6 @@ help:
 $(VENV_DIR):
 	python3 -m venv venv
 
-$(NEURON_SRC_DIR):
-	mkdir -p $@
-	http_proxy=http://bbpproxy.epfl.ch:80 \
-			wget -O tmp/nrn.tar.gz $(NEURON_SRC_URL)
-	tar -xf tmp/nrn.tar.gz --strip-components=1 -C $@
-	rm tmp/nrn.tar.gz
-
-$(NEURODAMUS_CORE_DIR):
-	git clone $(NEURODAMUS_CORE_REPO) $@
-
-$(SIM_MODELS_DIR): | $(NEURODAMUS_CORE_DIR)
-	mkdir -p $(SIM_MODELS_DIR)/core/hoc
-	cp $(NEURODAMUS_CORE_DIR)/hoc/*.hoc $(SIM_MODELS_DIR)/core/hoc/
-
-	mkdir -p $(SIM_MODELS_DIR)/core/mod
-	cp $(NEURODAMUS_CORE_DIR)/mod/*.mod $(SIM_MODELS_DIR)/core/mod/
-
-	rm -rf $(SIM_MODELS_DIR)/core/mod/Bin*.mod
-	rm -rf $(SIM_MODELS_DIR)/core/mod/HDF*.mod
-	rm -rf $(SIM_MODELS_DIR)/core/mod/hdf*.mod
-	rm -rf $(SIM_MODELS_DIR)/core/mod/MemUsage*.mod
-	rm -rf $(SIM_MODELS_DIR)/core/mod/SpikeWriter.mod
-
-
-	repos=$$(cat config.json | jq -c -r '.simModel | map(.repo) | unique | .[]') && \
-	for repo in $$repos; do \
-		git clone --recurse-submodules $(SIM_MODELS_REPO_BASE)/$$repo $@/$$repo; \
-		cp $(SIM_MODELS_DIR)/core/hoc/* $@/$$repo/hoc/; \
-		mod_dirs=$$(cat config.json | jq -c -r ".simModel | .[] | select(.repo==\"$$repo\") | .modPath"); \
-		for mod_dir in $$mod_dirs; do \
-			cp $(SIM_MODELS_DIR)/core/mod/* $@/$$repo/$$mod_dir/; \
-		done; \
-	done
-
 python_build: | $(VENV_DIR)
 	$(VENV_DIR)/bin/python setup.py sdist
 
@@ -101,14 +67,14 @@ run_dev_debug:
 		$(IMAGE_NAME) \
 		-m debugpy --listen 0.0.0.0:3000 -m ngv_viewer.main
 
-docker_build_version: python_build | $(NEURON_SRC_DIR) $(SIM_MODELS_DIR)
+docker_build_version: python_build
 	docker build -t $(IMAGE_NAME):$(VERSION) \
 		--build-arg=redis_host=$(REDIS_HOST) \
 		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
 		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
 		.
 
-docker_build_latest: python_build | $(NEURON_SRC_DIR) $(SIM_MODELS_DIR)
+docker_build_latest: python_build
 	docker build -t $(IMAGE_NAME):latest \
 		--build-arg=redis_host=$(REDIS_HOST) \
 		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \

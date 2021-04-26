@@ -4,7 +4,6 @@
     <div v-if="mode === 'operational'">
       <top-bar/>
       <viewport-component/>
-      <!-- <side-panel/> -->
       <spinner/>
       <circuit-loading-modal />
       <global-modal />
@@ -19,7 +18,6 @@
 
   import TopBar from './components/top-bar.vue';
   import Viewport from './components/viewport.vue';
-  import SidePanel from './components/side-panel.vue';
   import Spinner from './components/spinner.vue';
   import CircuitLoadingModal from './components/circuit-loading-modal.vue';
   import MaintenancePage from './components/maintenance-page.vue';
@@ -41,7 +39,6 @@
     components: {
       'top-bar': TopBar,
       'viewport-component': Viewport,
-      'side-panel': SidePanel,
       spinner: Spinner,
       'circuit-loading-modal': CircuitLoadingModal,
       'global-modal': GlobalModal,

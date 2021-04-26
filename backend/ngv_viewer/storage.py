@@ -5,8 +5,6 @@ import numpy as np
 
 import archngv
 
-from bluepy.enums import Synapse
-
 from .redis_client import RedisClient
 
 from .morph_simplification import simplify_neuron
@@ -57,58 +55,6 @@ class Storage():
             cache.set('circuit:cells', cells)
         L.debug('getting cells done')
         return cells
-
-    def get_connectome(self, circuit_path, gid):
-        L.debug('getting connectome for %s', gid)
-        circuit = get_circuit(circuit_path)
-        connectome = cache.get('circuit:connectome:{}'.format(gid))
-        if connectome is None:
-            connectome = {
-                'afferent': circuit.v2.connectome.afferent_gids(gid),
-                'efferent': circuit.v2.connectome.efferent_gids(gid)
-            }
-            cache.set('circuit:connectome:{}'.format(gid), connectome)
-        L.debug('getting connectome for %s done', gid)
-        return connectome
-
-    def get_syn_connections(self, circuit_path, gids):
-        L.debug('getting syn connections for %s', gids)
-        circuit = get_circuit(circuit_path)
-
-        props = [
-            Synapse.POST_X_CENTER,
-            Synapse.POST_Y_CENTER,
-            Synapse.POST_Z_CENTER,
-            Synapse.TYPE,
-            Synapse.PRE_GID,
-            Synapse.PRE_SECTION_ID,
-            Synapse.POST_GID,
-            Synapse.POST_SECTION_ID
-        ]
-
-        props_str = [
-            'postXCenter',
-            'postYCenter',
-            'postZCenter',
-            'type',
-            'preGid',
-            'preSectionGid',
-            'postGid',
-            'postSectionId'
-        ]
-
-        syn_dict = {}
-
-        for gid in gids:
-            L.debug('getting afferent synapses for %s', gid)
-            syn_dict[gid] = circuit.v2.connectome.afferent_synapses(gid, properties=props).values.tolist()
-
-        L.debug('getting syn connections for %s done', gids)
-
-        return {
-            'connections': syn_dict,
-            'connection_properties': props_str
-        }
 
     def get_cell_morphology(self, circuit_path, gids):
         L.debug('getting cell morph for %s', gids)

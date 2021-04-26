@@ -59,20 +59,3 @@ docker_push_latest:
 	@echo "pushing docker images for version $(VERSION)"
 	$(MAKE) -C backend docker_push_latest
 	$(MAKE) -C frontend docker_push_latest
-
-create_oo_deployment:
-	oc project $(OO_PROJECT)
-
-	oc new-app \
-		--docker-image=$(DOCKER_REGISTRY_HOST)/$(OO_PROJECT)/$(APP_NAME_PREFIX)
-
-	oc expose service $(APP_NAME_PREFIX) \
-		--hostname=$(APP_NAME_PREFIX).$(APP_DNS_BASE) \
-		--port=8000
-
-	oc new-app \
-		--docker-image=$(DOCKER_REGISTRY_HOST)/$(OO_PROJECT)/$(APP_NAME_PREFIX)-svc
-
-	oc expose service $(APP_NAME_PREFIX)-svc \
-		--hostname=$(APP_NAME_PREFIX).$(APP_DNS_BASE) \
-		--path=/ws
