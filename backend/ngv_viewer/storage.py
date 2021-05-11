@@ -70,7 +70,15 @@ class Storage():
                         'id': section.id,
                         'type': SEC_SHORT_TYPE_DICT[section.type.name]
                     }
-                    for section in cell.sections]
+                    for section in cell.sections
+                ]
+
+                # add soma
+                morphology.append({
+                    'points': cell.soma.points,
+                    'id': 'soma',
+                    'type': SEC_SHORT_TYPE_DICT['soma']
+                })
 
                 cache.set('cell:morph:{}'.format(gid), morphology)
                 

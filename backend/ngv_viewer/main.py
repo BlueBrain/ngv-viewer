@@ -60,8 +60,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 'cmdid': cmdid
             })
 
-        if cmd == 'get_circuit_metadata':
-            L.debug('-- get_circuit_metadata:')
+        elif cmd == 'get_circuit_metadata':
             # TODO: move logic to storage module
             try:
                 cells = STORAGE.get_circuit_cells(circuit_path)
@@ -101,7 +100,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             }
             self.send_message('circuit_metadata', circuit_metadata)
 
-        if cmd in ['get_circuit_prop_values', 'get_circuit_prop_index']:
+        elif cmd in ['get_circuit_prop_values', 'get_circuit_prop_index']:
             prop = msg['data']
             cells = STORAGE.get_circuit_cells(circuit_path)
 
@@ -120,7 +119,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
             tornado.ioloop.IOLoop.current().add_callback(send)
 
-        if cmd == 'get_circuit_cell_positions':
+        elif cmd == 'get_circuit_cell_positions':
             cells = STORAGE.get_circuit_cells(circuit_path)
             positions = np.dstack((cells.x, cells.y, cells.z)).flatten()
             positions_it = generate_chunks(positions, data_type='positions')
@@ -134,7 +133,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
             tornado.ioloop.IOLoop.current().add_callback(send)
 
-        if cmd == 'get_circuit_cells':
+        elif cmd == 'get_circuit_cells':
             cells = STORAGE.get_circuit_cells(circuit_path)
             cell_count = len(cells)
 
@@ -172,7 +171,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
             tornado.ioloop.IOLoop.current().add_callback(send)
 
-        if cmd == 'get_cell_morphology':
+        elif cmd == 'get_cell_morphology':
             gids = msg['data']
             cell_nm_morph = STORAGE.get_cell_morphology(circuit_path, gids)
             cell_nm_morph['cmdid'] = cmdid
@@ -180,44 +179,44 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             L.debug('sending cell morphology to the client')
             self.send_message('cell_morphology', cell_nm_morph)
 
-        if cmd == 'get_astrocytes_somas':
+        elif cmd == 'get_astrocytes_somas':
             somas = STORAGE.get_astrocytes_somas(circuit_path)
             somas['cmdid'] = cmdid
             L.debug('sending astrocytes somas to the client')
             self.send_message('astrocytes_somas', somas)
 
-        if cmd == 'get_astrocyte_props':
+        elif cmd == 'get_astrocyte_props':
             astrocyte_id = msg['data']
             props = STORAGE.get_astrocyte_props(circuit_path, astrocyte_id)
             L.debug('sending astrocyte props to the client')
             self.send_message('astrocyte_props', props)
         
-        if cmd == 'get_efferent_neurons':
+        elif cmd == 'get_efferent_neurons':
             astrocyte_id = msg['data']
             efferent_neuron_ids = STORAGE.get_efferent_neurons(circuit_path, astrocyte_id)
             L.debug('sending astrocyte efferent neurons to the client')
             self.send_message('efferent_neuron_ids', efferent_neuron_ids)
         
-        if cmd == 'get_astrocyte_morph':
+        elif cmd == 'get_astrocyte_morph':
             astrocyte_id = msg['data']
             morph = STORAGE.get_astrocyte_morph(circuit_path, astrocyte_id)
             L.debug('sending astrocyte morphology to the client')
             self.send_message('astrocyte_morph', morph)
 
-        if cmd == 'get_astrocyte_microdomain':
+        elif cmd == 'get_astrocyte_microdomain':
             astrocyte_id = msg['data']
             microdomain = STORAGE.get_astrocyte_microdomain(circuit_path, astrocyte_id)
             L.debug('sending astrocyte microdomain to the client')
             self.send_message('astrocyte_microdomain', microdomain)
 
-        if cmd == 'get_astrocyte_synapses':
+        elif cmd == 'get_astrocyte_synapses':
             data_dict = msg['data']
             synapses = STORAGE.get_astrocyte_synapses(circuit_path, data_dict['astrocyte'], data_dict['neuron'])
             L.debug('sending astrocyte synapses to the client')
             self.send_message('synapses', synapses)
         
         else:
-            L.debug('No command was found')
+            L.debug('No command was found (%s)', cmd)
             self.send_message('', {})
 
 

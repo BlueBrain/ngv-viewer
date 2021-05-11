@@ -56,7 +56,7 @@ const state = {
     microdomain: {
       mesh: null,
       visible: true,
-      opacity: 100,
+      opacity: 50,
     },
 
     somaSize: 10,
