@@ -403,6 +403,7 @@ class NeuronRenderer {
       this.cellMorphologyObj.add(createMorph(morphology[gid], hoverInfo));
     });
     this.cellMorphologyObj.visible = true;
+    this.ctrl.renderOnce();
   }
 
   setNeuronCloudPointSize(size) {

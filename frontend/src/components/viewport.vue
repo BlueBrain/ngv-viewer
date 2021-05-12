@@ -107,6 +107,7 @@
       store.$on('showAstrocyteSynapses', synapseLocations => this.renderer.showSynapseLocations(synapseLocations));
       store.$on('destroySynapseLocations', () => this.renderer.destroySynapseLocations());
       store.$on('destroyAstrocyteMorphology', () => this.renderer.destroyAstrocyteMorphology());
+      store.$on('onMorphHoverEnd', () => this.renderer.onMorphHoverEnd());
 
       store.$on('createAstrocyteMicrodomain', microdomainObj => this.renderer.createAstrocyteMicrodomain(microdomainObj));
       store.$on('destroyAstrocyteMicrodomain', () => this.renderer.destroyAstrocyteMicrodomain());

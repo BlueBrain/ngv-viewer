@@ -14,7 +14,7 @@
     "issuesurl": "NA"
   },
   "scripts": {
-    "serve": "vue-cli-service serve --open",
+    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --modern",
     "lint": "vue-cli-service lint"
   },

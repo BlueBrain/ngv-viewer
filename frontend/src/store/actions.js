@@ -217,9 +217,9 @@ const actions = {
     const { cells } = store.state.circuit;
     const cellProp = cells.prop;
 
-    store.$emit('showGlobalSpinner');
+    store.$dispatch('showGlobalSpinner');
     const meta = await socket.request('get_circuit_metadata');
-    store.$emit('hideGlobalSpinner');
+    store.$dispatch('hideGlobalSpinner');
     if (meta.error) {
       const error = new Error(meta.description);
       error.name = meta.error;
@@ -515,7 +515,7 @@ const actions = {
     store.state.circuit.astrocytes.selectedWithClick = astrocyte.idx;
     store.$emit('showGlobalSpinner');
     await Promise.all([efferentNeuron, astrocyteMorph, astrocyteMicrodomain]);
-    store.$emit('hideGlobalSpinner');
+    store.$dispatch('hideGlobalSpinner');
   },
 
   synapseHovered(store, synapseIndex) {
@@ -1136,14 +1136,14 @@ const actions = {
         });
     });
 
-    store.$emit('showGlobalSpinner');
+    store.$dispatch('showGlobalSpinner');
     await synapseLocations;
 
     // display efferent neuron morphology
     const neuron = store.$get('neuron', efferentNeuronId);
     store.$dispatch('neuronClicked', neuron);
 
-    store.$emit('hideGlobalSpinner');
+    store.$dispatch('hideGlobalSpinner');
   },
 
   createBoundingVasculature(store, boundingBox) {

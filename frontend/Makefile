@@ -69,3 +69,6 @@ docker_push_latest: docker_build_latest
 	docker push $(DOCKER_REGISTRY)/$(APP_NAME):latest
 	@echo 'frontend latest version pushed to OpenShift registry.'
 	@echo 'frontend release done'
+
+docker_push_only:
+	docker push $(DOCKER_REGISTRY)/$(APP_NAME):latest

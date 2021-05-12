@@ -1,10 +1,8 @@
 
 <template>
-  <positioned-poptip :position="position">
+  <positioned-poptip :position="position" v-show="visible">
 
-    <div
-      class="mb-6"
-    >
+    <div class="mb-6">
       <i-button
         type="warning"
         size="small"
@@ -36,6 +34,7 @@
           y: -20,
         },
         morphInfo: null,
+        visible: false,
       };
     },
     mounted() {
@@ -47,6 +46,7 @@
           name: context.data.name,
           isNeuron: context.data.isNeuron,
         };
+        this.visible = true;
       });
     },
     methods: {
@@ -55,9 +55,11 @@
           store.$emit('removeCellMorphologies', cellMorph => this.morphInfo.gid === cellMorph.gid);
           const morphGids = store.state.circuit.cells.selectedMorphologies;
           store.state.circuit.cells.selectedMorphologies = morphGids.filter(gid => gid !== this.morphInfo.gid);
-          return;
+        } else {
+          store.$emit('destroyAstrocyteMorphology');
         }
-        store.$emit('destroyAstrocyteMorphology');
+        store.$emit('onMorphHoverEnd');
+        this.visible = false;
       },
     },
   };
