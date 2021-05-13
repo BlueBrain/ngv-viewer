@@ -624,15 +624,11 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  onMorphHoverEnd(mesh) {
+  onMorphHoverEnd() {
+    if (!this.hoverBox) return;
     this.scene.remove(this.hoverBox);
     utils.disposeMesh(this.hoverBox);
     this.hoverBox = null;
-
-    this.onHoverEndExternalHandler({
-      type: 'morph',
-      data: mesh.object.userData,
-    });
 
     this.ctrl.renderOnce();
   }
