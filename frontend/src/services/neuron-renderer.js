@@ -407,8 +407,15 @@ class NeuronRenderer {
   }
 
   setNeuronCloudPointSize(size) {
-    this.neuronCloud.points.material.size = size;
-    this.astrocyteCloud.points.material.size = size;
+    if (this.neuronCloud?.points?.material?.size) {
+      this.neuronCloud.points.material.size = size;
+    }
+    if (this.astrocyteCloud?.points?.material?.size) {
+      this.astrocyteCloud.points.material.size = size;
+    }
+    if (this.efferentNeuronsCloud?.points?.material?.size) {
+      this.efferentNeuronsCloud.points.material.size = size;
+    }
     this.ctrl.renderOnce();
   }
 
@@ -975,7 +982,10 @@ class NeuronRenderer {
     effNeuronGeometry.setAttribute('color', this.efferentNeuronsCloud.colorBufferAttr);
     effNeuronGeometry.computeBoundingBox();
 
-    this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, this.pointCloudMaterial);
+    const effNeuronMaterial = this.pointCloudMaterial.clone();
+    effNeuronMaterial.size = store.state.circuit.somaSize;
+
+    this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, effNeuronMaterial);
     this.efferentNeuronsCloud.points.name = 'efferentNeurons';
     this.efferentNeuronsCloud.points.visible = true;
     store.state.circuit.efferentNeurons.raycastMapping = raycastMapping;
@@ -1296,6 +1306,13 @@ class NeuronRenderer {
     this.astrocyteSynapsesCloud.points.geometry.attributes.color.needsUpdate = true;
     this.hoveredSynapse = null;
 
+    this.ctrl.renderOnce();
+  }
+
+  onZoomChanged(level) {
+    store.$dispatch('setSomaSize', level * 10);
+    this.camera.zoom = level;
+    this.camera.updateProjectionMatrix();
     this.ctrl.renderOnce();
   }
 }

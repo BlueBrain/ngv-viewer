@@ -112,6 +112,8 @@
       store.$on('createAstrocyteMicrodomain', microdomainObj => this.renderer.createAstrocyteMicrodomain(microdomainObj));
       store.$on('destroyAstrocyteMicrodomain', () => this.renderer.destroyAstrocyteMicrodomain());
       store.$on('changeMicrodomainOpacity', () => this.renderer.changeMicrodomainOpacity());
+
+      store.$on('onZoomChanged', newValue => this.renderer.onZoomChanged(newValue));
     },
     methods: {
       onHover(obj) {

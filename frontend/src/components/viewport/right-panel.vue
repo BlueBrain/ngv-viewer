@@ -19,6 +19,9 @@
     <div class="screenshot-ctrl">
       <screenshot-ctrl />
     </div>
+    <div class="zoom-ctrl">
+      <zoom-ctrl />
+    </div>
   </div>
 </template>
 
@@ -30,6 +33,7 @@
   import CounterIds from './right-panel/counter-ids.vue';
   import LocalVasculatureSlider from './right-panel/local-vasculature-slider.vue';
   import MicrodomainSlider from './right-panel/microdomain-slider.vue';
+  import ZoomCtrl from './right-panel/zoom-ctrl.vue';
 
 
   export default {
@@ -40,6 +44,7 @@
       'counter-ids': CounterIds,
       'local-vasculature-slider': LocalVasculatureSlider,
       'microdomain-slider': MicrodomainSlider,
+      'zoom-ctrl': ZoomCtrl,
     },
   };
 </script>
@@ -48,7 +53,7 @@
 <style lang="scss">
   .right-panel-container {
     position: absolute;
-    bottom: 80px;
+    bottom: 60px;
     right: 10px;
     display: flex;
     flex-direction: column;
