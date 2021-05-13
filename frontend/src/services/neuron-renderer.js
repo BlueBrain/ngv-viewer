@@ -91,10 +91,6 @@ class NeuronRenderer {
     this.scene.fog = new Fog(FOG_COLOR, NEAR, FAR);
     this.scene.add(new AmbientLight(AMBIENT_LIGHT_COLOR));
 
-    this.pickingScene = new Scene();
-    this.pickingTexture = new WebGLRenderTarget(1, 1);
-    this.pickingPixelBuffer = new Uint8Array(4);
-
     this.mouseNative = new Vector2();
     this.mouseGl = new Vector2();
 
@@ -112,17 +108,10 @@ class NeuronRenderer {
     this.hoveredMesh = null;
     this.hoveredNeuron = null;
     this.hoveredSynapse = null;
-    this.highlightedNeuron = null;
     this.mousePressed = false;
-
-    this.secMarkerObj = new Object3D();
-    this.scene.add(this.secMarkerObj);
 
     this.cellMorphologyObj = new Object3D();
     this.scene.add(this.cellMorphologyObj);
-
-    this.pickingCellMorphologyObj = new Object3D();
-    this.pickingScene.add(this.pickingCellMorphologyObj);
 
     this.pointCloudMaterial = new PointsMaterial({
       vertexColors: true,
@@ -178,50 +167,6 @@ class NeuronRenderer {
     this.neuronCloud.points.name = 'neuronCloud';
     this.neuronCloud.points.frustumCulled = false;
     this.neuronCloud.points.visible = store.state.circuit.cells.visible;
-
-    // picking cloud setup
-    const pickingColorBuffer = new Float32Array(cloudSize * 3);
-    const tmpColor = new Color();
-    for (let i = 0; i < cloudSize; i += 1) {
-      tmpColor.setHex(i + 1);
-      pickingColorBuffer[i * 3] = tmpColor.r;
-      pickingColorBuffer[i * 3 + 1] = tmpColor.g;
-      pickingColorBuffer[i * 3 + 2] = tmpColor.b;
-    }
-
-    const pickingColorBufferAttr = new BufferAttribute(pickingColorBuffer, 3);
-    const pickingGeometry = new BufferGeometry();
-    pickingGeometry.setAttribute('position', this.neuronCloud.positionBufferAttr);
-    pickingGeometry.setAttribute('color', pickingColorBufferAttr);
-
-    const pickingMaterial = new PointsMaterial({
-      vertexColors: VertexColors,
-      size: store.state.circuit.somaSize / SQUARE_DOT_SCALE,
-      sizeAttenuation: true,
-      map: neuronTexture,
-    });
-
-    this.pickingNeuronCloud = new Points(pickingGeometry, pickingMaterial);
-    this.pickingNeuronCloud.frustumCulled = false;
-    this.pickingScene.add(this.pickingNeuronCloud);
-
-    const highlightedNeuronGeometry = new Geometry();
-    const highlightedNeuronMaterial = new PointsMaterial({
-      size: 0,
-      transparent: true,
-      opacity: 0,
-      map: neuronTexture,
-    });
-
-    highlightedNeuronGeometry.vertices.push(new Vector3(0, 0, 0));
-
-    this.highlightedNeuron = new Points(
-      highlightedNeuronGeometry,
-      highlightedNeuronMaterial,
-    );
-
-    this.highlightedNeuron.frustumCulled = false;
-    this.scene.add(this.highlightedNeuron);
   }
 
   destroyNeuronCloud() {
@@ -631,114 +576,6 @@ class NeuronRenderer {
     this.hoverBox = null;
 
     this.ctrl.renderOnce();
-  }
-
-  highlightMorphCell(gid) {
-    const materialsToShow = [];
-    const materialsToHide = [];
-
-    if (this.morphCellHighlightAnimation) this.morphCellHighlightAnimation.kill();
-
-    // TODO: refactor to avoid repetitions
-    this.cellMorphologyObj.traverse((child) => {
-      if (!(child instanceof Mesh)) return;
-
-      if (child.userData.neuron.gid === gid) {
-        materialsToShow.push(child.material);
-      } else {
-        materialsToHide.push(child.material);
-      }
-    });
-
-    this.secMarkerObj.traverse((child) => {
-      if (!(child instanceof Mesh)) return;
-
-      if (child.userData.gid === gid) {
-        materialsToShow.push(child.material);
-      } else {
-        materialsToHide.push(child.material);
-      }
-    });
-
-    if (this.synapseCloud) {
-      materialsToHide.push(this.synapseCloud.points.material);
-    }
-
-    this.morphCellHighlightAnimation = new TimelineLite();
-    this.morphCellHighlightAnimation
-      .to(materialsToHide, 0.3, { opacity: 0.1 })
-      .to(materialsToShow, 0.3, { opacity: 1 }, 0);
-
-      this.ctrl.renderFor(1000);
-  }
-
-  unhighlightMorphCell() {
-    if (this.morphCellHighlightAnimation) this.morphCellHighlightAnimation.kill();
-
-    const materialsToShow = [];
-    this.cellMorphologyObj.traverse((child) => {
-      if (!(child instanceof Mesh)) return;
-
-      materialsToShow.push(child.material);
-    });
-
-    this.secMarkerObj.traverse((child) => {
-      if (child instanceof Mesh) materialsToShow.push(child.material);
-    });
-
-    if (this.synapseCloud) {
-      materialsToShow.push(this.synapseCloud.points.material);
-    }
-
-    this.morphCellHighlightAnimation = TweenLite.to(materialsToShow, 0.3, { opacity: 1 });
-
-    this.ctrl.renderFor(500);
-  }
-
-  highlightCircuitSoma(gid) {
-    if (this.neuronHighlightAnimation) this.neuronHighlightAnimation.kill();
-
-    const neuronIndex = gid - 1;
-
-    this.highlightedNeuron.material.color = new Color(
-      // TODO: obtain color from store getter?
-      this.neuronCloud.colorBufferAttr.getX(neuronIndex),
-      this.neuronCloud.colorBufferAttr.getY(neuronIndex),
-      this.neuronCloud.colorBufferAttr.getZ(neuronIndex),
-    );
-
-    const position = new Vector3(...store.$get('neuronPosition', neuronIndex));
-    this.highlightedNeuron.geometry.vertices[0] = position;
-
-    this.neuronHighlightAnimation = new TimelineLite();
-    this.neuronHighlightAnimation
-      .to(this.neuronCloud.points.material, 0.3, { size: 8, opacity: 0.3 })
-      .to(this.highlightedNeuron.material, 0.3, { size: 48, opacity: 1 }, 0);
-
-    this.neuronHighlightAnimation.eventCallback('onUpdate', () => {
-      this.highlightedNeuron.geometry.verticesNeedUpdate = true;
-      this.highlightedNeuron.geometry.colorsNeedUpdate = true;
-    });
-
-    this.ctrl.renderFor(1000);
-  }
-
-  removeCircuitSomaHighlight() {
-    if (this.neuronHighlightAnimation) this.neuronHighlightAnimation.kill();
-
-    const { somaSize } = store.state.circuit;
-
-    this.neuronHighlightAnimation = new TimelineLite();
-    this.neuronHighlightAnimation
-      .to(this.neuronCloud.points.material, 0.3, { size: somaSize, opacity: 0.85 })
-      .to(this.highlightedNeuron.material, 0.3, { size: 0, opacity: 0 }, 0);
-
-    this.neuronHighlightAnimation.eventCallback('onUpdate', () => {
-      this.highlightedNeuron.geometry.verticesNeedUpdate = true;
-      this.highlightedNeuron.geometry.colorsNeedUpdate = true;
-    });
-
-    this.ctrl.renderFor(1000);
   }
 
   onResize() {

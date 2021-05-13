@@ -587,44 +587,6 @@ const actions = {
     });
   },
 
-  neuronAddedToSim(store, neuron) {
-    store.$emit('neuronAddedToSim', neuron);
-  },
-
-  neuronRemovedFromSim(store, neuron) {
-    store.$emit('neuronRemovedFromSim', neuron);
-  },
-
-  loadNeuronSetClicked(store, options) {
-    const { gids } = options;
-    const currentNeuronGids = store.state.circuit.simAddedNeurons.map(neuron => neuron.gid);
-    currentNeuronGids.forEach((gid) => {
-      const neuron = store.$get('neuron', gid - 1);
-      store.$emit('removeNeuronFromSim', neuron);
-    });
-
-    gids.forEach((gid) => {
-      const neuron = store.$get('neuron', gid - 1);
-      store.$emit('addNeuronToSim', neuron);
-    });
-  },
-
-  simNeuronHovered(store, gid) {
-    store.$emit('highlightCircuitSoma', gid);
-  },
-
-  simNeuronUnhovered(store) {
-    store.$emit('removeCircuitSomaHighlight');
-  },
-
-  setWaitingSecSelection(store, val) {
-    store.state.simulation.waitingSecSelection = val;
-  },
-
-  morphRenderFinished(store) {
-    store.$emit('setShowAxonBtnActive');
-  },
-
   showAxons(store) {
     store.$emit('showAxons');
     store.state.simulation.view.axonsVisible = true;
@@ -671,96 +633,6 @@ const actions = {
 
   paletteKeyUnhover(store) {
     store.$emit('removeTmpGlobalFilter');
-  },
-
-  simConfigGidLabelHovered(store, gid) {
-    store.$emit('highlightMorphCell', gid);
-  },
-
-  simConfigGidLabelUnhovered(store) {
-    store.$emit('unhighlightMorphCell');
-  },
-
-  simConfigSectionLabelHovered(store, gid) {
-    store.$emit('highlightMorphCell', gid);
-  },
-
-  simConfigSectionLabelUnhovered(store) {
-    store.$emit('unhighlightMorphCell');
-  },
-
-  runSim(store) {
-    const { synapses, synInputs } = store.state.simulation;
-    const { cells } = store.state.circuit;
-
-    const { simulation } = store.state;
-    simulation.running = true;
-    store.$once('ws:simulation_finish', () => { simulation.running = false; });
-
-    const simSynapsesByPreGid = synInputs.reduce((synConfig, synInput) => {
-      const syns = synapses.filter((syn) => {
-        if (synInput.preSynCellProp === 'gid') {
-          return syn.gid === synInput.gid
-            && syn.preGid === synInput.preSynCellPropVal;
-        }
-
-        if (syn.gid !== synInput.gid || !synInput.valid) return false;
-
-        const cellPropObj = cells.prop[synInput.preSynCellProp];
-        const propValIdx = cellPropObj.index[syn.preGid - 1];
-        const propVal = cellPropObj.values[propValIdx];
-
-        return propVal === synInput.preSynCellPropVal;
-      });
-
-      const {
-        spikeFrequency,
-        duration,
-        delay,
-        weightScalar,
-      } = synInput;
-
-      const synapsesByPreGid = groupBy(syns, 'preGid');
-      Object.entries(synapsesByPreGid).forEach(([preGid, cellSynapses]) => {
-        synConfig[preGid] = synConfig[preGid] || {
-          spikeFrequency,
-          weightScalar,
-          duration,
-          delay,
-          synapses: cellSynapses.map(s => pick(s, ['postGid', 'index'])),
-        };
-      });
-      return synConfig;
-    }, {});
-
-    store.$emit('setStatus', { message: 'Running simulation' });
-    store.$once('ws:simulation_finish', () => store.$emit('setStatus', { message: 'Ready' }));
-
-    store.$emit('showOnlyTracesPanel');
-    store.$emit('resetTraces');
-
-    const gids = store.state.circuit.simAddedNeurons.map(n => n.gid);
-
-    const { params, stimuli, recordings } = store.state.simulation;
-
-    const simConfig = {
-      gids,
-      tStop: params.tStop,
-      timeStep: params.timeStep,
-      forwardSkip: params.forwardSkip,
-      addReplay: params.addReplay,
-      addMinis: params.addMinis,
-      netStimuli: params.netStimuli,
-      stimuli,
-      recordings,
-      synapses: simSynapsesByPreGid,
-    };
-
-    socket.send('run_simulation', simConfig);
-  },
-
-  cancelSim() {
-    socket.send('cancel_simulation');
   },
 
   updateGlobalSimParams(store, params) {
@@ -904,38 +776,6 @@ const actions = {
     });
 
     store.$emit('updateSynapses');
-  },
-
-  async proceedToSimConfigBtnClicked(store) {
-    const { simulation: sim } = store.state;
-
-    store.$emit('updateSimCellConfig', store.state.circuit.simAddedNeurons);
-    const gids = store.state.circuit.simAddedNeurons.map(n => n.gid);
-
-    await store.$dispatch('fetchNeuronMorphologies');
-
-    // update cell-config: remove stimuli, recordings, synaptic inputs
-    // for the cells which are have been removed from simulation
-    sim.stimuli = sim.stimuli.filter(stimulus => gids.find(gid => gid === stimulus.gid));
-    store.$emit('updateStimuli');
-    sim.recordings = sim.recordings.filter(recording => gids.find(gid => gid === recording.gid));
-    store.$emit('updateRecordings');
-    sim.synInputs = sim.synInputs.filter(synInput => gids.find(gid => gid === synInput.gid));
-    store.$emit('updateSynInputs');
-    store.$emit('resetTraces');
-    store.$emit('removeSectionMarkers', sectionMarkerConfig => !gids.find(gid => sectionMarkerConfig.gid === gid));
-
-    store.$emit('removeCellMorphologies', cellMorph => !gids.find(gid => gid === cellMorph.gid));
-
-    const simNeurons = cloneDeep(store.state.circuit.simAddedNeurons);
-    store.$emit('updateSimCellConfig', simNeurons);
-    store.$emit('setBottomPanelMode', 'simulationConfig');
-    store.$emit('showCellMorphology');
-    store.$emit('showSectionMarkers');
-    store.$emit('hideCircuit');
-    store.$emit('setSimulationConfigTabActive');
-
-    store.$dispatch('initSynapses');
   },
 
   async fetchNeuronMorphologies(store) {
