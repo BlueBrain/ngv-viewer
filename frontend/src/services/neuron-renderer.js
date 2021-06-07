@@ -896,11 +896,17 @@ class NeuronRenderer {
     const hoverInfo = { gid, isNeuron: false };
     this.astrocyteMorphologyObj = createMorph(morphObj, hoverInfo);
 
+    if (morphObj.position.length === 3) {
+      this.astrocyteMorphologyObj.position.set(
+        morphObj.position[0], morphObj.position[1], morphObj.position[2],
+      );
+    }
+
     this.astrocyteMorphologyObj.visible = true;
     this.scene.add(this.astrocyteMorphologyObj);
 
     // center to astrocyte soma
-    const position = get(this, 'astrocyteMorphologyObj.children[0].position');
+    const position = get(this, 'astrocyteMorphologyObj.position');
     this.controls.target.copy(new Vector3(position.x, position.y, position.z));
 
     this.ctrl.renderOnce();

@@ -4,7 +4,7 @@ VERSION?=$(shell cat ../VERSION)
 
 NODE_MODULES:=node_modules
 
-SINGLE_CIRCUIT?=ngv-20201006
+SINGLE_CIRCUIT?=ngv-20201027
 
 APP_NAME?=ngv-viewer-ui
 SERVER_HOST:=ngv-viewer.ocp.bbp.epfl.ch

@@ -169,10 +169,10 @@ class Storage():
             circuit = get_circuit(circuit_path)
             astrocyte_morph = circuit.astrocytes.morph.get(astrocyte_id)
             simplified_morph = simplify_neuron(astrocyte_morph, epsilon=0.5)
-            orientation = circuit.astrocytes.orientations(group=astrocyte_id)
             morph_dict = {
                 'sections': simplified_morph,
-                'orientation': orientation
+                'orientation': circuit.astrocytes.orientations(group=astrocyte_id),
+                'position': circuit.astrocytes.positions(group=astrocyte_id).to_list(),
             }
             cache.set('astrocyte:morph:{}'.format(astrocyte_id), morph_dict)
         else:
