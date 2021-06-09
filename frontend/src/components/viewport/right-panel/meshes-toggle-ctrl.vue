@@ -2,7 +2,7 @@
 <template>
   <div class="mesh-toggle-main">
     <div class="container ctrl-background">
-      <span><strong>show / hide mesh</strong></span>
+      <span><strong>hide / show</strong></span>
       <div
         class="row"
         v-for="mesh in meshes"
@@ -109,6 +109,9 @@
       min-width: 75px;
       text-align: end;
       margin-right: 4px;
+    }
+    .container {
+      text-align: end;
     }
   }
 </style>
