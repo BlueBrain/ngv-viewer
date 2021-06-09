@@ -7,6 +7,7 @@
     <div class="palette-container">
       <CheckboxGroup
         class="palette-container"
+        v-model="layersSelected"
         @on-change=hideLayersChanged
       >
         <div
@@ -71,6 +72,7 @@
         colorPalette: {},
         extraColorPaletteArray: [],
         showLayerCheckboxes: true,
+        layersSelected: [],
       };
     },
     mounted() {
@@ -124,8 +126,8 @@
         }, {});
       },
 
-      hideLayersChanged(param) {
-        store.$dispatch('astrocyteLayerFilterChanged', param);
+      hideLayersChanged() {
+        store.$dispatch('astrocyteLayerFilterChanged', this.layersSelected);
       },
     },
   };
