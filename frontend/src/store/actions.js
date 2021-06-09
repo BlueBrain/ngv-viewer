@@ -1015,6 +1015,7 @@ const actions = {
     store.$emit('destroyBoundingVasculature');
     store.$emit('showAstrocytes');
     store.$emit('removeCellMorphologies', (() => true));
+    store.state.circuit.cells.selectedMorphologies = [];
 
     store.$emit('updateClipboardIds', {
       name: CounterIdText.ASTROCYTES,
