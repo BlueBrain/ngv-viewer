@@ -1,11 +1,10 @@
 
 <template>
-  <div class="container">
+  <div class="container button-back" v-if="showBackArrow">
     <Icon
-      size="80"
+      size="40"
       type="ios-arrow-round-back"
       @click="goBack"
-      v-if="showBackArrow"
     />
   </div>
 </template>
@@ -51,7 +50,18 @@
 <style lang="scss" scoped>
   .container {
     position: absolute;
-    left: 5px;
-    top: 5px;
+    left: 15px;
+    top: 15px;
+  }
+  .button-back {
+    border-color: #2e8cf040;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 50px;
+    transition: all .2s ease-in-out;
+  }
+  .button-back:hover {
+    background-color: #2e8cf040;
+    transform: scale(1.4);
   }
 </style>

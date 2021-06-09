@@ -36,7 +36,7 @@
   .current-page-title {
     font-size: 30px;
     position: absolute;
-    left: 100px;
-    top: 20px;
+    left: 50%;
+    margin-left: -135px;
   }
 </style>
