@@ -66,7 +66,9 @@ class Storage():
                 cell = circuit.neurons.morph.get(gid, transform=True)
                 morphology = [
                     {
-                        'points': [point[:4] for point in section.points],
+                        'points': [p + [d] for (p, d) in zip(
+                            section.points.tolist(), section.diameters.tolist(),
+                        )],
                         'id': section.id,
                         'type': SEC_SHORT_TYPE_DICT[section.type.name]
                     }
