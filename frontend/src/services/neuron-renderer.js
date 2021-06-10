@@ -645,6 +645,7 @@ class NeuronRenderer {
     this.vasculatureCloud.mesh.visible = vasculature.visible;
     this.scene.add(this.vasculatureCloud.mesh);
     this.ctrl.renderOnce();
+    this.toggleExtraColorPaletteLabels('VASCULATURE', true);
   }
 
   hideVasculatureCloud() {
@@ -653,6 +654,7 @@ class NeuronRenderer {
     this.vasculatureCloud.mesh.visible = vasculature.visible;
     this.scene.remove(this.vasculatureCloud.mesh);
     this.ctrl.renderOnce();
+    this.toggleExtraColorPaletteLabels('VASCULATURE', false);
   }
 
   onAstrocyteHover(raycastIndex) {
@@ -941,6 +943,7 @@ class NeuronRenderer {
     this.astrocyteMicrodomain.mesh.visible = store.state.circuit.microdomain.visible;
     this.scene.add(this.astrocyteMicrodomain.mesh);
     this.ctrl.renderOnce();
+    this.toggleExtraColorPaletteLabels('MICRODOMAIN', true);
   }
 
   changeMicrodomainOpacity() {
@@ -953,6 +956,7 @@ class NeuronRenderer {
     material.opacity = microdomain.opacity / 100;
     this.astrocyteMicrodomain.mesh.visible = microdomain.visible;
     this.ctrl.renderOnce();
+    this.toggleExtraColorPaletteLabels('MICRODOMAIN', microdomain.visible);
   }
 
   destroyAstrocyteMicrodomain() {
@@ -960,7 +964,18 @@ class NeuronRenderer {
 
     this.scene.remove(this.astrocyteMicrodomain.mesh);
     this.astrocyteMicrodomain = null;
+    this.toggleExtraColorPaletteLabels('MICRODOMAIN', false);
     this.ctrl.renderOnce();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  toggleExtraColorPaletteLabels(keyType, newVal) {
+    if (!keyType) {
+      console.warn('Cannot change extra color palette labels');
+      return;
+    }
+    ColorConvention.extraPalette[keyType].visible = newVal;
+    store.$emit('updateExtraColorPalette');
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -1024,6 +1039,7 @@ class NeuronRenderer {
     if (!this.boundingVasculature) return;
 
     this.scene.remove(this.boundingVasculature.mesh);
+    this.toggleExtraColorPaletteLabels('VASCULATURE', false);
     this.boundingVasculature = null;
     this.ctrl.renderOnce();
   }
@@ -1050,6 +1066,7 @@ class NeuronRenderer {
     material.opacity = boundingVasculature.opacity / 100;
     this.boundingVasculature.mesh.visible = boundingVasculature.visible;
     this.ctrl.renderOnce();
+    this.toggleExtraColorPaletteLabels('VASCULATURE', true);
   }
 
   getSelectedEfferentNeuron3DObject() {
@@ -1080,6 +1097,7 @@ class NeuronRenderer {
 
     const synColor = new Color(ColorConvention.extraPalette.SYNAPSES.color);
     const synapseColor = synapseLocations.map(() => [synColor.r, synColor.g, synColor.b]).flat();
+    ColorConvention.extraPalette.SYNAPSES.visible = true;
 
     this.astrocyteSynapsesCloud = {
       positionBufferAttr: new Float32BufferAttribute(synapsePoints, 3),
@@ -1103,6 +1121,7 @@ class NeuronRenderer {
       data: synapses.ids,
     });
     store.$emit('detailedLevelChanged');
+    this.toggleExtraColorPaletteLabels('SYNAPSES', true);
   }
 
   destroySynapseLocations() {
@@ -1113,6 +1132,7 @@ class NeuronRenderer {
     this.astrocyteSynapsesCloud = null;
     this.efferentNeuronSelected = null;
     this.ctrl.renderOnce();
+    this.toggleExtraColorPaletteLabels('SYNAPSES', false);
   }
 
   onAstrocyteSynapseHover(raycastIndex) {

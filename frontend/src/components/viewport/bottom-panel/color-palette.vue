@@ -87,6 +87,8 @@
         this.showLayerCheckboxes = !!store.state.currentDetailedLevel
           && store.state.currentDetailedLevel === CurrentDetailedLevel.ASTROCYTES;
       });
+
+      store.$on('updateExtraColorPalette', this.generateExtraPalette);
     },
     methods: {
       generatePalette() {
@@ -107,14 +109,13 @@
       },
 
       generateExtraPalette() {
-        this.extraColorPaletteArray = Object.keys(ColorConvention.extraPalette).map((key) => {
-          const value = ColorConvention.extraPalette[key];
-          return {
-            key,
-            color: value.color,
-            name: value.name,
-          };
-        });
+        this.extraColorPaletteArray = Object.keys(ColorConvention.extraPalette)
+          .reduce((acc, key) => {
+            const info = ColorConvention.extraPalette[key];
+            if (!info.visible) return acc;
+            acc.push({ key, color: info.color, name: info.name });
+            return acc;
+          }, []);
       },
 
       updateColorPalette() {

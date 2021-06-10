@@ -24,14 +24,17 @@ export const ColorConvention = {
       color: '#993433',
       background: '#7F0000',
       name: 'Vasculature',
+      visible: false,
     },
     SYNAPSES: {
       color: '#FFCB00',
       name: 'Synapses',
+      visible: false,
     },
     MICRODOMAIN: {
       color: '#3bbfe3',
       name: 'Microdomain',
+      visible: false,
     },
   },
 };
