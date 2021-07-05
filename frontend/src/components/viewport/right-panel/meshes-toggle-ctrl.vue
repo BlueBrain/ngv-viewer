@@ -29,6 +29,7 @@
 <script>
   import store from '@/store';
   import { Mesh } from '@/constants';
+  import { CurrentDetailedLevel } from '@/constants.js';
 
   export default {
     name: 'meshes-toggle-ctrl',
@@ -57,6 +58,21 @@
         store.$on('vasculatureLoaded', () => {
           const vascMesh = this.meshes.find(m => m.name === Mesh.VASCULATURE);
           this.$set(vascMesh, 'disabled', false);
+        });
+
+        store.$on('detailedLevelChanged', () => {
+          const neuronToggle = meshes.find(m => m.name === Mesh.NEURONS);
+          const astrocyteToggle = meshes.find(m => m.name === Mesh.ASTROCYTES);
+
+          if (store.state.currentDetailedLevel === CurrentDetailedLevel.ASTROCYTES) {
+            neuronToggle.disabled = false;
+            astrocyteToggle.disabled = false;
+            astrocyteToggle.visible = true;
+          } else {
+            neuronToggle.disabled = true;
+            astrocyteToggle.visible = false;
+            astrocyteToggle.disabled = true;
+          }
         });
       },
       meshChanges(meshName, display) {
