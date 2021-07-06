@@ -187,8 +187,13 @@
 
 <style>
   .palette-item .custom-checkbox .ivu-checkbox-inner {
-    top: -1px;
     margin-right: 5px;
     border: 2px solid black;
+    width: 18px;
+    height: 18px;
+  }
+  .palette-item .custom-checkbox .ivu-checkbox {
+    margin: -3px 0 0 -3px;
+    padding: 2px;
   }
 </style>
