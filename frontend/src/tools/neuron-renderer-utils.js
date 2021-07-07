@@ -2,10 +2,7 @@
 import {
   Mesh,
   Vector3,
-  Geometry,
-  BufferGeometry,
   SphereBufferGeometry,
-  CylinderGeometry,
   Matrix4,
   MeshLambertMaterial,
   Color,
@@ -13,7 +10,6 @@ import {
   Quaternion,
 } from 'three';
 
-import last from 'lodash/last';
 import * as chroma from 'chroma-js';
 
 const HALF_PI = Math.PI * 0.5;
@@ -69,59 +65,6 @@ class RendererCtrl {
 function disposeMesh(obj) {
   obj.geometry.dispose();
   obj.material.dispose();
-}
-
-function createSecGeometryFromPoints(pts, simplificationRatio = 2) {
-  const sRatio = simplificationRatio;
-
-  const secGeometry = new Geometry();
-
-  for (let i = 0; i < pts.length - 1; i += sRatio) {
-    const vstart = new Vector3(pts[i][0], pts[i][1], pts[i][2]);
-    const vend = new Vector3(
-      pts[i + sRatio] ? pts[i + sRatio][0] : last(pts)[0],
-      pts[i + sRatio] ? pts[i + sRatio][1] : last(pts)[1],
-      pts[i + sRatio] ? pts[i + sRatio][2] : last(pts)[2],
-    );
-    const distance = vstart.distanceTo(vend);
-    const position = vend.clone().add(vstart).divideScalar(2);
-
-    const dStart = pts[i][3] * 2;
-    const dEnd = (pts[i + sRatio] ? pts[i + sRatio][3] : last(pts)[3]) * 2;
-
-    const geometry = new CylinderGeometry(
-      dStart,
-      dEnd,
-      distance,
-      Math.max(5, Math.ceil(24 / sRatio)),
-      1,
-      true,
-    );
-
-    const orientation = new Matrix4();
-    const offsetRotation = new Matrix4();
-    orientation.lookAt(vstart, vend, new Vector3(0, 1, 0));
-    offsetRotation.makeRotationX(HALF_PI);
-    orientation.multiply(offsetRotation);
-    geometry.applyMatrix4(orientation);
-
-    const cylinder = new Mesh(geometry);
-    cylinder.position.copy(position);
-    cylinder.updateMatrix();
-
-    secGeometry.merge(cylinder.geometry, cylinder.matrix);
-    disposeMesh(cylinder);
-  }
-
-  const secBufferGeometry = new BufferGeometry().fromGeometry(secGeometry);
-  secGeometry.dispose();
-
-  return secBufferGeometry;
-}
-
-function createSecMeshFromPoints(pts, material, simplificationRatio) {
-  const geometry = createSecGeometryFromPoints(pts, simplificationRatio);
-  return new Mesh(geometry, material);
 }
 
 function getSomaPositionFromPoints(pts) {
@@ -208,7 +151,6 @@ function quatFromArray3x3(array3x3) {
 }
 
 export default {
-  createSecMeshFromPoints,
   disposeMesh,
   createSomaMeshFromPoints,
   getSomaPositionFromPoints,

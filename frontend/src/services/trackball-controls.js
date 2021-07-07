@@ -5,7 +5,9 @@
  * @todo convert to class, format the code according to linter config
  */
 
-import { Vector3, Vector2, Quaternion, EventDispatcher } from 'three';
+import {
+ Vector3, Vector2, Quaternion, EventDispatcher,
+} from 'three';
 
 
 function TrackballControls(object, domElement) {
@@ -61,25 +63,25 @@ function TrackballControls(object, domElement) {
 
   const lastPosition = new Vector3();
 
-  let _state = STATE.NONE,
-    _prevState = STATE.NONE,
+  let _state = STATE.NONE;
+  let _prevState = STATE.NONE;
 
-    _eye = new Vector3(),
+  const _eye = new Vector3();
 
-    _movePrev = new Vector2(),
-    _moveCurr = new Vector2(),
+  const _movePrev = new Vector2();
+  const _moveCurr = new Vector2();
 
-    _lastAxis = new Vector3(),
-    _lastAngle = 0,
+  const _lastAxis = new Vector3();
+  let _lastAngle = 0;
 
-    _zoomStart = new Vector2(),
-    _zoomEnd = new Vector2(),
+  const _zoomStart = new Vector2();
+  const _zoomEnd = new Vector2();
 
-    _touchZoomDistanceStart = 0,
-    _touchZoomDistanceEnd = 0,
+  let _touchZoomDistanceStart = 0;
+  let _touchZoomDistanceEnd = 0;
 
-    _panStart = new Vector2(),
-    _panEnd = new Vector2();
+  const _panStart = new Vector2();
+  const _panEnd = new Vector2();
 
   // for reset
 
@@ -145,13 +147,13 @@ function TrackballControls(object, domElement) {
   }());
 
   this.rotateCamera = (function () {
-    let axis = new Vector3(),
-      quaternion = new Quaternion(),
-      eyeDirection = new Vector3(),
-      objectUpDirection = new Vector3(),
-      objectSidewaysDirection = new Vector3(),
-      moveDirection = new Vector3(),
-      angle;
+    const axis = new Vector3();
+      const quaternion = new Quaternion();
+      const eyeDirection = new Vector3();
+      const objectUpDirection = new Vector3();
+      const objectSidewaysDirection = new Vector3();
+      const moveDirection = new Vector3();
+      let angle;
 
     return function rotateCamera() {
       moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
@@ -215,9 +217,9 @@ function TrackballControls(object, domElement) {
   };
 
   this.panCamera = (function () {
-    let mouseChange = new Vector2(),
-      objectUp = new Vector3(),
-      pan = new Vector3();
+    const mouseChange = new Vector2();
+      const objectUp = new Vector3();
+      const pan = new Vector3();
 
     return function panCamera() {
       mouseChange.copy(_panEnd).sub(_panStart);

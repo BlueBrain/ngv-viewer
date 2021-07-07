@@ -4,8 +4,8 @@ import some from 'lodash/some';
 
 
 function isSectionOfInteractionSite(interactionSite, section) {
-  return interactionSite.sectionName === section.name &&
-    interactionSite.gid === section.neuron.gid;
+  return interactionSite.sectionName === section.name
+    && interactionSite.gid === section.neuron.gid;
 }
 
 const getters = {
@@ -27,10 +27,6 @@ const getters = {
     return propValue;
   },
 
-  synapse(store, synapseIndex) {
-    return store.state.simulation.synapses[synapseIndex];
-  },
-
   neuronPosition(store, idx) {
     const { cells } = store.state.circuit;
 
@@ -44,26 +40,6 @@ const getters = {
   storageKey(store, type = 'default', prefix = 'circuit') {
     const circuitPath = store.state.circuitConfig.path;
     return `${prefix}:${circuitPath}${type ? `:${type}` : ''}`;
-  },
-
-  stimuli(store) {
-    return clone(store.state.simulation.stimuli);
-  },
-
-  synInputs(store) {
-    return clone(store.state.simulation.synInputs);
-  },
-
-  recordings(store) {
-    return clone(store.state.simulation.recordings);
-  },
-
-  isStimulusPresent(store, section) {
-    return some(store.state.simulation.stimuli, s => isSectionOfInteractionSite(s, section));
-  },
-
-  isRecordingPresent(store, section) {
-    return some(store.state.simulation.recordings, r => isSectionOfInteractionSite(r, section));
   },
 
   astrocyte(store, idx) {

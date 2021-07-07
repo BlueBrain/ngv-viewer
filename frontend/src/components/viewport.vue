@@ -48,7 +48,6 @@
       // TODO: refactor
       store.$on('circuitLoaded', this.initRenderer.bind(this));
       store.$on('setSomaSize', size => this.renderer.setNeuronCloudPointSize(size));
-      store.$on('setSynapseSize', size => this.renderer.setMorphSynapseSize(size));
       store.$on('redrawCircuit', this.redrawNeurons.bind(this));
       store.$on('showCellMorphology', () => this.renderer.showMorphology());
       store.$on('showSectionMarkers', () => this.renderer.showSectionMarkers());
@@ -60,12 +59,9 @@
         this.renderer.hideSectionMarkers();
         this.renderer.destroySynapseCloud();
       });
-      store.$on('initSynapseCloud', cloudSize => this.renderer.initSynapseCloud(cloudSize));
       store.$on('updateSynapses', () => this.renderer.updateSynapses());
 
       store.$on('setSelectionMode', (selectionMode) => { this.selectionMode = selectionMode; });
-
-      store.$on('centerCellMorph', section => this.renderer.centerCellMorph(section.neuron.gid));
 
       store.$on('hideCircuit', () => this.renderer.hideNeuronCloud());
       store.$on('showCircuit', () => this.renderer.showNeuronCloud());
@@ -123,10 +119,6 @@
           store.$dispatch('neuronHovered', neuron);
           break;
         }
-        case 'synapse': {
-          store.$dispatch('synapseHovered', obj.synapseIndex);
-          break;
-        }
         case 'morph': {
           store.$dispatch('morphHovered', obj);
           break;
@@ -154,10 +146,6 @@
         switch (obj.type) {
         case 'cloudNeuron': {
           store.$dispatch('neuronHoverEnded');
-          break;
-        }
-        case 'synapse': {
-          store.$dispatch('synapseHoverEnded');
           break;
         }
         case 'morph': {

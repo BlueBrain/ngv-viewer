@@ -28,8 +28,8 @@
 
 <script>
   import store from '@/store';
-  import { Mesh } from '@/constants';
-  import { CurrentDetailedLevel } from '@/constants.js';
+  import { Mesh, CurrentDetailedLevel } from '@/constants';
+
 
   export default {
     name: 'meshes-toggle-ctrl',

@@ -1,19 +1,16 @@
 
 import throttle from 'lodash/throttle';
 import get from 'lodash/get';
-import difference from 'lodash/difference';
-import pick from 'lodash/pick';
 
 import {
   Color, TextureLoader, WebGLRenderer, Scene, Fog, AmbientLight, PointLight, Vector2,
   Raycaster, PerspectiveCamera, Object3D, BufferAttribute, BufferGeometry,
-  PointsMaterial, DoubleSide, VertexColors, Geometry, Points, Vector3, MeshLambertMaterial,
+  PointsMaterial, DoubleSide, Points, Vector3, MeshLambertMaterial,
   Mesh, LineSegments, LineBasicMaterial, EdgesGeometry,
-  WebGLRenderTarget, Float32BufferAttribute, Box3, Plane, FrontSide,
+  Float32BufferAttribute, Box3, Plane, FrontSide,
 } from 'three';
 
 import { saveAs } from 'file-saver';
-import { TweenLite, TimelineLite } from 'gsap';
 
 import TrackballControls from '@/services/trackball-controls';
 
@@ -31,7 +28,6 @@ import {
   ColorConvention,
   CurrentDetailedLevel,
   CounterIdText,
-  NeuronParts,
 } from '@/constants';
 
 // used for the textures
@@ -54,20 +50,8 @@ const SQUARE_DOT_SCALE = 1.3;
 // TODO: calculate in runtime
 const HEADER_HEIGHT = 36;
 
-const ALL_SEC_TYPES = [
-  NeuronParts.SOMA,
-  NeuronParts.AXON,
-  NeuronParts.APIC,
-  NeuronParts.DEND,
-  'myelin',
-];
-
-const COLOR_DIFF_RANGE = 1;
-
 const neuronTexture = new TextureLoader().load(`${baseUrl}/neuron-texture.png`);
 const astrocyteTexture = new TextureLoader().load(`${baseUrl}/astrocyte.png`);
-
-const defaultSecRenderFilter = t => store.state.simulation.view.axonsVisible || t !== 'axon';
 
 
 class NeuronRenderer {
@@ -178,18 +162,8 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  destroySynapseCloud() {
-    if (!this.synapseCloud) return;
-
-    this.scene.remove(this.synapseCloud.points);
-    utils.disposeMesh(this.synapseCloud.points);
-    this.synapseCloud = null;
-    this.ctrl.renderOnce();
-  }
-
   clearScene() {
     this.destroyNeuronCloud();
-    this.destroySynapseCloud();
     this.removeCellMorphologies(() => true);
     this.ctrl.renderOnce();
   }
@@ -210,41 +184,6 @@ class NeuronRenderer {
   resetCameraUp() {
     this.camera.up.set(0, 1, 0);
     this.ctrl.renderOnce();
-  }
-
-  centerCellMorph(gid) {
-    const controlsTargetVec = new Vector3();
-
-    this.cellMorphologyObj.traverse((child) => {
-      const childSectionName = get(child, 'userData.type');
-      const childGid = get(child, 'userData.neuron.gid');
-      if (childSectionName !== 'soma' || childGid !== gid) return;
-
-      controlsTargetVec.copy(child.position);
-    });
-
-    const { orientation } = store.state.simulation.morphology[gid];
-
-    const cellQuat = utils.quatFromArray3x3(orientation);
-
-    const cameraPositionVec = new Vector3(0, 0, 300)
-      .applyQuaternion(cellQuat)
-      .add(controlsTargetVec);
-
-    const up = new Vector3(0, 1, 0).applyQuaternion(cellQuat).normalize();
-    this.camera.up = up;
-
-    const animateCamera = () => {
-      TweenLite
-        .to(this.camera.position, 0.15, pick(cameraPositionVec, ['x', 'y', 'z']))
-        .eventCallback('onUpdate', () => { this.controls.target.copy(controlsTargetVec); });
-    };
-
-    TweenLite
-      .to(this.controls.target, 0.15, pick(controlsTargetVec, ['x', 'y', 'z']))
-      .eventCallback('onComplete', animateCamera);
-
-      this.ctrl.renderFor(500);
   }
 
   showNeuronCloud() {
@@ -284,60 +223,6 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  generateMorphology(morphObj) {
-    const {
-      cellObj3d,
-      gid,
-      secTypes = ALL_SEC_TYPES.filter(defaultSecRenderFilter),
-      sections,
-      addSecOperations,
-      cellIndex = 0,
-      gids = [gid],
-      type,
-    } = morphObj;
-
-    const secTypesToAdd = difference(secTypes, cellObj3d.userData.secTypes);
-    if (!secTypesToAdd.length) return;
-
-    cellObj3d.userData.secTypes.push(...secTypesToAdd);
-
-    let hoverInfo = {};
-    if (type === MeshType.NEURONS) {
-      const neuronIndex = gid - 1;
-      const neuron = store.$get('neuron', neuronIndex);
-      hoverInfo = neuron;
-    }
-    if (type === MeshType.ASTROCYTES) {
-      const astrocyteIndex = gid - 1;
-      const astrocyte = store.$get('astrocyte', astrocyteIndex);
-      hoverInfo = astrocyte;
-    }
-
-    const colorDiff = (((2 * COLOR_DIFF_RANGE * cellIndex) / gids.length)) - COLOR_DIFF_RANGE;
-
-    const materialMap = utils.generateSecMaterialMap(colorDiff);
-
-    sections.forEach((section) => {
-      const pts = section.points;
-
-      const secMesh = section.type === 'soma'
-        ? utils.createSomaMeshFromPoints(pts, materialMap[section.type].clone())
-        : utils.createSecMeshFromPoints(pts, materialMap[section.type].clone());
-
-      secMesh.name = 'morphSection';
-      secMesh.userData = {
-        hoverInfo,
-        type: section.type,
-        id: section.id,
-        name: section.name,
-      };
-
-      cellObj3d.add(secMesh);
-    });
-    addSecOperations.push(Promise.resolve());
-  }
-
   showMorphology() {
     const gids = store.state.circuit.cells.selectedMorphologies;
 
@@ -364,11 +249,6 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
   }
 
-  setMorphSynapseSize(size) {
-    this.synapseCloud.points.material.size = size;
-    this.ctrl.renderOnce();
-  }
-
   downloadScreenshot() {
     const { clientWidth, clientHeight } = this.renderer.domElement.parentElement;
 
@@ -383,9 +263,8 @@ class NeuronRenderer {
 
     renderer.render(this.scene, this.camera);
     const circuitName = process.env.VUE_APP_CIRCUIT_NAME;
-    const gidsStr = store.state.circuit.simAddedNeurons.map(n => n.gid).join('_');
     const timestamp = Date.now();
-    const fileName = `${circuitName}__gids_${gidsStr}__${timestamp}.png`;
+    const fileName = `${circuitName}__${timestamp}.png`;
     renderer.domElement.toBlob(blob => saveAs(blob, fileName));
     renderer.dispose();
   }

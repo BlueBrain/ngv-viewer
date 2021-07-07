@@ -1,13 +1,9 @@
 
-import cloneDeep from 'lodash/cloneDeep';
-import remove from 'lodash/remove';
 import pickBy from 'lodash/pickBy';
 import pick from 'lodash/pick';
-import groupBy from 'lodash/groupBy';
 
 import qs from 'qs';
 
-import isEqualBy from '@/tools/is-equal-by';
 import MinSizeUintArray from '@/tools/min-size-uint-array';
 
 import socket from '@/services/websocket';
@@ -16,8 +12,6 @@ import config from '@/config';
 import { Entity, CounterIdText } from '@/constants';
 
 // TODO: prefix events with target component's names
-
-const recAndInjCompareKeys = ['sectionName', 'gid'];
 const APP_VERSION = process.env.VUE_APP_VERSION;
 
 const actions = {
@@ -118,9 +112,6 @@ const actions = {
 
   reset(store) {
     store.state.circuit.simAddedNeurons = [];
-    store.state.simulation.synInputs = [];
-    store.state.simulation.stimuli = [];
-    store.state.simulation.recordings = [];
 
     store.$emit('selectTab', 'circuit');
     store.$emit('clearScene');
@@ -378,10 +369,6 @@ const actions = {
     store.$emit('redrawCircuit');
   },
 
-  sectionAlignmentBtnClicked(store) {
-    store.state.simulation.waitingSecSelectionForAlignment = true;
-  },
-
   neuronHovered(store, neuron) {
     // we don't need all properties of neuron to be shown,
     // for example x, y, z can be skipped.
@@ -518,31 +505,6 @@ const actions = {
     store.$dispatch('hideGlobalSpinner');
   },
 
-  synapseHovered(store, synapseIndex) {
-    const synapse = store.$get('synapse', synapseIndex);
-    const neuron = store.$get('neuron', synapse.preGid - 1);
-    store.$emit('showHoverObjectInfo', {
-      header: 'Synapse',
-      items: [{
-        type: 'table',
-        data: {
-          id: `(${synapse.gid}, ${synapse.index})`,
-          pre_gid: synapse.preGid,
-          post_gid: synapse.gid,
-          type: `${synapse.type} (${synapse.type >= 100 ? 'EXC' : 'INH'})`,
-        },
-      }, {
-        subHeader: 'Pre-synaptic cell:',
-        type: 'table',
-        data: pickBy(neuron, (val, prop) => ['etype', 'mtype'].includes(prop)),
-      }],
-    });
-  },
-
-  synapseHoverEnded(store) {
-    store.$emit('hideHoverObjectInfo');
-  },
-
   morphHovered(store, section) {
     store.$emit('showHoverObjectInfo', {
       header: 'Morphology',
@@ -587,41 +549,8 @@ const actions = {
     });
   },
 
-  showAxons(store) {
-    store.$emit('showAxons');
-    store.state.simulation.view.axonsVisible = true;
-  },
-
-  hideAxons(store) {
-    store.$emit('hideAxons');
-    store.state.simulation.view.axonsVisible = false;
-  },
-
-  showAxonsFinished(store) {
-    store.$emit('setShowAxonBtnActive');
-  },
-
-  hideAxonsFinished(store) {
-    store.$emit('setShowAxonBtnActive');
-  },
-
   morphClicked(store, context) {
-    const { simulation } = store.state;
-    const section = context.data;
-
-    if (simulation.waitingSecSelectionForAlignment && section.type === 'soma') {
-      simulation.waitingSecSelectionForAlignment = false;
-      store.$emit('setSelectionMode', false);
-      store.$emit('centerCellMorph', section);
-      store.$emit('resetSectionAlignmentCtrl');
-      return;
-    }
-
-    if (section.type === 'axon') return;
-
-    if (!simulation.waitingSecSelection) store.$emit('showMorphPoptip', context);
-
-    store.$emit('morphSelected', section);
+    store.$emit('showMorphPoptip', context);
   },
 
   paletteKeyHover(store, paletteKey) {
@@ -633,149 +562,6 @@ const actions = {
 
   paletteKeyUnhover(store) {
     store.$emit('removeTmpGlobalFilter');
-  },
-
-  updateGlobalSimParams(store, params) {
-    Object.assign(store.state.simulation.params, params);
-  },
-
-  circuitTabSelected(store) {
-    store.$emit('resetSimConfigBtn');
-    store.$emit('showCircuit');
-    store.$emit('resetCameraUp');
-    store.$emit('removeCellMorphology');
-    store.$emit('setBottomPanelMode', 'cellSelection');
-
-    const { simulation } = store.state;
-    if (simulation.running) store.$dispatch('cancelSim');
-  },
-
-  addStimulus(store, section) {
-    store.state.simulation.stimuli.push({
-      gid: section.gid,
-      sectionName: section.name,
-      sectionType: section.type,
-      type: 'step',
-      delay: 100,
-      duration: 200,
-      current: 0.7,
-      voltage: -70,
-      stopCurrent: 0.2,
-      seriesResistance: 0.01,
-      frequency: 12,
-      width: 5,
-    });
-    store.$emit('addSecMarker', {
-      type: 'stimulus',
-      gid: section.gid,
-      sectionName: section.name,
-      sectionType: section.type,
-    });
-    store.$emit('updateStimuli');
-    store.$emit('openCellConfigPanel', 'stimuli');
-  },
-
-  removeStimulus(store, stimulus) {
-    remove(store.state.simulation.stimuli, s => isEqualBy(s, stimulus, recAndInjCompareKeys));
-    store.$emit('removeSecMarker', {
-      type: 'stimulus',
-      gid: stimulus.gid,
-      sectionName: stimulus.sectionName,
-    });
-    store.$emit('updateStimuli');
-  },
-
-  updateStimulus(store, stimulus) {
-    const { stimuli } = store.state.simulation;
-    const storeStimulus = stimuli.find(s => isEqualBy(s, stimulus, recAndInjCompareKeys));
-    Object.assign(storeStimulus, stimulus);
-  },
-
-  addRecording(store, section) {
-    const recording = {
-      gid: section.gid,
-      sectionName: section.name,
-      sectionType: section.type,
-    };
-    store.state.simulation.recordings.push(recording);
-    store.$emit('addSecMarker', Object.assign({ type: 'recording' }, recording));
-    store.$emit('updateRecordings');
-    store.$emit('openCellConfigPanel', 'recordings');
-  },
-
-  removeRecording(store, recording) {
-    remove(store.state.simulation.recordings, r => isEqualBy(r, recording, recAndInjCompareKeys));
-    store.$emit('removeSecMarker', {
-      type: 'recording',
-      gid: recording.gid,
-      sectionName: recording.sectionName,
-    });
-    store.$emit('updateRecordings');
-  },
-
-  addSynInput(store, gid) {
-    const defaultSynInput = {
-      gid: null,
-      id: Date.now(),
-      valid: false,
-      synapsesVisible: true,
-      preSynCellProp: null,
-      preSynCellPropVal: null,
-      spikeFrequency: 10,
-      weightScalar: 1,
-      delay: 100,
-      duration: 200,
-    };
-
-    const synInput = Object.assign(defaultSynInput, { gid });
-    store.state.simulation.synInputs.push(synInput);
-    store.$emit('updateSynInputs');
-    store.$dispatch('updateSynapseStates');
-    store.$emit('openCellConfigPanel', 'synInputs');
-  },
-
-  removeSynInput(store, synInput) {
-    remove(store.state.simulation.synInputs, i => i.id === synInput.id);
-    store.$emit('updateSynInputs');
-    store.$dispatch('updateSynapseStates');
-  },
-
-  updateSynInput(store, synInput) {
-    const originalSynInput = store.state.simulation.synInputs.find(i => i.id === synInput.id);
-    Object.assign(originalSynInput, synInput);
-    store.$dispatch('updateSynapseStates');
-  },
-
-  updateSynapseStates(store) {
-    const { cells } = store.state.circuit;
-    const { synInputs } = store.state.simulation;
-
-    const gids = store.state.circuit.simAddedNeurons.map(neuron => neuron.gid);
-
-    const isSynapseInternal = syn => gids.includes(syn.preGid) && gids.includes(syn.postGid);
-    const isSynapseVisibleBySynInput = syn => !!synInputs.find((input) => {
-        // TODO: make this easy to understand
-        if (input.preSynCellProp === 'gid') {
-          return syn.gid === input.gid
-            && input.synapsesVisible
-            && syn.preGid === input.preSynCellPropVal;
-        }
-
-        if (syn.gid !== input.gid || !input.synapsesVisible || !input.preSynCellProp) {
-          return false;
-        }
-
-        const neuronPropValIndex = cells.prop[input.preSynCellProp].index[syn.preGid - 1];
-        const neuronPropVal = cells.prop[input.preSynCellProp].values[neuronPropValIndex];
-
-        return neuronPropVal === input.preSynCellPropVal;
-      });
-
-    store.state.simulation.synapses.forEach((synapse) => {
-      synapse.visible = isSynapseInternal(synapse) || isSynapseVisibleBySynInput(synapse);
-    });
-
-    store.$emit('updateSynapses');
   },
 
   async fetchNeuronMorphologies(store) {
@@ -810,84 +596,6 @@ const actions = {
 
   makeScreenshotBtnClicked(store) {
     store.$emit('downloadScreenshot');
-  },
-
-  async initSynapses(store) {
-    store.$emit('setStatus', { message: 'Getting synapses' });
-
-    const gids = store.state.circuit.simAddedNeurons.map(n => n.gid);
-
-    // remove synapses for gids that are no longer used from memory
-    Object.keys(store.state.simulation.synByGid).forEach((gid) => {
-      if (!gids.includes(gid)) delete store.state.simulation.synByGid[gid];
-    });
-
-    if (!store.state.simulation.synapseProps.length) {
-      const synapseProps = await storage.getItem('synapseProps');
-      store.state.simulation.synapseProps = synapseProps || [];
-    }
-
-    await Promise.all(gids.map(async (gid) => {
-      if (store.state.simulation.synByGid[gid]) return;
-
-      const synapses = await storage.getItem(`syn:${gid}`);
-      if (synapses) store.state.simulation.synByGid[gid] = synapses;
-    }));
-
-    const synGidsToLoad = gids.filter(gid => !store.state.simulation.synByGid[gid]);
-    if (synGidsToLoad.length) {
-      store.$emit('synInputCtrl:loading');
-      const synConnectionsRaw = await socket.request('get_syn_connections', synGidsToLoad);
-      const synapseProps = synConnectionsRaw.connection_properties;
-
-      if (!store.state.simulation.synapseProps.length) {
-        store.state.simulation.synapseProps = synapseProps;
-        storage.setItem('synapseProps', synapseProps);
-      }
-
-      const loadedSynByGid = synConnectionsRaw.connections;
-      Object.entries(loadedSynByGid).forEach(([gid, synapses]) => {
-        storage.setItem(`syn:${gid}`, synapses);
-      });
-      Object.assign(store.state.simulation.synByGid, loadedSynByGid);
-    }
-
-    const { synapseProps, synByGid } = store.state.simulation;
-
-    // TODO: regenerate propIndex only if needed
-    const synapsePropIndex = synapseProps
-      .reduce((propIndexObj, propName, propIndex) => Object.assign(propIndexObj, {
-        [propName]: propIndex,
-      }), {});
-
-    /**
-     * @description Transform list of synapse values indexed by gid:
-     * {
-     *   gid0: [[syn0Props...], [syn1Props...], ...],
-     *   ...
-     * }
-     * to list of synapse objects extended with their gids and indexes:
-     * [
-     *   { gid, index, [prop]: val },
-     *   ...
-     * ]
-     */
-    const synapses = gids.reduce((allSynapses, gid) => {
-      const extendedSynapses = synByGid[gid].map((synVals, synIndex) => {
-        const synObject = synapseProps.reduce((synObj, synProp) => Object.assign(synObj, {
-          [synProp]: synVals[synapsePropIndex[synProp]],
-        }), {});
-        const extendedSynObject = Object.assign(synObject, { gid, index: synIndex });
-        return extendedSynObject;
-      });
-      return allSynapses.concat(extendedSynapses);
-    }, []);
-    store.state.simulation.synapses = synapses;
-
-    store.$emit('initSynapseCloud', synapses.length);
-    store.$dispatch('updateSynapseStates');
-    store.$emit('synInputsCtrl:init');
-    store.$emit('setStatus', { message: 'Ready' });
   },
 
   loadVasculature(store) {
