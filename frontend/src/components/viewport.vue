@@ -221,7 +221,7 @@
             neuronProp,
           },
         } = store.state.circuit;
-        const { cells } = store.state.circuit;
+        const { cells, filterLayers } = store.state.circuit;
 
         const { positionBufferAttr, colorBufferAttr } = this.renderer.neuronCloud;
 
@@ -230,12 +230,17 @@
             // FIXME: switch to opacity attribute
             positionBufferAttr.setXYZ(neuronIdx, 10000, 10000, 10000);
           } else {
-            const neuronPosition = store.$get('neuronPosition', neuronIdx);
-
             const propIndex = cells.prop[neuronProp].index[neuronIdx];
-            const propValue = cells.prop[neuronProp].values[propIndex];
-            const glColor = palette[propValue];
-
+            const neuronLayer = cells.prop[neuronProp].values[propIndex];
+            // this two elements will filter the layer.
+            let color = null;
+            let hiddenPosition = null;
+            if (filterLayers?.length && !filterLayers.includes(String(neuronLayer))) {
+              color = [1, 1, 1, 1];
+              hiddenPosition = [-10000, -10000, -10000];
+            }
+            const neuronPosition = hiddenPosition || store.$get('neuronPosition', neuronIdx);
+            const glColor = color || palette[neuronLayer];
             positionBufferAttr.setXYZ(neuronIdx, ...neuronPosition);
             colorBufferAttr.setXYZ(neuronIdx, ...glColor);
           }

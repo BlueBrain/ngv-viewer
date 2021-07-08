@@ -706,9 +706,10 @@ class NeuronRenderer {
   loadAstrocytesSomas(astrocyteSomasObj) {
     const {
       positions: somaPositionArray,
-      layers: layersArray,
-      filterLayers,
-     } = astrocyteSomasObj;
+      layers,
+    } = astrocyteSomasObj || store.state.circuit.astrocytes;
+    const { visible } = store.state.circuit.astrocytes;
+    const { filterLayers } = store.state.circuit;
 
     store.state.currentDetailedLevel = CurrentDetailedLevel.ASTROCYTES;
 
@@ -718,10 +719,11 @@ class NeuronRenderer {
     // Raycast show added id that is different to the real one.
     let raycastIndex = 0;
     const raycastMapping = {};
-    layersArray.forEach((layerNumber, index) => {
+    somaPositionArray.forEach((position, index) => {
+      const layerNumber = layers[index];
       if (filterLayers?.length && !filterLayers.includes(String(layerNumber))) return;
 
-      newPositions.push(somaPositionArray[index]);
+      newPositions.push(position);
       // remove the transparency argument
       const [r, g, b] = colorPalette[layerNumber];
       newLayerColors.push([r, g, b]);
@@ -761,7 +763,7 @@ class NeuronRenderer {
   }
 
   destroyAstrocytesCloud() {
-    if (!this.astrocyteCloud.points) return;
+    if (!this.astrocyteCloud?.points) return;
 
     this.scene.remove(this.astrocyteCloud.points);
     this.astrocyteCloud = null;

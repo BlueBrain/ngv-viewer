@@ -128,7 +128,7 @@
       },
 
       hideLayersChanged() {
-        store.$dispatch('astrocyteLayerFilterChanged', this.layersSelected);
+        store.$dispatch('layerFilterChanged', this.layersSelected);
       },
     },
   };
@@ -169,7 +169,7 @@
     border: 1px solid #838383;
 
     small {
-      padding: 0 6px;
+      padding: 0 8px;
       min-width: 20px;
     }
 

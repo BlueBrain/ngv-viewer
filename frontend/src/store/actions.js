@@ -914,21 +914,17 @@ const actions = {
     }
     astrocytes.positions = somas.positions;
     astrocytes.ids = somas.ids;
-    astrocytes.fullLayersArray = somas.layers;
+    astrocytes.layers = somas.layers;
 
     store.$emit('loadAstrocytesSomas', somas);
   },
 
 
-  astrocyteLayerFilterChanged(store, layers) {
-    const { astrocytes } = store.state.circuit;
-    const somasObj = {
-      positions: astrocytes.positions,
-      layers: astrocytes.fullLayersArray,
-      filterLayers: layers,
-    };
+  layerFilterChanged(store, layers) {
+    store.state.circuit.filterLayers = layers;
     store.$emit('destroyAstrocytesCloud');
-    store.$emit('loadAstrocytesSomas', somasObj);
+    store.$emit('loadAstrocytesSomas');
+    store.$emit('redrawCircuit');
   },
 
   async efferentNeuronHovered(store, neuron) {

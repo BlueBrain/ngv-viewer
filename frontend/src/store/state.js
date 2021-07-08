@@ -29,12 +29,11 @@ const state = {
     astrocytes: {
       positions: null,
       ids: [],
-      fullLayersArray: [],
       prop: {},
       visible: true,
       selectedWithClick: null,
       raycastMapping: {},
-      filterLayers: [],
+      layers: [],
     },
 
     astrocyteSynapses: {
@@ -63,6 +62,9 @@ const state = {
     globalFilterIndex: [],
     connectionFilterIndex: [],
     simAddedNeurons: [],
+
+    filterLayers: [],
+
     color: {
       neuronProp: '',
       palette: {},
