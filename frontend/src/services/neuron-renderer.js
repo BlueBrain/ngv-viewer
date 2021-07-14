@@ -962,11 +962,12 @@ class NeuronRenderer {
   }
 
   destroyAstrocyteMicrodomain() {
-    if (!this.astrocyteMicrodomain) return;
-
-    this.scene.remove(this.astrocyteMicrodomain.mesh);
-    this.astrocyteMicrodomain = null;
+    const microdomains = this.scene.children.filter(c => c.name === 'microdomain');
+    microdomains.forEach((micro) => { // in case there was some that was not cleaned up
+      this.scene.remove(micro);
+    });
     this.toggleExtraColorPaletteLabels('MICRODOMAIN', false);
+    this.astrocyteMicrodomain = null;
     this.ctrl.renderOnce();
   }
 
