@@ -9,7 +9,7 @@ import MinSizeUintArray from '@/tools/min-size-uint-array';
 import socket from '@/services/websocket';
 import storage from '@/services/storage';
 import config from '@/config';
-import { Entity, CounterIdText } from '@/constants';
+import { Entity, CounterIdText, Mesh as MeshType } from '@/constants';
 
 // TODO: prefix events with target component's names
 const APP_VERSION = process.env.VUE_APP_VERSION;
@@ -722,7 +722,7 @@ const actions = {
     store.state.circuit.cells.selectedMorphologies = [];
 
     store.$emit('updateClipboardIds', {
-      name: CounterIdText.ASTROCYTES,
+      name: CounterIdText[MeshType.ASTROCYTES],
       data: store.state.circuit.astrocytes.ids,
     });
     store.$emit('detailedLevelChanged');
@@ -734,7 +734,7 @@ const actions = {
     store.$emit('removeCellMorphologies', (() => true));
 
     store.$emit('updateClipboardIds', {
-      name: CounterIdText.EFFERENTS,
+      name: CounterIdText[MeshType.EFFERENTS],
       data: store.state.circuit.efferentNeurons.allIds,
     });
     store.$emit('detailedLevelChanged');

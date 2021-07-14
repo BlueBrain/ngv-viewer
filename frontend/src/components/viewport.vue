@@ -17,6 +17,7 @@
 <script>
   import store from '@/store';
   import NeuronRenderer from '@/services/neuron-renderer';
+  import { Mesh as MeshType } from '@/constants';
   import BottomPanel from './viewport/bottom-panel.vue';
   import GoBackCtrl from './viewport/go-back-ctrl.vue';
   import MorphSectionPoptip from './viewport/morph-poptip.vue';
@@ -114,26 +115,26 @@
     methods: {
       onHover(obj) {
         switch (obj.type) {
-        case 'cloudNeuron': {
+        case MeshType.NEURONS: {
           const neuron = store.$get('neuron', obj.neuronIndex);
           store.$dispatch('neuronHovered', neuron);
           break;
         }
-        case 'morph': {
+        case MeshType.MORPHOLOGY: {
           store.$dispatch('morphHovered', obj);
           break;
         }
-        case 'astrocyteCloud': {
+        case MeshType.ASTROCYTES: {
           const astrocyte = store.$get('astrocyte', obj.astrocyteIndex);
           store.$dispatch('astrocyteHovered', astrocyte);
           break;
         }
-        case 'efferentNeuronCloud': {
+        case MeshType.EFFERENTS: {
           const neuron = store.$get('neuron', obj.neuronIndex);
           store.$dispatch('efferentNeuronHovered', neuron);
           break;
         }
-        case 'astrocyteSynapse': {
+        case MeshType.SYNAPSES: {
           store.$dispatch('astrocyteSynapseHovered', obj.astrocyteSynapseIndex);
           break;
         }
@@ -144,23 +145,23 @@
       },
       onHoverEnd(obj) {
         switch (obj.type) {
-        case 'cloudNeuron': {
+        case MeshType.NEURONS: {
           store.$dispatch('neuronHoverEnded');
           break;
         }
-        case 'morph': {
+        case MeshType.MORPHOLOGY: {
           store.$dispatch('morphHoverEnded');
           break;
         }
-        case 'astrocyteCloud': {
+        case MeshType.ASTROCYTES: {
           store.$dispatch('astrocyteHoveredEnded');
           break;
         }
-        case 'efferentNeuronCloud': {
+        case MeshType.EFFERENTS: {
           store.$dispatch('efferentNeuronHoveredEnded');
           break;
         }
-        case 'astrocyteSynapse': {
+        case MeshType.SYNAPSES: {
           store.$dispatch('astrocyteSynapseHoveredEnded');
           break;
         }
@@ -171,21 +172,21 @@
       },
       onClick(obj) {
         switch (obj.type) {
-        case 'neuronCloud': {
+        case MeshType.NEURONS: {
           const neuron = store.$get('neuron', obj.index);
           store.$dispatch('neuronClicked', neuron);
           break;
         }
-        case 'morph': {
+        case MeshType.MORPHOLOGY: {
           store.$dispatch('morphClicked', obj);
           break;
         }
-        case 'astrocyteCloud': {
+        case MeshType.ASTROCYTES: {
           const astrocyte = store.$get('astrocyte', obj.index);
           store.$dispatch('astrocyteClicked', astrocyte);
           break;
         }
-        case 'efferentNeurons': {
+        case MeshType.EFFERENTS: {
           store.$dispatch('efferentNeuronClicked', obj.index);
           break;
         }

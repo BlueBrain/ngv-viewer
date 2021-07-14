@@ -63,7 +63,7 @@
   import * as chroma from 'chroma-js';
 
   import store from '@/store';
-  import { ColorConvention, CurrentDetailedLevel } from '@/constants.js';
+  import { ColorConvention, CurrentDetailedLevel, Mesh } from '@/constants.js';
 
   export default {
     name: 'color-palette',
@@ -85,7 +85,7 @@
       store.$on('initNeuronColor', this.generatePalette);
       store.$on('detailedLevelChanged', () => {
         this.showLayerCheckboxes = !!store.state.currentDetailedLevel
-          && store.state.currentDetailedLevel === CurrentDetailedLevel.ASTROCYTES;
+          && store.state.currentDetailedLevel === CurrentDetailedLevel[Mesh.ASTROCYTES];
       });
 
       store.$on('updateExtraColorPalette', this.generateExtraPalette);

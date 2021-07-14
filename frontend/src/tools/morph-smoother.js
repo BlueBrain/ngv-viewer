@@ -6,7 +6,7 @@ Taken from https://bbpcode.epfl.ch/source/xref/platform/SupplementaryMaterialWeb
 
 import * as THREE from 'three';
 import utils from '@/tools/neuron-renderer-utils';
-import { NeuronParts } from '@/constants';
+import { NeuronParts, Mesh as MeshType } from '@/constants';
 
 export default function createMorph(morphData, hoverInfo) {
     const data = morphData;
@@ -18,7 +18,7 @@ export default function createMorph(morphData, hoverInfo) {
     const morphSoma = data.sections.filter(s => s.type === NeuronParts.SOMA);
     const morphologyObj = new THREE.Object3D();
     const meshInfo = {
-        name: 'morph', // for hover
+        name: MeshType.MORPHOLOGY, // for hover
         userData: { ...hoverInfo },
     };
 

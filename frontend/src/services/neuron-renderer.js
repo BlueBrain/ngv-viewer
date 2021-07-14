@@ -148,7 +148,7 @@ class NeuronRenderer {
     this.neuronCloud.points.matrixAutoUpdate = false;
     this.neuronCloud.points.updateMatrix();
 
-    this.neuronCloud.points.name = 'neuronCloud';
+    this.neuronCloud.points.name = MeshType.NEURONS;
     this.neuronCloud.points.frustumCulled = false;
     this.neuronCloud.points.visible = store.state.circuit.cells.visible;
   }
@@ -341,23 +341,23 @@ class NeuronRenderer {
 
   onHover(mesh) {
     switch (mesh.object.name) {
-    case 'neuronCloud': {
+    case MeshType.NEURONS: {
       this.onNeuronHover(mesh.index);
       break;
     }
-    case 'morph': {
+    case MeshType.MORPHOLOGY: {
       this.onMorphHover(mesh);
       break;
     }
-    case 'astrocyteCloud': {
+    case MeshType.ASTROCYTES: {
       this.onAstrocyteHover(mesh.index);
       break;
     }
-    case 'efferentNeurons': {
+    case MeshType.EFFERENTS: {
       this.onEfferentNeuronHover(mesh.index);
       break;
     }
-    case 'astrocyteSynapses': {
+    case MeshType.SYNAPSES: {
       this.onAstrocyteSynapseHover(mesh.index);
       break;
     }
@@ -369,23 +369,23 @@ class NeuronRenderer {
 
   onHoverEnd(mesh) {
     switch (mesh.object.name) {
-    case 'neuronCloud': {
+    case MeshType.NEURONS: {
       this.onNeuronHoverEnd(mesh.index);
       break;
     }
-    case 'morph': {
+    case MeshType.MORPHOLOGY: {
       this.onMorphHoverEnd(mesh);
       break;
     }
-    case 'astrocyteCloud': {
+    case MeshType.ASTROCYTES: {
       this.onAstrocyteHoverEnd(mesh.index);
       break;
     }
-    case 'efferentNeurons': {
+    case MeshType.EFFERENTS: {
       this.onEfferentNeuronHoverEnd(mesh.index);
       break;
     }
-    case 'astrocyteSynapses': {
+    case MeshType.SYNAPSES: {
       this.onAstrocyteSynapseHoverEnd(mesh.index);
       break;
     }
@@ -397,7 +397,7 @@ class NeuronRenderer {
 
   onNeuronHover(neuronIndex) {
     this.onHoverExternalHandler({
-      type: 'cloudNeuron',
+      type: MeshType.NEURONS,
       neuronIndex,
     });
 
@@ -416,7 +416,7 @@ class NeuronRenderer {
   onNeuronHoverEnd(neuronIndex) {
     this.onHoverEndExternalHandler({
       neuronIndex,
-      type: 'cloudNeuron',
+      type: MeshType.NEURONS,
     });
 
     this.neuronCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
@@ -441,7 +441,7 @@ class NeuronRenderer {
     this.scene.add(this.hoverBox);
 
     this.onHoverExternalHandler({
-      type: 'morph',
+      type: MeshType.MORPHOLOGY,
       data: mesh.object.userData,
     });
 
@@ -492,7 +492,7 @@ class NeuronRenderer {
       mesh: null,
     };
 
-    const vasculatureColors = ColorConvention.extraPalette.VASCULATURE;
+    const vasculatureColors = ColorConvention.extraPalette[MeshType.VASCULATURE];
 
     const onLoad = (gltf) => {
       const newMat = new MeshLambertMaterial({
@@ -503,7 +503,7 @@ class NeuronRenderer {
       mesh.geometry.computeFaceNormals();
       mesh.geometry.computeVertexNormals();
       mesh.material = newMat;
-      mesh.name = 'vasculature';
+      mesh.name = MeshType.VASCULATURE;
       mesh.visible = store.state.circuit.vasculature.visible;
       this.vasculatureCloud.mesh = mesh;
       store.$emit('vasculatureLoaded');
@@ -524,7 +524,7 @@ class NeuronRenderer {
     this.vasculatureCloud.mesh.visible = vasculature.visible;
     this.scene.add(this.vasculatureCloud.mesh);
     this.ctrl.renderOnce();
-    this.toggleExtraColorPaletteLabels('VASCULATURE', true);
+    this.toggleExtraColorPaletteLabels(MeshType.VASCULATURE, true);
   }
 
   hideVasculatureCloud() {
@@ -533,13 +533,13 @@ class NeuronRenderer {
     this.vasculatureCloud.mesh.visible = vasculature.visible;
     this.scene.remove(this.vasculatureCloud.mesh);
     this.ctrl.renderOnce();
-    this.toggleExtraColorPaletteLabels('VASCULATURE', false);
+    this.toggleExtraColorPaletteLabels(MeshType.VASCULATURE, false);
   }
 
   onAstrocyteHover(raycastIndex) {
     const astrocyteIndex = store.state.circuit.astrocytes.raycastMapping[raycastIndex];
     this.onHoverExternalHandler({
-      type: 'astrocyteCloud',
+      type: MeshType.ASTROCYTES,
       astrocyteIndex,
     });
 
@@ -557,7 +557,7 @@ class NeuronRenderer {
 
   onAstrocyteHoverEnd(astrocyteIndex) {
     this.onHoverEndExternalHandler({
-      type: 'astrocyteCloud',
+      type: MeshType.ASTROCYTES,
       astrocyteIndex,
     });
 
@@ -590,7 +590,7 @@ class NeuronRenderer {
     const { visible } = store.state.circuit.astrocytes;
     const { filterLayers } = store.state.circuit;
 
-    store.state.currentDetailedLevel = CurrentDetailedLevel.ASTROCYTES;
+    store.state.currentDetailedLevel = CurrentDetailedLevel[MeshType.ASTROCYTES];
 
     const colorPalette = store.state.circuit.color.palette;
     const newPositions = [];
@@ -628,14 +628,14 @@ class NeuronRenderer {
 
     this.astrocyteCloud.points = new Points(geometry, this.pointAstrocyteCloudMaterial);
 
-    this.astrocyteCloud.points.name = 'astrocyteCloud';
+    this.astrocyteCloud.points.name = MeshType.ASTROCYTES;
     this.astrocyteCloud.points.frustumCulled = false;
     this.astrocyteCloud.points.visible = store.state.circuit.astrocytes.visible;
     this.scene.add(this.astrocyteCloud.points);
     this.ctrl.renderOnce();
 
     store.$emit('updateClipboardIds', {
-      name: CounterIdText.ASTROCYTES,
+      name: CounterIdText[MeshType.ASTROCYTES],
       data: newPositions,
     });
     store.$emit('detailedLevelChanged');
@@ -662,7 +662,7 @@ class NeuronRenderer {
   createEfferentNeurons(efferentNeuronIds) {
     this.hideNeuronCloud();
     this.hideAstrocyteCloud();
-    store.state.currentDetailedLevel = CurrentDetailedLevel.EFFERENTS;
+    store.state.currentDetailedLevel = CurrentDetailedLevel[MeshType.EFFERENTS];
     store.state.circuit.efferentNeurons.allIds = efferentNeuronIds;
 
     const effNeuronInsideVascIds = [];
@@ -702,7 +702,7 @@ class NeuronRenderer {
     effNeuronMaterial.size = store.state.circuit.somaSize;
 
     this.efferentNeuronsCloud.points = new Points(effNeuronGeometry, effNeuronMaterial);
-    this.efferentNeuronsCloud.points.name = 'efferentNeurons';
+    this.efferentNeuronsCloud.points.name = MeshType.EFFERENTS;
     this.efferentNeuronsCloud.points.visible = true;
     store.state.circuit.efferentNeurons.raycastMapping = raycastMapping;
 
@@ -710,7 +710,7 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
 
     store.$emit('updateClipboardIds', {
-      name: CounterIdText.EFFERENTS,
+      name: CounterIdText[MeshType.EFFERENTS],
       data: efferentNeuronIds,
     });
     store.$emit('detailedLevelChanged');
@@ -744,7 +744,7 @@ class NeuronRenderer {
   onEfferentNeuronHover(raycastIndex) {
     const neuronIndex = store.state.circuit.efferentNeurons.raycastMapping[raycastIndex];
     this.onHoverExternalHandler({
-      type: 'efferentNeuronCloud',
+      type: MeshType.EFFERENTS,
       neuronIndex,
       raycastIndex,
     });
@@ -764,7 +764,7 @@ class NeuronRenderer {
   onEfferentNeuronHoverEnd(raycastIndex) {
     this.onHoverEndExternalHandler({
       raycastIndex,
-      type: 'efferentNeuronCloud',
+      type: MeshType.EFFERENTS,
     });
 
     this.efferentNeuronsCloud.colorBufferAttr.setXYZ(...this.hoveredNeuron);
@@ -810,7 +810,7 @@ class NeuronRenderer {
     const vertices = new Float32BufferAttribute(microdomainObj.vertices.flat(), 3);
     microdomainGeometry.setAttribute('position', vertices);
     const material = new MeshLambertMaterial({
-      color: ColorConvention.extraPalette.MICRODOMAIN.color,
+      color: ColorConvention.extraPalette[MeshType.MICRODOMAIN].color,
       transparent: true,
       opacity: store.state.circuit.microdomain.opacity / 100,
       side: DoubleSide,
@@ -820,11 +820,11 @@ class NeuronRenderer {
     this.astrocyteMicrodomain = {};
     this.astrocyteMicrodomain.mesh = new Mesh(microdomainGeometry, material);
     this.astrocyteMicrodomain.mesh.renderOrder = 1;
-    this.astrocyteMicrodomain.mesh.name = 'microdomain';
+    this.astrocyteMicrodomain.mesh.name = MeshType.MICRODOMAIN;
     this.astrocyteMicrodomain.mesh.visible = store.state.circuit.microdomain.visible;
     this.scene.add(this.astrocyteMicrodomain.mesh);
     this.ctrl.renderOnce();
-    this.toggleExtraColorPaletteLabels('MICRODOMAIN', true);
+    this.toggleExtraColorPaletteLabels(MeshType.MICRODOMAIN, true);
   }
 
   changeMicrodomainOpacity() {
@@ -837,7 +837,7 @@ class NeuronRenderer {
     material.opacity = microdomain.opacity / 100;
     this.astrocyteMicrodomain.mesh.visible = microdomain.visible;
     this.ctrl.renderOnce();
-    this.toggleExtraColorPaletteLabels('MICRODOMAIN', microdomain.visible);
+    this.toggleExtraColorPaletteLabels(MeshType.MICRODOMAIN, microdomain.visible);
   }
 
   destroyAstrocyteMicrodomain() {
@@ -845,7 +845,7 @@ class NeuronRenderer {
     microdomains.forEach((micro) => { // in case there was some that was not cleaned up
       this.scene.remove(micro);
     });
-    this.toggleExtraColorPaletteLabels('MICRODOMAIN', false);
+    this.toggleExtraColorPaletteLabels(MeshType.MICRODOMAIN, false);
     this.astrocyteMicrodomain = null;
     this.ctrl.renderOnce();
   }
@@ -909,7 +909,7 @@ class NeuronRenderer {
       loadedVasculature.position.y,
       loadedVasculature.position.z,
     );
-    this.boundingVasculature.mesh.name = 'boundingVasculature';
+    this.boundingVasculature.mesh.name = MeshType.BOUNDING_VASCULATURE;
     this.boundingVasculature.mesh.renderOrder = 2;
     this.renderer.localClippingEnabled = true;
 
@@ -921,7 +921,7 @@ class NeuronRenderer {
     if (!this.boundingVasculature) return;
 
     this.scene.remove(this.boundingVasculature.mesh);
-    this.toggleExtraColorPaletteLabels('VASCULATURE', false);
+    this.toggleExtraColorPaletteLabels(MeshType.VASCULATURE, false);
     this.boundingVasculature = null;
     this.ctrl.renderOnce();
   }
@@ -938,7 +938,7 @@ class NeuronRenderer {
       this.scene.add(this.boundingVasculature.mesh);
     }
 
-    const vasculatureInScene = this.scene.children.filter(c => c.name === 'boundingVasculature');
+    const vasculatureInScene = this.scene.children.filter(c => c.name === MeshType.BOUNDING_VASCULATURE);
     if (!vasculatureInScene.length) {
       this.scene.add(this.boundingVasculature.mesh);
     }
@@ -948,7 +948,7 @@ class NeuronRenderer {
     material.opacity = boundingVasculature.opacity / 100;
     this.boundingVasculature.mesh.visible = boundingVasculature.visible;
     this.ctrl.renderOnce();
-    this.toggleExtraColorPaletteLabels('VASCULATURE', true);
+    this.toggleExtraColorPaletteLabels(MeshType.VASCULATURE, true);
   }
 
   getSelectedEfferentNeuron3DObject() {
@@ -972,14 +972,14 @@ class NeuronRenderer {
   showSynapseLocations(synapses) {
     // raycast shows different index than the neuron
     store.state.circuit.astrocyteSynapses.raycastMapping = { ...synapses.ids };
-    store.state.currentDetailedLevel = CurrentDetailedLevel.SYNAPSES;
+    store.state.currentDetailedLevel = CurrentDetailedLevel[MeshType.SYNAPSES];
 
     const synapseLocations = synapses.locations;
     const synapsePoints = synapseLocations.flat();
 
-    const synColor = new Color(ColorConvention.extraPalette.SYNAPSES.color);
+    const synColor = new Color(ColorConvention.extraPalette[MeshType.SYNAPSES].color);
     const synapseColor = synapseLocations.map(() => [synColor.r, synColor.g, synColor.b]).flat();
-    ColorConvention.extraPalette.SYNAPSES.visible = true;
+    ColorConvention.extraPalette[MeshType.SYNAPSES].visible = true;
 
     this.astrocyteSynapsesCloud = {
       positionBufferAttr: new Float32BufferAttribute(synapsePoints, 3),
@@ -990,7 +990,7 @@ class NeuronRenderer {
     astrocyteSynapseGeometry.setAttribute('color', this.astrocyteSynapsesCloud.colorBufferAttr);
 
     this.astrocyteSynapsesCloud.points = new Points(astrocyteSynapseGeometry, this.pointCloudMaterial.clone());
-    this.astrocyteSynapsesCloud.points.name = 'astrocyteSynapses';
+    this.astrocyteSynapsesCloud.points.name = MeshType.SYNAPSES;
 
     this.efferentNeuronSelected = this.getSelectedEfferentNeuron3DObject();
 
@@ -999,11 +999,11 @@ class NeuronRenderer {
     this.ctrl.renderOnce();
 
     store.$emit('updateClipboardIds', {
-      name: CounterIdText.SYNAPSES,
+      name: CounterIdText[MeshType.SYNAPSES],
       data: synapses.ids,
     });
     store.$emit('detailedLevelChanged');
-    this.toggleExtraColorPaletteLabels('SYNAPSES', true);
+    this.toggleExtraColorPaletteLabels(MeshType.SYNAPSES, true);
   }
 
   destroySynapseLocations() {
@@ -1014,14 +1014,14 @@ class NeuronRenderer {
     this.astrocyteSynapsesCloud = null;
     this.efferentNeuronSelected = null;
     this.ctrl.renderOnce();
-    this.toggleExtraColorPaletteLabels('SYNAPSES', false);
+    this.toggleExtraColorPaletteLabels(MeshType.SYNAPSES, false);
   }
 
   onAstrocyteSynapseHover(raycastIndex) {
     const astrocyteSynapseIndex = store.state.circuit.astrocyteSynapses.raycastMapping[raycastIndex];
     this.onHoverExternalHandler({
       astrocyteSynapseIndex,
-      type: 'astrocyteSynapse',
+      type: MeshType.SYNAPSES,
     });
 
     this.hoveredSynapse = [
@@ -1040,7 +1040,7 @@ class NeuronRenderer {
     const astrocyteSynapseIndex = store.state.circuit.astrocyteSynapses.raycastMapping[raycastIndex];
     this.onHoverEndExternalHandler({
       astrocyteSynapseIndex,
-      type: 'astrocyteSynapse',
+      type: MeshType.SYNAPSES,
     });
 
     this.astrocyteSynapsesCloud.colorBufferAttr.setXYZ(...this.hoveredSynapse);

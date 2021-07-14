@@ -64,7 +64,7 @@
           const neuronToggle = meshes.find(m => m.name === Mesh.NEURONS);
           const astrocyteToggle = meshes.find(m => m.name === Mesh.ASTROCYTES);
 
-          if (store.state.currentDetailedLevel === CurrentDetailedLevel.ASTROCYTES) {
+          if (store.state.currentDetailedLevel === CurrentDetailedLevel[Mesh.ASTROCYTES]) {
             neuronToggle.disabled = false;
             astrocyteToggle.disabled = false;
             astrocyteToggle.visible = true;

@@ -12,7 +12,7 @@
 
 <script>
   import store from '@/store';
-  import { CurrentDetailedLevel } from '@/constants';
+  import { CurrentDetailedLevel, Mesh } from '@/constants';
 
   export default {
     name: 'go-back-ctrl',
@@ -24,18 +24,18 @@
     mounted() {
       store.$on('detailedLevelChanged', () => {
         this.showBackArrow = !!store.state.currentDetailedLevel
-          && store.state.currentDetailedLevel !== CurrentDetailedLevel.ASTROCYTES;
+          && store.state.currentDetailedLevel !== CurrentDetailedLevel[Mesh.ASTROCYTES];
       });
     },
     methods: {
       goBack() {
         switch (store.state.currentDetailedLevel) {
-        case CurrentDetailedLevel.EFFERENTS:
-          store.state.currentDetailedLevel = CurrentDetailedLevel.ASTROCYTES;
+        case CurrentDetailedLevel[Mesh.EFFERENTS]:
+          store.state.currentDetailedLevel = CurrentDetailedLevel[Mesh.ASTROCYTES];
           store.$dispatch('goToAstrocyteDetailedLevel');
           break;
-        case CurrentDetailedLevel.SYNAPSES:
-          store.state.currentDetailedLevel = CurrentDetailedLevel.EFFERENTS;
+        case CurrentDetailedLevel[Mesh.SYNAPSES]:
+          store.state.currentDetailedLevel = CurrentDetailedLevel[Mesh.EFFERENTS];
           store.$dispatch('goToEfferentDetailedLevel');
           break;
         default:

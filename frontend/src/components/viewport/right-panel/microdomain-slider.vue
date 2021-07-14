@@ -15,7 +15,7 @@
 
 <script>
   import store from '@/store';
-  import { CurrentDetailedLevel } from '@/constants';
+  import { CurrentDetailedLevel, Mesh } from '@/constants';
 
   export default {
     name: 'microdomain-slider',
@@ -29,7 +29,7 @@
     mounted() {
       store.$on('detailedLevelChanged', () => {
         const microdomainIsVisible = !!store.state.currentDetailedLevel
-          && store.state.currentDetailedLevel !== CurrentDetailedLevel.ASTROCYTES;
+          && store.state.currentDetailedLevel !== CurrentDetailedLevel[Mesh.ASTROCYTES];
         this.show = microdomainIsVisible;
         this.opacity = this.storeMicrodomain.opacity;
 

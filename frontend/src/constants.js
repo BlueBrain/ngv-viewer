@@ -8,6 +8,11 @@ export const Mesh = {
   NEURONS: 'neurons',
   ASTROCYTES: 'astrocytes',
   VASCULATURE: 'vasculature',
+  MICRODOMAIN: 'microdomain',
+  SYNAPSES: 'synapses',
+  EFFERENTS: 'efferent neurons',
+  BOUNDING_VASCULATURE: 'bounding vasculature',
+  MORPHOLOGY: 'morphology',
 };
 
 export const ColorConvention = {
@@ -20,18 +25,18 @@ export const ColorConvention = {
     6: '#6CE662',
   },
   extraPalette: {
-    VASCULATURE: {
+    [Mesh.VASCULATURE]: {
       color: '#993433',
       background: '#7F0000',
       name: 'Vasculature',
       visible: false,
     },
-    SYNAPSES: {
+    [Mesh.SYNAPSES]: {
       color: '#FFCB00',
       name: 'Synapses',
       visible: false,
     },
-    MICRODOMAIN: {
+    [Mesh.MICRODOMAIN]: {
       color: '#3bbfe3',
       name: 'Microdomain',
       visible: false,
@@ -40,20 +45,20 @@ export const ColorConvention = {
 };
 
 export const CurrentDetailedLevel = {
-  ASTROCYTES: 'astrocytes', // initial page
-  EFFERENTS: 'efferents', // after clicking an astrocyte
-  SYNAPSES: 'synapses', // after selecting efferent
+  [Mesh.ASTROCYTES]: Mesh.ASTROCYTES, // initial page
+  [Mesh.EFFERENTS]: Mesh.EFFERENTS, // after clicking an astrocyte
+  [Mesh.SYNAPSES]: Mesh.SYNAPSES, // after selecting efferent
 };
 
 export const CounterIdText = {
-  ASTROCYTES: 'astrocytes',
-  EFFERENTS: 'efferent neurons',
-  SYNAPSES: 'synapses',
+  [Mesh.ASTROCYTES]: Mesh.ASTROCYTES,
+  [Mesh.EFFERENTS]: Mesh.EFFERENTS,
+  [Mesh.SYNAPSES]: Mesh.SYNAPSES,
 };
 
 export const PageHelperTitleText = {
-  [CurrentDetailedLevel.ASTROCYTES]: 'Select Astrocyte',
-  [CurrentDetailedLevel.EFFERENTS]: 'Select Efferent Neuron',
+  [Mesh.ASTROCYTES]: 'Select Astrocyte',
+  [Mesh.EFFERENTS]: 'Select Efferent Neuron',
 };
 
 export const NeuronParts = {
