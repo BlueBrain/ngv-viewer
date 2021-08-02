@@ -215,6 +215,7 @@ class NeuronRenderer {
       toRemove.forEach(o => utils.disposeMesh(o));
     });
 
+    store.state.circuit.cells.selectedMorphologies = [];
     this.ctrl.renderOnce();
   }
 
