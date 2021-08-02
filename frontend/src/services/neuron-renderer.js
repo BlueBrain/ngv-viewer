@@ -262,9 +262,7 @@ class NeuronRenderer {
     renderer.setSize(clientWidth * 3, clientHeight * 3);
 
     renderer.render(this.scene, this.camera);
-    const circuitName = process.env.VUE_APP_CIRCUIT_NAME;
-    const timestamp = Date.now();
-    const fileName = `${circuitName}__${timestamp}.png`;
+    const fileName = 'ngv_viewer_screenshot.png';
     renderer.domElement.toBlob(blob => saveAs(blob, fileName));
     renderer.dispose();
   }
