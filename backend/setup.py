@@ -14,7 +14,7 @@ setup(
     install_requires=[
         'tornado>=6.0.4',
         'redis>=3.5.3',
-        'archngv>=1.0.1',
+        'archngv==1.1.0',
         'morph-tool>=0.2.3',
     ],
     maintainer='Stefano Antonel',
