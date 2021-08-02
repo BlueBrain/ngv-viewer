@@ -2,7 +2,7 @@
 <template>
   <div class="local-vasculature-slider-container">
     <div class="ctrl-background" v-if="show">
-      <span><strong>local vasculature opacity</strong></span>
+      <span><strong>{{SliderNames.LOCAL_VASCULATURE}}</strong></span>
       <Slider
         v-model="opacity"
         class="custom-slider"
@@ -15,7 +15,7 @@
 
 <script>
   import store from '@/store';
-  import { CurrentDetailedLevel, Mesh } from '@/constants';
+  import { CurrentDetailedLevel, Mesh, SliderNames } from '@/constants';
 
   export default {
     name: 'local-vasculature-slider',
@@ -24,6 +24,7 @@
         opacity: 0,
         show: false,
         boundingVasculature: store.state.circuit.boundingVasculature,
+        SliderNames,
       };
     },
     mounted() {

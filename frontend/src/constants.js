@@ -5,14 +5,14 @@ export const Entity = {
 };
 
 export const Mesh = {
-  NEURONS: 'neurons',
-  ASTROCYTES: 'astrocytes',
-  VASCULATURE: 'vasculature',
-  MICRODOMAIN: 'microdomain',
-  SYNAPSES: 'synapses',
-  EFFERENTS: 'efferent neurons',
-  BOUNDING_VASCULATURE: 'bounding vasculature',
-  MORPHOLOGY: 'morphology',
+  NEURONS: 'Neurons',
+  ASTROCYTES: 'Astrocytes',
+  VASCULATURE: 'Vasculature',
+  MICRODOMAIN: 'Microdomain',
+  SYNAPSES: 'Synapses',
+  EFFERENTS: 'Efferent neurons',
+  BOUNDING_VASCULATURE: 'Bounding vasculature',
+  MORPHOLOGY: 'Morphology',
 };
 
 export const ColorConvention = {
@@ -66,6 +66,12 @@ export const NeuronParts = {
   AXON: 'axon',
   APIC: 'apic',
   DEND: 'dend',
+};
+
+export const SliderNames = {
+  LOCAL_VASCULATURE: 'Local vasculature opacity',
+  HIDE_SHOW: 'Hide / Show',
+  MICRODOMAIN: 'Microdomain opacity',
 };
 
 export default {

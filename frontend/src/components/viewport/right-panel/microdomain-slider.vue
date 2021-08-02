@@ -2,7 +2,7 @@
 <template>
   <div class="microdomain-slider-container">
     <div class="ctrl-background" v-if="show">
-      <span><strong>microdomain opacity</strong></span>
+      <span><strong>{{SliderNames.MICRODOMAIN}}</strong></span>
       <Slider
         v-model="opacity"
         class="custom-slider"
@@ -15,7 +15,7 @@
 
 <script>
   import store from '@/store';
-  import { CurrentDetailedLevel, Mesh } from '@/constants';
+  import { CurrentDetailedLevel, Mesh, SliderNames } from '@/constants';
 
   export default {
     name: 'microdomain-slider',
@@ -24,6 +24,7 @@
         opacity: 0,
         show: false,
         storeMicrodomain: store.state.circuit.microdomain,
+        SliderNames,
       };
     },
     mounted() {

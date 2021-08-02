@@ -2,7 +2,7 @@
 <template>
   <div class="mesh-toggle-main">
     <div class="container ctrl-background">
-      <span><strong>hide / show</strong></span>
+      <span><strong>{{SliderNames.HIDE_SHOW}}</strong></span>
       <div
         class="row"
         v-for="mesh in meshes"
@@ -28,7 +28,7 @@
 
 <script>
   import store from '@/store';
-  import { Mesh, CurrentDetailedLevel } from '@/constants';
+  import { Mesh, CurrentDetailedLevel, SliderNames } from '@/constants';
 
 
   export default {
@@ -36,6 +36,7 @@
     data() {
       return {
         meshes: [],
+        SliderNames,
       };
     },
     mounted() {
