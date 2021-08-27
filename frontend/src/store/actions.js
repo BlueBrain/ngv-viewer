@@ -480,7 +480,7 @@ const actions = {
       const processMicrodomain = (microdomainObj) => {
         storage.setItem(`microdomain:${astrocyte.idx}`, microdomainObj);
         store.$emit('createAstrocyteMicrodomain', microdomainObj);
-        store.$off('ws:astrocyte_microdomain', astrocyteMicrodomain);
+        store.$off('ws:astrocyte_microdomain', processMicrodomain);
         resolve();
       };
 

@@ -840,7 +840,7 @@ class NeuronRenderer {
   }
 
   destroyAstrocyteMicrodomain() {
-    const microdomains = this.scene.children.filter(c => c.name === 'microdomain');
+    const microdomains = this.scene.children.filter(c => c.name === MeshType.MICRODOMAIN);
     microdomains.forEach((micro) => { // in case there was some that was not cleaned up
       this.scene.remove(micro);
     });
