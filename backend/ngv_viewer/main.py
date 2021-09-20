@@ -231,9 +231,17 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.closed = True
 
 
+class StatusHandler(tornado.web.RequestHandler):
+    def get(self):
+        L.debug('show status page')
+        from .tests import test_circuit
+        status = test_circuit(STORAGE)
+        self.write(status)
+
 if __name__ == '__main__':
     app = tornado.web.Application([
         (r'/ws', WSHandler),
+        (r'/status', StatusHandler),
     ], debug=os.getenv('DEBUG', False))
     L.debug('starting tornado io loop')
     app.listen(8000)

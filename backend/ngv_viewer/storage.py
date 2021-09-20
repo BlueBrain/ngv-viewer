@@ -83,13 +83,15 @@ class Storage():
                 })
 
                 cache.set('cell:morph:{}'.format(gid), morphology)
-                
-                orientation = circuit.neurons.orientations(group=gid)
+            else:
+                L.debug('using cached morphology')
+                morphology = cell_morph
 
-                cells[gid] = {
-                    'sections': morphology,
-                    'orientation': orientation
-                }
+            orientation = circuit.neurons.orientations(group=gid)
+            cells[gid] = {
+                'sections': morphology,
+                'orientation': orientation
+            }
         L.debug('getting cell morph for %s done', gids)
         return {'cells': cells}
 
