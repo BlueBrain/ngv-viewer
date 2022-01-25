@@ -4,6 +4,7 @@ import logging
 import numpy as np
 
 import archngv
+from archngv.spatial import BoundingBox
 
 from .redis_client import RedisClient
 
@@ -51,7 +52,7 @@ class Storage():
                 'morphology','mtype','orientation','orientation_w','orientation_x',
                 'orientation_y', 'orientation_z', 'region', 'synapse_class',
             ]
-            cells = circuit.neurons.get(neuron_ids).drop(columns_to_drop, 1, errors='ignore');
+            cells = circuit.neurons.get(neuron_ids).drop(columns=columns_to_drop, axis=1, errors='ignore')
             cache.set('circuit:cells', cells)
         L.debug('getting cells done')
         return cells
@@ -171,7 +172,7 @@ class Storage():
         morph_dict = cache.get('astrocyte:morph:{}'.format(astrocyte_id))
         if morph_dict is None:
             circuit = get_circuit(circuit_path)
-            astrocyte_morph = circuit.astrocytes.morph.get(astrocyte_id)
+            astrocyte_morph = circuit.astrocytes.morph.get(astrocyte_id, extension="h5")
             simplified_morph = simplify_neuron(astrocyte_morph, epsilon=0.5)
             morph_dict = {
                 'sections': simplified_morph,
@@ -223,7 +224,8 @@ class Storage():
     def get_full_vasculature_bounding_box(self, circuit_path):
         L.debug('getting full vasculature bounding box')
         circuit = get_circuit(circuit_path)
-        bbox = circuit.vasculature.morph.bounding_box
+        vasculature_points = circuit.vasculature.morph.points
+        bbox = BoundingBox.from_points(vasculature_points)
         max_list = bbox.max_point.tolist()
         min_list = bbox.min_point.tolist()
 

@@ -14,9 +14,9 @@ setup(
     install_requires=[
         'tornado>=6.0.4',
         'redis>=3.5.3',
-        'archngv==1.1.0',
+        'archngv>=1.5.0',
         'morph-tool>=0.2.3',
-        'bluepysnap==0.12.1',
+        'bluepysnap>=0.12.1',
     ],
     maintainer='Stefano Antonel',
     maintainer_email='stefano.antonel@epfl.ch',
