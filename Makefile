@@ -1,9 +1,4 @@
-.PHONY: help test build release run_dev_backend run_dev_frontend docker_push_latest deploy create_oo_deployment
-
-APP_NAME_PREFIX?=ngv-viewer
-APP_DNS_BASE?=ocp.bbp.epfl.ch
-OO_PROJECT?=bbp-ou-nse
-DOCKER_REGISTRY_HOST?=docker-registry-default.ocp.bbp.epfl.ch
+.PHONY: help test build release run_dev_backend run_dev_frontend docker_push_latest deploy
 
 VERSION:=$(shell cat VERSION)
 export VERSION
@@ -13,7 +8,6 @@ Makefile usage
  Targets:
     run_dev_backend       Run development instance of the backend.
     run_dev_frontend      Run development instance of the frontend.
-    create_oo_deployment  Create OpenShift deployment.
     test                  Test and compile packages, rebuild docker images locally(latest tag).
     build                 Same as test. If VERSION has not been previously git tagged:
                             git tag it and push this version to docker registry.

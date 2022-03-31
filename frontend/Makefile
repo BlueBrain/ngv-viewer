@@ -6,7 +6,7 @@ NODE_MODULES:=node_modules
 
 SINGLE_CIRCUIT?=ngv-20201027
 
-APP_NAME?=ngv-viewer-ui
+IMAGE_NAME?=ngv-viewer-ui
 SERVER_HOST:=ngv-viewer.ocp.bbp.epfl.ch
 SERVER_PORT:=80
 
@@ -20,11 +20,9 @@ Makefile usage
  Targets:
     run_dev               Run development web server.
     build                 Build web app into dist folder.
-    docker_build_version  Build frontend local docker image with the version tag.
     docker_build_latest   Build frontend local docker image with the latest tag.
-    docker_push_version   Tag docker image with version and push to OpenShift registy.
-    docker_push_latest    Tag docker image with latest and push to OpenShift registy
-                            This will result in the updated frontend running in OpenShift.
+    docker_push_latest    Tag docker image with latest and push to the registy.
+    docker_push_only      Tag and push to the registry.
 endef
 export HELPTEXT
 
@@ -47,28 +45,18 @@ build: | $(NODE_MODULES)
 	VUE_APP_BASE_URL=$(PROD_BASE_URL) \
 	npm run build --modern
 
-docker_build_version: build
-	docker build -t $(APP_NAME):$(VERSION) \
-		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
-		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
-		.
-
 docker_build_latest: build
-	docker build -t $(APP_NAME):latest \
+	docker build -t $(IMAGE_NAME):$(TAG) \
 		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
 		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
 		.
-
-docker_push_version: docker_build_version
-	docker tag $(APP_NAME):$(VERSION) $(DOCKER_REGISTRY)/$(APP_NAME):$(VERSION)
-	docker push $(DOCKER_REGISTRY)/$(APP_NAME):$(VERSION)
-	@echo 'frontend version($(VERSION)) pushed to OpenShift registy'
 
 docker_push_latest: docker_build_latest
-	docker tag $(APP_NAME):latest $(DOCKER_REGISTRY)/$(APP_NAME):latest
-	docker push $(DOCKER_REGISTRY)/$(APP_NAME):latest
+	docker tag $(IMAGE_NAME):$(TAG) $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)
 	@echo 'frontend latest version pushed to OpenShift registry.'
 	@echo 'frontend release done'
 
 docker_push_only:
-	docker push $(DOCKER_REGISTRY)/$(APP_NAME):latest
+	docker tag $(IMAGE_NAME):$(TAG) $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)

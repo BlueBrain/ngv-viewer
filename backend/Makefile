@@ -67,33 +67,21 @@ run_dev_debug:
 		$(IMAGE_NAME) \
 		-m debugpy --listen 0.0.0.0:3000 -m ngv_viewer.main
 
-docker_build_version: python_build
-	docker build -t $(IMAGE_NAME):$(VERSION) \
-		--build-arg=redis_host=$(REDIS_HOST) \
-		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
-		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
-		.
-
 docker_build_latest: python_build
-	docker build -t $(IMAGE_NAME):latest \
+	docker build -t $(IMAGE_NAME):$(TAG) \
 		--build-arg=redis_host=$(REDIS_HOST) \
 		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
 		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
 		.
-
-docker_push_version: docker_build_version
-	docker tag $(IMAGE_NAME):$(VERSION) $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(VERSION)
-	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(VERSION)
-	@echo 'backend version($(VERSION)) pushed to OpenShift registy'
 
 docker_push_latest: docker_build_latest
-	docker tag $(IMAGE_NAME):latest $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
-	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
+	docker tag $(IMAGE_NAME):$(TAG) $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)
 	@echo 'backend latest version pushed to OpenShift registry.'
 	@echo 'backend release done'
 
 docker_only_push_latest:
-	docker tag $(IMAGE_NAME):latest $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
-	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
+	docker tag $(IMAGE_NAME):$(TAG) $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(TAG)
 	@echo 'backend latest version pushed to OpenShift registry.'
 	@echo 'backend release done'
