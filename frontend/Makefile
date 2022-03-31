@@ -6,11 +6,12 @@ NODE_MODULES:=node_modules
 
 SINGLE_CIRCUIT?=ngv-20201027
 
-IMAGE_NAME?=ngv-viewer-ui
-SERVER_HOST:=ngv-viewer.ocp.bbp.epfl.ch
+IMAGE_NAME?=ngv-viewer
+TAG?=ui
+SERVER_HOST:=ngv-viewer.kcp.bbp.epfl.ch
 SERVER_PORT:=80
 
-DOCKER_REGISTRY?=docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse
+DOCKER_REGISTRY?=bbpgitlab.epfl.ch:5050/nse
 
 PROD_BASE_URL?=/ngv-viewer
 

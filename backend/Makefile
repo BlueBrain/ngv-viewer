@@ -9,9 +9,10 @@ SIM_MODELS_DIR:=tmp/sim-models
 SIM_MODELS_REPO_BASE:=ssh://bbpcode.epfl.ch/sim/models
 NEURODAMUS_CORE_REPO:=ssh://bbpcode.epfl.ch/sim/neurodamus-core
 NEURODAMUS_CORE_DIR:=tmp/neurodamus-core
-IMAGE_NAME:=ngv-viewer-svc
 
-DOCKER_REGISTRY?=docker-registry-default.ocp.bbp.epfl.ch/bbp-ou-nse
+DOCKER_REGISTRY?=bbpgitlab.epfl.ch:5050/nse
+IMAGE_NAME?=ngv-viewer
+TAG?=backend
 
 
 REDIS_HOST?=
