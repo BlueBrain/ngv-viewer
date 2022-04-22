@@ -8,8 +8,6 @@ SINGLE_CIRCUIT?=ngv-20201027
 
 IMAGE_NAME?=ngv-viewer
 TAG?=ui
-SERVER_HOST:=ngv-viewer.kcp.bbp.epfl.ch
-SERVER_PORT:=80
 
 DOCKER_REGISTRY?=bbpgitlab.epfl.ch:5050/nse
 
@@ -39,8 +37,6 @@ run_dev: | $(NODE_MODULES)
 	npm run serve
 
 build: | $(NODE_MODULES)
-	VUE_APP_SERVER_HOST=$(SERVER_HOST) \
-	VUE_APP_SERVER_PORT=$(SERVER_PORT) \
 	VUE_APP_SINGLE_CIRCUIT="${SINGLE_CIRCUIT}" \
 	VUE_APP_VERSION=$(VERSION) \
 	VUE_APP_BASE_URL=$(PROD_BASE_URL) \

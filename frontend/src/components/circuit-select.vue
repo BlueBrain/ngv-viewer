@@ -128,8 +128,6 @@
   import storage from '@/services/storage';
   import { Entity } from '@/constants';
 
-  import modelConfig from '@/../../backend/config.json';
-
   const { circuits: allCircuits } = config;
 
   const circuits = allCircuits.filter(e => e.type === Entity.CIRCUIT);
@@ -138,7 +136,6 @@
   const defaultCircuit = {
     name: '',
     path: '',
-    simModel: '',
     description: '',
   };
 
@@ -148,7 +145,6 @@
       return {
         circuits,
         simulations,
-        simModel: modelConfig.simModel,
         customConfig: false,
         circuitSelect: {
           closable: false,
@@ -189,14 +185,8 @@
       onCircuitSelect(circuitPath) {
         this.circuitConfig = Object.assign({}, allCircuits.find(c => c.path === circuitPath));
       },
-      async savePreferredSimModel() {
-        const preferredSimModelObj = (await storage.getItem('preferredSimModels')) || {};
-        preferredSimModelObj[this.circuitConfig.path] = this.circuitConfig.simModel;
-        storage.setItem('preferredSimModels', preferredSimModelObj);
-      },
       onLoadCircuitBtnClick() {
         if (this.customConfig) {
-          this.savePreferredSimModel();
 
           const type = this.circuitConfig.path.includes('BlueConfig')
             ? Entity.SIMULATION

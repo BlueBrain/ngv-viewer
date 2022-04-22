@@ -2,13 +2,7 @@
 
 VERSION?=$(shell cat ../VERSION)
 
-NEURON_SRC_URL:=https://neuron.yale.edu/ftp/neuron/versions/v7.6/7.6.7/nrn-7.6.7.tar.gz
 VENV_DIR:=venv
-NEURON_SRC_DIR:=tmp/neuron
-SIM_MODELS_DIR:=tmp/sim-models
-SIM_MODELS_REPO_BASE:=ssh://bbpcode.epfl.ch/sim/models
-NEURODAMUS_CORE_REPO:=ssh://bbpcode.epfl.ch/sim/neurodamus-core
-NEURODAMUS_CORE_DIR:=tmp/neurodamus-core
 
 DOCKER_REGISTRY?=bbpgitlab.epfl.ch:5050/nse
 IMAGE_NAME?=ngv-viewer
