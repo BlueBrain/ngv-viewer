@@ -17,6 +17,7 @@ setup(
         'archngv>=1.5.0',
         'morph-tool>=0.2.3',
         'bluepysnap>=0.12.1',
+        'trimesh',
     ],
     maintainer='Stefano Antonel',
     maintainer_email='stefano.antonel@epfl.ch',

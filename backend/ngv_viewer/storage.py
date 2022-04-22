@@ -190,8 +190,8 @@ class Storage():
         if microdomain_dict is None:
             circuit = get_circuit(circuit_path)
             microdomains = circuit.astrocytes.microdomains
-            indexes = microdomains.tesselation.domain_triangles(astrocyte_id)
-            points = microdomains.tesselation.domain_points(astrocyte_id)
+            indexes = microdomains.domain_triangles(astrocyte_id)
+            points = microdomains.domain_points(astrocyte_id)
             microdomain_dict = {
                 'indexes': indexes.tolist(),
                 'vertices': points.tolist(),
