@@ -5,7 +5,7 @@ L = logging.getLogger(__name__)
 L.setLevel(logging.DEBUG)
 
 def test_circuit(STORAGE):
-  circuit_path = '/gpfs/bbp.cscs.ch/project/proj62/scratch/ngv_circuits/20201027_full_sonata_origin/build/ngv_config.json'
+  circuit_path = '/gpfs/bbp.cscs.ch/project/proj105/circuits/20201027_full_sonata_origin/build/ngv_config.json'
   gid = 20
   eff_neuron_gid = 31112
 
