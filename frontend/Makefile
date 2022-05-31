@@ -7,11 +7,11 @@ NODE_MODULES:=node_modules
 SINGLE_CIRCUIT?=ngv-20201027
 
 IMAGE_NAME?=ngv-viewer
-TAG?=ui
+TAG?=frontend
 
 DOCKER_REGISTRY?=bbpgitlab.epfl.ch:5050/nse
 
-PROD_BASE_URL?=/ngv-viewer
+PROD_BASE_PATH?=/ngv-viewer
 
 
 define HELPTEXT
@@ -39,13 +39,16 @@ run_dev: | $(NODE_MODULES)
 build: | $(NODE_MODULES)
 	VUE_APP_SINGLE_CIRCUIT="${SINGLE_CIRCUIT}" \
 	VUE_APP_VERSION=$(VERSION) \
-	VUE_APP_BASE_URL=$(PROD_BASE_URL) \
+	VUE_APP_BASE_PATH=$(PROD_BASE_PATH) \
 	npm run build --modern
 
-docker_build_latest: build
+docker_build_latest:
 	docker build -t $(IMAGE_NAME):$(TAG) \
 		--build-arg=http_proxy=http://bbpproxy.epfl.ch:80/ \
 		--build-arg=https_proxy=http://bbpproxy.epfl.ch:80/ \
+		--build-arg=VUE_APP_SINGLE_CIRCUIT="${SINGLE_CIRCUIT}" \
+		--build-arg=VUE_APP_VERSION=$(VERSION) \
+		--build-arg=VUE_APP_BASE_PATH=$(PROD_BASE_PATH) \
 		.
 
 docker_push_latest: docker_build_latest

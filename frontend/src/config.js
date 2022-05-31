@@ -22,7 +22,7 @@ const devConfig = {
 };
 
 const prodConfig = {
-  baseUrl: process.env.VUE_APP_BASE_URL || '',
+  baseUrl: process.env.VUE_APP_BASE_PATH || '',
 };
 
 const prodMode = process.env.NODE_ENV === 'production';
