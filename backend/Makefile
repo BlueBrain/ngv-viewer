@@ -45,7 +45,7 @@ run_dev:
 		-v /Users/antonel/gpfs:/gpfs \
 		-p 8888:8000 \
 		--entrypoint python \
-		$(IMAGE_NAME) \
+		$(IMAGE_NAME):$(TAG) \
 		-m ngv_viewer.main
 
 run_dev_debug:
@@ -59,7 +59,7 @@ run_dev_debug:
 		-p 8888:8000 \
 		-p 3000:3000 \
 		--entrypoint python \
-		$(IMAGE_NAME) \
+		$(IMAGE_NAME):$(TAG) \
 		-m debugpy --listen 0.0.0.0:3000 -m ngv_viewer.main
 
 docker_build_latest: python_build
