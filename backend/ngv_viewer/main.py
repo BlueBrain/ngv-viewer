@@ -10,14 +10,13 @@ import numpy as np
 
 from tornado.log import enable_pretty_logging
 
+from .storage import Storage
+from .utils import NumpyAwareJSONEncoder
 
 enable_pretty_logging()
 L = logging.getLogger(__name__)
 L.setLevel(logging.DEBUG if os.getenv('DEBUG', False) else logging.INFO)
 
-
-from .storage import Storage
-from .utils import NumpyAwareJSONEncoder
 
 L.debug('creating storage instance')
 STORAGE = Storage()
@@ -49,7 +48,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         cmd = msg['cmd']
         cmdid = msg['cmdid']
         context = msg['context']
-        circuit_config = context.get('circuitConfig', {})
 
         if 'circuitConfig' in context:
             circuit_path = context['circuitConfig']['path']
@@ -190,13 +188,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             props = STORAGE.get_astrocyte_props(circuit_path, astrocyte_id)
             L.debug('sending astrocyte props to the client')
             self.send_message('astrocyte_props', props)
-        
+
         elif cmd == 'get_efferent_neurons':
             astrocyte_id = msg['data']
             efferent_neuron_ids = STORAGE.get_efferent_neurons(circuit_path, astrocyte_id)
             L.debug('sending astrocyte efferent neurons to the client')
             self.send_message('efferent_neuron_ids', efferent_neuron_ids)
-        
+
         elif cmd == 'get_astrocyte_morph':
             astrocyte_id = msg['data']
             morph = STORAGE.get_astrocyte_morph(circuit_path, astrocyte_id)
@@ -214,7 +212,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             synapses = STORAGE.get_astrocyte_synapses(circuit_path, data_dict['astrocyte'], data_dict['neuron'])
             L.debug('sending astrocyte synapses to the client')
             self.send_message('synapses', synapses)
-        
+
         else:
             L.debug('No command was found (%s)', cmd)
             self.send_message('', {})

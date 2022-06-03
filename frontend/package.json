@@ -16,7 +16,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --modern",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "eslint": "eslint ."
   },
   "dependencies": {
     "cache-loader": "^4.1.0",
@@ -55,6 +56,14 @@
     ],
     "rules": {
       "indent": "off",
+      "no-console": "off",
+      "max-len": "off",
+      "no-underscore-dangle": "off",
+      "func-names": "off",
+      "vars-on-top": "off",
+      "no-param-reassign": "off",
+      "no-var": "off",
+      "no-shadow": "off",
       "vue/script-indent": [
         "error",
         2,

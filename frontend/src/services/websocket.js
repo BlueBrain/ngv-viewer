@@ -80,6 +80,7 @@ class Ws {
   }
 
   async request(message, data) {
+    // eslint-disable-next-line
     const currentCmdId = ++this.cmdId;
     const response = new Promise((resolve) => {
       this.requestResolvers.set(currentCmdId, resolve);
@@ -117,6 +118,7 @@ class Ws {
 
   _processQueue() {
     let queueLength = this.messageQueue.length;
+    // eslint-disable-next-line
     while (queueLength--) {
       const message = this.messageQueue.shift();
       this.send(...message);

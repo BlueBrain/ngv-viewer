@@ -12,8 +12,6 @@ import {
 
 import * as chroma from 'chroma-js';
 
-const HALF_PI = Math.PI * 0.5;
-
 const baseMorphColors = {
   soma: chroma('#A9A9A9'),
   axon: chroma('#0080FF'),
@@ -88,6 +86,7 @@ function getSomaRadiusFromPoints(pts) {
   let radius;
 
   if (pts.length === 1) {
+    // eslint-disable-next-line
     radius = pts[0][3];
   } else if (pts.length === 3) {
     const secondPt = new Vector3().fromArray(pts[1]);

@@ -1,13 +1,4 @@
 
-import clone from 'lodash/clone';
-import some from 'lodash/some';
-
-
-function isSectionOfInteractionSite(interactionSite, section) {
-  return interactionSite.sectionName === section.name
-    && interactionSite.gid === section.neuron.gid;
-}
-
 const getters = {
   neuron(store, idx) {
     const { cells } = store.state.circuit;

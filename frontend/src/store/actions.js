@@ -394,7 +394,6 @@ const actions = {
     const { astrocytes } = store.state.circuit;
 
     const done = new Promise((resolve) => {
-
       const processProp = (props) => {
         store.$emit('showHoverObjectInfo', {
           header: 'Astrocyte',

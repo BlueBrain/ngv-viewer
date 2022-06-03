@@ -158,7 +158,7 @@ class Storage():
         circuit = get_circuit(circuit_path)
         astro = circuit.astrocytes.get(astrocyte_id)
         return {'morphology': astro.morphology}
-    
+
     def get_efferent_neurons(self, circuit_path, astrocyte_id):
         L.debug('getting efferent neurons for astrocyte %s', astrocyte_id)
         circuit = get_circuit(circuit_path)

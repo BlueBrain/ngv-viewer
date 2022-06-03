@@ -45,8 +45,6 @@ const HOVER_BOX_COLOR = 0xffdf00;
 const HOVERED_NEURON_GL_COLOR = new Color(0xf26d21).toArray();
 const HOVERED_SYN_GL_COLOR = new Color(0xf26d21).toArray();
 
-const SQUARE_DOT_SCALE = 1.3;
-
 // TODO: calculate in runtime
 const HEADER_HEIGHT = 36;
 
@@ -586,7 +584,6 @@ class NeuronRenderer {
       positions: somaPositionArray,
       layers,
     } = astrocyteSomasObj || store.state.circuit.astrocytes;
-    const { visible } = store.state.circuit.astrocytes;
     const { filterLayers } = store.state.circuit;
 
     store.state.currentDetailedLevel = CurrentDetailedLevel[MeshType.ASTROCYTES];

@@ -310,9 +310,8 @@ function TrackballControls(object, domElement) {
 
     _prevState = _state;
 
+    // eslint-disable-next-line
     if (_state !== STATE.NONE) {
-
-
     } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
       _state = STATE.ROTATE;
     } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
@@ -322,39 +321,12 @@ function TrackballControls(object, domElement) {
     }
   }
 
-  function keyup(event) {
+  function keyup() {
     if (_this.enabled === false) return;
 
     _state = _prevState;
 
     window.addEventListener('keydown', keydown, false);
-  }
-
-  function mousedown(event) {
-    if (_this.enabled === false) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (_state === STATE.NONE) {
-      _state = event.button;
-    }
-
-    if (_state === STATE.ROTATE && !_this.noRotate) {
-      _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
-      _movePrev.copy(_moveCurr);
-    } else if (_state === STATE.ZOOM && !_this.noZoom) {
-      _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-      _zoomEnd.copy(_zoomStart);
-    } else if (_state === STATE.PAN && !_this.noPan) {
-      _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-      _panEnd.copy(_panStart);
-    }
-
-    document.addEventListener('mousemove', mousemove, false);
-    document.addEventListener('mouseup', mouseup, false);
-
-    _this.dispatchEvent(startEvent);
   }
 
   function mousemove(event) {
@@ -384,6 +356,33 @@ function TrackballControls(object, domElement) {
     document.removeEventListener('mousemove', mousemove);
     document.removeEventListener('mouseup', mouseup);
     _this.dispatchEvent(endEvent);
+  }
+
+  function mousedown(event) {
+    if (_this.enabled === false) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (_state === STATE.NONE) {
+      _state = event.button;
+    }
+
+    if (_state === STATE.ROTATE && !_this.noRotate) {
+      _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+      _movePrev.copy(_moveCurr);
+    } else if (_state === STATE.ZOOM && !_this.noZoom) {
+      _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+      _zoomEnd.copy(_zoomStart);
+    } else if (_state === STATE.PAN && !_this.noPan) {
+      _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+      _panEnd.copy(_panStart);
+    }
+
+    document.addEventListener('mousemove', mousemove, false);
+    document.addEventListener('mouseup', mouseup, false);
+
+    _this.dispatchEvent(startEvent);
   }
 
   function mousewheel(event) {
@@ -429,6 +428,7 @@ function TrackballControls(object, domElement) {
         _state = STATE.TOUCH_ZOOM_PAN;
         var dx = event.touches[0].pageX - event.touches[1].pageX;
         var dy = event.touches[0].pageY - event.touches[1].pageY;
+        // eslint-disable-next-line
         _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
 
         var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
@@ -477,6 +477,9 @@ function TrackballControls(object, domElement) {
         _state = STATE.TOUCH_ROTATE;
         _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
         _movePrev.copy(_moveCurr);
+        break;
+
+      default:
         break;
     }
 
