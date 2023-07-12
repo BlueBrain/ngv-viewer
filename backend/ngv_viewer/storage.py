@@ -64,7 +64,7 @@ class Storage():
         for gid in gids:
             cell_morph = cache.get('cell:morph:{}'.format(gid))
             if cell_morph is None:
-                cell = circuit.neurons.morph.get(gid, transform=True)
+                cell = circuit.neurons.morph.get(gid, transform=True, extension='asc')
                 morphology = [
                     {
                         'points': [p + [d] for (p, d) in zip(
