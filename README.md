@@ -40,3 +40,9 @@ Makefile has a `create_oo_deployment` target that can be used to deploy the curr
 of the app to an OpenShift cluster. Invoking this target will create OpenShift deployment configs,
 services and external routes, needed by the app to function. Deployment configuration can be
 customised by overriding specific environment variables, see [Makefile](./Makefile) for details.
+
+## Funding & Acknowledgment
+ 
+The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
+ 
+Copyright © 2024 Blue Brain Project/EPFL
